@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Tic-Tac-Toe</title>
+    <script type="module" src="firebase.js"></script>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Real-Time Tic-Tac-Toe</h2>
+    <input type="text" id="gameId" placeholder="Enter Game ID">
+    <button onclick="startGame()">Play</button>
+    <div class="board" id="board" style="display:none;"></div>
+    <p id="status">Waiting for opponent...</p>
+    <p id="stats">Games Played: 0 | Wins: 0 | Losses: 0</p>
+    <button onclick="logout()">Logout</button>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+        import { firebaseConfig } from "./firebase.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let gameId = "";
+        let playerSymbol = "";
+        let userId = "";
+
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = "index.html";
+            } else {
+                userId = user.uid;
+                updateStatsUI();
+            }
+        });
+
+        document.getElementById("board").innerHTML = Array(9).fill(0).map((_, i) => 
+            `<div class='cell' id='cell${i}' onclick='makeMove(${i})'></div>`).join("");
+
+        window.startGame = async function() {
+            gameId = document.getElementById("gameId").value;
+            if (!gameId) {
+                alert("Enter a game ID!");
+                return;
+            }
+
+            document.getElementById("board").style.display = "grid";
+
+            const gameRef = doc(db, "games", gameId);
+            const gameSnap = await getDoc(gameRef);
+
+            if (!gameSnap.exists()) {
+                await setDoc(gameRef, { board: Array(9).fill(""), turn: "X", winner: "" });
+                playerSymbol = "X";
+            } else {
+                playerSymbol = "O";
+            }
+
+            onSnapshot(gameRef, (doc) => {
+                const gameData = doc.data();
+                updateBoard(gameData.board);
+                document.getElementById("status").innerText = gameData.winner ? `Winner: ${gameData.winner}` : `Player ${gameData.turn}'s turn`;
+                if (gameData.winner) updateStats(gameData.winner);
+            });
+        };
+
+        window.makeMove = async function(index) {
+            const gameRef = doc(db, "games", gameId);
+            const gameSnap = await getDoc(gameRef);
+            if (!gameSnap.exists()) return;
+
+            const gameData = gameSnap.data();
+            if (gameData.turn !== playerSymbol || gameData.board[index] || gameData.winner) return;
+
+            gameData.board[index] = playerSymbol;
+            gameData.turn = playerSymbol === "X" ? "O" : "X";
+            gameData.winner = checkWinner(gameData.board);
+            await updateDoc(gameRef, { board: gameData.board, turn: gameData.turn, winner: gameData.winner });
+        };
+
+        function updateBoard(board) {
+            board.forEach((val, i) => {
+                document.getElementById(`cell${i}`).innerText = val;
+            });
+        }
+
+        function checkWinner(board) {
+            const winningCombos = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            for (const combo of winningCombos) {
+                const [a, b, c] = combo;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return "";
+        }
+
+        async function updateStats(winner) {
+            const userRef = doc(db, "users", userId);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                let data = userSnap.data();
+                data.gamesPlayed += 1;
+                if (winner === playerSymbol) data.wins += 1;
+                else data.losses += 1;
+                await updateDoc(userRef, data);
+                updateStatsUI();
+            }
+        }
+
+        async function updateStatsUI() {
+            const userRef = doc(db, "users", userId);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                let data = userSnap.data();
+                document.getElementById("stats").innerText = `Games Played: ${data.gamesPlayed} | Wins: ${data.wins} | Losses: ${data.losses}`;
+            }
+        }
+
+        window.logout = async function() {
+            await signOut(auth);
+            window.location.href = "index.html";
+        };
+    </script>
+</body>
+</html>
