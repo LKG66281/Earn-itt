@@ -3,150 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Tic-Tac-Toe</title>
-    <script type="module" src="firebase.js"></script>
-    <style>
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 5px;
-        }
-        .cell {
-            width: 100px;
-            height: 100px;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid black;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <h2>Real-Time Tic-Tac-Toe</h2>
-    <input type="text" id="gameId" placeholder="Enter Game ID">
-    <button onclick="startGame()">Play</button>
-    <div class="board" id="board" style="display:none;"></div>
-    <p id="status">Waiting for opponent...</p>
-    <p id="stats">Games Played: 0 | Wins: 0 | Losses: 0</p>
-    <button onclick="logout()">Logout</button>
-    
+    <title>Tic-Tac-Toe</title>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-        import { firebaseConfig } from "./firebase.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDptrY_22JlFegSAzXU52Wg8Wu6TUXqqjI",
+            authDomain: "earn-it-7d72d.firebaseapp.com",
+            projectId: "earn-it-7d72d",
+            storageBucket: "earn-it-7d72d.appspot.com",
+            messagingSenderId: "1756161084",
+            appId: "1:1756161084:web:3db1e0d934ac844ed28f39",
+            measurementId: "G-J98NDHW03J"
+        };
+
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
         const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
 
-        let gameId = "";
-        let playerSymbol = "";
-        let userId = "";
+        // UI Elements
+        const authDiv = document.getElementById("auth");
+        const dashboardDiv = document.getElementById("dashboard");
+        const usernameSpan = document.getElementById("username");
+        const gamesPlayedSpan = document.getElementById("gamesPlayed");
+        const winsSpan = document.getElementById("wins");
+        const lossesSpan = document.getElementById("losses");
 
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                window.location.href = "index.html";
+        // Signup & Login
+        document.getElementById("signup").addEventListener("click", async () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const userCred = await createUserWithEmailAndPassword(auth, email, password);
+            await setDoc(doc(db, "users", userCred.user.uid), { email, gamesPlayed: 0, wins: 0, losses: 0 });
+            showDashboard(userCred.user);
+        });
+
+        document.getElementById("login").addEventListener("click", async () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const userCred = await signInWithEmailAndPassword(auth, email, password);
+            showDashboard(userCred.user);
+        });
+
+        document.getElementById("google-login").addEventListener("click", async () => {
+            const userCred = await signInWithPopup(auth, provider);
+            const userRef = doc(db, "users", userCred.user.uid);
+            const userSnap = await getDoc(userRef);
+            if (!userSnap.exists()) {
+                await setDoc(userRef, { email: userCred.user.email, gamesPlayed: 0, wins: 0, losses: 0 });
+            }
+            showDashboard(userCred.user);
+        });
+
+        document.getElementById("logout").addEventListener("click", async () => {
+            await signOut(auth);
+            authDiv.style.display = "block";
+            dashboardDiv.style.display = "none";
+        });
+
+        function showDashboard(user) {
+            authDiv.style.display = "none";
+            dashboardDiv.style.display = "block";
+            usernameSpan.innerText = user.email;
+        }
+
+        // Matchmaking
+        document.getElementById("play-btn").addEventListener("click", async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const q = query(collection(db, "games"), where("status", "==", "waiting"));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const gameDoc = querySnapshot.docs[0];
+                await updateDoc(gameDoc.ref, { player2: user.uid, status: "playing" });
+                startGame(gameDoc.id, "O");
             } else {
-                userId = user.uid;
-                updateStatsUI();
+                const newGameRef = await addDoc(collection(db, "games"), { player1: user.uid, status: "waiting", board: ["", "", "", "", "", "", "", "", ""] });
+                startGame(newGameRef.id, "X");
             }
         });
 
-        document.getElementById("board").innerHTML = Array(9).fill(0).map((_, i) => 
-            `<div class='cell' id='cell${i}' onclick='makeMove(${i})'></div>`).join("");
+        function startGame(gameId, symbol) {
+            document.getElementById("gameId").innerText = gameId;
+            document.getElementById("game").style.display = "block";
 
-        window.startGame = async function() {
-            gameId = document.getElementById("gameId").value;
-            if (!gameId) {
-                alert("Enter a game ID!");
-                return;
-            }
-
-            document.getElementById("board").style.display = "grid";
-
-            const gameRef = doc(db, "games", gameId);
-            const gameSnap = await getDoc(gameRef);
-
-            if (!gameSnap.exists()) {
-                await setDoc(gameRef, { board: Array(9).fill(""), turn: "X", winner: "" });
-                playerSymbol = "X";
-            } else {
-                playerSymbol = "O";
-            }
-
-            onSnapshot(gameRef, (doc) => {
-                const gameData = doc.data();
-                updateBoard(gameData.board);
-                document.getElementById("status").innerText = gameData.winner ? `Winner: ${gameData.winner}` : `Player ${gameData.turn}'s turn`;
-                if (gameData.winner) updateStats(gameData.winner);
-            });
-        };
-
-        window.makeMove = async function(index) {
-            const gameRef = doc(db, "games", gameId);
-            const gameSnap = await getDoc(gameRef);
-            if (!gameSnap.exists()) return;
-
-            const gameData = gameSnap.data();
-            if (gameData.turn !== playerSymbol || gameData.board[index] || gameData.winner) return;
-
-            gameData.board[index] = playerSymbol;
-            gameData.turn = playerSymbol === "X" ? "O" : "X";
-            gameData.winner = checkWinner(gameData.board);
-            await updateDoc(gameRef, { board: gameData.board, turn: gameData.turn, winner: gameData.winner });
-        };
-
-        function updateBoard(board) {
-            board.forEach((val, i) => {
-                document.getElementById(`cell${i}`).innerText = val;
+            document.querySelectorAll(".cell").forEach((cell, index) => {
+                cell.addEventListener("click", async () => {
+                    if (!cell.innerText) {
+                        const gameRef = doc(db, "games", gameId);
+                        const gameSnap = await getDoc(gameRef);
+                        const board = gameSnap.data().board;
+                        board[index] = symbol;
+                        await updateDoc(gameRef, { board });
+                        cell.innerText = symbol;
+                    }
+                });
             });
         }
-
-        function checkWinner(board) {
-            const winningCombos = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8],
-                [0, 3, 6], [1, 4, 7], [2, 5, 8],
-                [0, 4, 8], [2, 4, 6]
-            ];
-            for (const combo of winningCombos) {
-                const [a, b, c] = combo;
-                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                    return board[a];
-                }
-            }
-            return "";
-        }
-
-        async function updateStats(winner) {
-            const userRef = doc(db, "users", userId);
-            const userSnap = await getDoc(userRef);
-            if (userSnap.exists()) {
-                let data = userSnap.data();
-                data.gamesPlayed += 1;
-                if (winner === playerSymbol) data.wins += 1;
-                else data.losses += 1;
-                await updateDoc(userRef, data);
-                updateStatsUI();
-            }
-        }
-
-        async function updateStatsUI() {
-            const userRef = doc(db, "users", userId);
-            const userSnap = await getDoc(userRef);
-            if (userSnap.exists()) {
-                let data = userSnap.data();
-                document.getElementById("stats").innerText = `Games Played: ${data.gamesPlayed} | Wins: ${data.wins} | Losses: ${data.losses}`;
-            }
-        }
-
-        window.logout = async function() {
-            await signOut(auth);
-            window.location.href = "index.html";
-        };
     </script>
+    <style>
+        .board { display: grid; grid-template-columns: repeat(3, 60px); gap: 5px; }
+        .cell { width: 60px; height: 60px; background: lightgray; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="auth">
+        <h2>Login / Signup</h2>
+        <button id="google-login">Login with Google</button>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="signup">Sign Up</button>
+        <button id="login">Login</button>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+        <h2>Welcome, <span id="username"></span>!</h2>
+        <button id="play-btn">Play</button>
+        <button id="logout">Logout</button>
+        <h3>Games: <span id="gamesPlayed">0</span> | Wins: <span id="wins">0</span> | Losses: <span id="losses">0</span></h3>
+        
+        <div id="game" style="display: none;">
+            <h3>Game ID: <span id="gameId"></span></h3>
+            <div class="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
