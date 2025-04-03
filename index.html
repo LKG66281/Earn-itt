@@ -3,98 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Tic-Tac-Toe</title>
+    <title>Real-Time Tic-Tac-Toe</title>
     <style>
-        * {
-            font-family: Arial, sans-serif;
-            box-sizing: border-box;
-        }
-        body {
-            text-align: center;
-            background: #282c36;
-            color: white;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            background: #1e1e2f;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-        }
-        input {
-            background: #333;
-            color: white;
-        }
-        button {
-            background: #4caf50;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .hidden {
-            display: none;
-        }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 80px);
-            gap: 5px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .cell {
-            width: 80px;
-            height: 80px;
-            background: #444;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
+        * { font-family: Arial, sans-serif; box-sizing: border-box; }
+        body { text-align: center; background: #282c36; color: white; margin: 0; padding: 20px; }
+        .container { max-width: 400px; margin: auto; background: #1e1e2f; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
+        input { background: #333; color: white; }
+        button { background: #4caf50; color: white; cursor: pointer; font-size: 16px; }
+        .hidden { display: none; }
+        .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 5px; justify-content: center; margin-top: 20px; }
+        .cell { width: 80px; height: 80px; background: #444; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
 <body>
 
     <div id="auth" class="container">
         <h2>Login / Sign Up</h2>
-        <input type="email" id="email" placeholder="Enter your email">
-        <button id="send-otp">Send OTP</button>
-        <input type="text" id="otp" placeholder="Enter OTP" class="hidden">
-        <input type="password" id="password" placeholder="Set Password" class="hidden">
-        <button id="verify-otp" class="hidden">Verify & Register</button>
-        <button id="login-btn" class="hidden">Login</button>
+        <input type="email" id="email" placeholder="Enter email">
+        <input type="password" id="password" placeholder="Enter password">
+        <button id="login-btn">Login / Register</button>
     </div>
 
     <div id="dashboard" class="container hidden">
         <h2>Welcome, <span id="username"></span>!</h2>
-        <button id="play-btn">Play</button>
+        <button id="play-btn">Find Opponent</button>
         <button id="logout">Logout</button>
-        <h3>Stats: Games Played: <span id="gamesPlayed">0</span>, Wins: <span id="wins">0</span>, Losses: <span id="losses">0</span></h3>
+        <h3>Games: <span id="gamesPlayed">0</span>, Wins: <span id="wins">0</span>, Losses: <span id="losses">0</span></h3>
 
         <div id="game" class="hidden">
             <h3>Tic-Tac-Toe</h3>
             <div class="board">
-                <div class="cell"></div> <div class="cell"></div> <div class="cell"></div>
-                <div class="cell"></div> <div class="cell"></div> <div class="cell"></div>
-                <div class="cell"></div> <div class="cell"></div> <div class="cell"></div>
+                <div class="cell" data-id="0"></div> <div class="cell" data-id="1"></div> <div class="cell" data-id="2"></div>
+                <div class="cell" data-id="3"></div> <div class="cell" data-id="4"></div> <div class="cell" data-id="5"></div>
+                <div class="cell" data-id="6"></div> <div class="cell" data-id="7"></div> <div class="cell" data-id="8"></div>
             </div>
+            <p id="status"></p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendSignInLinkToEmail } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -112,36 +62,33 @@
         const db = getFirestore(app);
 
         const emailInput = document.getElementById("email");
-        const otpInput = document.getElementById("otp");
         const passwordInput = document.getElementById("password");
-        const sendOtpBtn = document.getElementById("send-otp");
-        const verifyOtpBtn = document.getElementById("verify-otp");
         const loginBtn = document.getElementById("login-btn");
         const playBtn = document.getElementById("play-btn");
         const logoutBtn = document.getElementById("logout");
         const usernameSpan = document.getElementById("username");
+        const statusText = document.getElementById("status");
+        const gameDiv = document.getElementById("game");
+        const cells = document.querySelectorAll(".cell");
 
         let currentUser = null;
-
-        sendOtpBtn.addEventListener("click", async () => {
-            if (!emailInput.value) return alert("Enter an email");
-            otpInput.classList.remove("hidden");
-            passwordInput.classList.remove("hidden");
-            verifyOtpBtn.classList.remove("hidden");
-            loginBtn.classList.remove("hidden");
-        });
-
-        verifyOtpBtn.addEventListener("click", async () => {
-            if (!passwordInput.value) return alert("Set a password");
-            createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-                .then((userCred) => checkUser(userCred.user))
-                .catch((error) => alert(error.message));
-        });
+        let currentGameId = null;
+        let playerSymbol = "";
+        let isMyTurn = false;
 
         loginBtn.addEventListener("click", async () => {
-            signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-                .then((userCred) => checkUser(userCred.user))
-                .catch((error) => alert(error.message));
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            if (!email || !password) return alert("Enter email & password");
+
+            try {
+                const userCred = await signInWithEmailAndPassword(auth, email, password);
+                checkUser(userCred.user);
+            } catch (error) {
+                await createUserWithEmailAndPassword(auth, email, password);
+                alert("Account created! Please login.");
+            }
         });
 
         async function checkUser(user) {
@@ -149,13 +96,6 @@
             document.getElementById("auth").classList.add("hidden");
             document.getElementById("dashboard").classList.remove("hidden");
             usernameSpan.innerText = user.email;
-
-            const userRef = doc(db, "users", user.uid);
-            const userSnap = await getDoc(userRef);
-
-            if (!userSnap.exists()) {
-                await setDoc(userRef, { email: user.email, gamesPlayed: 0, wins: 0, losses: 0 });
-            }
         }
 
         playBtn.addEventListener("click", async () => {
@@ -168,15 +108,53 @@
             if (!querySnapshot.empty) {
                 const gameDoc = querySnapshot.docs[0];
                 await updateDoc(gameDoc.ref, { player2: currentUser.uid, status: "playing" });
+                startGame(gameDoc.id, "O");
             } else {
-                await addDoc(collection(db, "games"), { player1: currentUser.uid, player2: "", status: "waiting", board: ["", "", "", "", "", "", "", "", ""], turn: "X" });
+                const newGameRef = await addDoc(collection(db, "games"), { player1: currentUser.uid, player2: "", status: "waiting", board: ["", "", "", "", "", "", "", "", ""], turn: "X" });
+                onSnapshot(doc(db, "games", newGameRef.id), (docSnap) => {
+                    if (docSnap.data().status === "playing") startGame(newGameRef.id, "X");
+                });
             }
         });
 
+        function startGame(gameId, symbol) {
+            currentGameId = gameId;
+            playerSymbol = symbol;
+            isMyTurn = symbol === "X";
+            playBtn.innerText = "Game Started!";
+            playBtn.disabled = true;
+            gameDiv.classList.remove("hidden");
+            statusText.innerText = isMyTurn ? "Your Turn!" : "Opponent's Turn";
+
+            onSnapshot(doc(db, "games", gameId), (docSnap) => {
+                const gameData = docSnap.data();
+                gameBoardUpdate(gameData.board);
+                isMyTurn = gameData.turn === playerSymbol;
+                statusText.innerText = isMyTurn ? "Your Turn!" : "Opponent's Turn";
+            });
+        }
+
+        function gameBoardUpdate(board) {
+            board.forEach((mark, index) => {
+                cells[index].innerText = mark;
+            });
+        }
+
+        cells.forEach((cell, index) => {
+            cell.addEventListener("click", async () => {
+                if (!isMyTurn || cell.innerText !== "") return;
+                const gameRef = doc(db, "games", currentGameId);
+                const gameSnap = await getDoc(gameRef);
+                const gameData = gameSnap.data();
+                gameData.board[index] = playerSymbol;
+                gameData.turn = playerSymbol === "X" ? "O" : "X";
+                await updateDoc(gameRef, gameData);
+            });
+        });
+
         logoutBtn.addEventListener("click", async () => {
-            auth.signOut();
-            document.getElementById("auth").classList.remove("hidden");
-            document.getElementById("dashboard").classList.add("hidden");
+            await signOut(auth);
+            location.reload();
         });
 
     </script>
