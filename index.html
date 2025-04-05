@@ -49,8 +49,7 @@
     projectId: "earn-it-7d72d",
     storageBucket: "earn-it-7d72d.appspot.com",
     messagingSenderId: "1756161084",
-    appId: "1:1756161084:web:3db1e0d934ac844ed28f39",
-    measurementId: "G-J98NDHW03J"
+    appId: "1:1756161084:web:3db1e0d934ac844ed28f39"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -75,7 +74,7 @@
     const password = document.getElementById("password").value;
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await setDoc(doc(db, "users", cred.user.uid), { username: "Anonymous" });
-    alert("Signed up! Please log in.");
+    alert("Signed up! Now login.");
   };
 
   document.getElementById("login").onclick = async () => {
@@ -90,14 +89,16 @@
       authSection.classList.add("hidden");
       dashboard.classList.remove("hidden");
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      usernameDisplay.textContent = userDoc.data().username;
+      usernameDisplay.textContent = userDoc.data().username || "Anonymous";
     }
   });
 
   document.getElementById("set-username").onclick = async () => {
     const username = document.getElementById("username").value;
-    await updateDoc(doc(db, "users", currentUser.uid), { username });
-    usernameDisplay.textContent = username;
+    if (username.trim() !== "") {
+      await updateDoc(doc(db, "users", currentUser.uid), { username });
+      usernameDisplay.textContent = username;
+    }
   };
 
   document.getElementById("logout").onclick = async () => {
@@ -108,17 +109,16 @@
   document.getElementById("play-btn").onclick = async () => {
     dashboard.classList.add("hidden");
     gameContainer.classList.remove("hidden");
-    gameStatus.textContent = "Searching for opponent...";
+    gameStatus.textContent = "Looking for opponent...";
 
-    const q = query(collection(db, "games"), where("status", "==", "waiting"));
-    const docs = await getDocs(q);
+    const gamesQuery = query(collection(db, "games"), where("status", "==", "waiting"));
+    const availableGames = await getDocs(gamesQuery);
 
-    if (!docs.empty) {
-      const gameDoc = docs.docs[0];
+    if (!availableGames.empty) {
+      const gameDoc = availableGames.docs[0];
       await updateDoc(doc(db, "games", gameDoc.id), {
         player2: currentUser.uid,
-        status: "playing",
-        board: Array(9).fill("")
+        status: "playing"
       });
       currentGameId = gameDoc.id;
       playerSymbol = "O";
@@ -151,7 +151,8 @@
   }
 
   async function handleMove(index, board) {
-    if (!isPlayerTurn || board[index]) return;
+    if (!isPlayerTurn || board[index] !== "") return;
+
     board[index] = playerSymbol;
     await updateDoc(doc(db, "games", currentGameId), {
       board,
@@ -168,8 +169,10 @@
 
       const opponentId = (playerSymbol === "X") ? data.player2 : data.player1;
       if (opponentId) {
-        const oppData = await getDoc(doc(db, "users", opponentId));
-        opponentName.textContent = oppData.data().username;
+        const oppSnap = await getDoc(doc(db, "users", opponentId));
+        if (oppSnap.exists()) {
+          opponentName.textContent = oppSnap.data().username || "Opponent";
+        }
       }
     });
   }
