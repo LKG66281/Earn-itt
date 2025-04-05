@@ -43,7 +43,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDptrY_22JlFegSAzXU52Wg8Wu6TUXqqjI",
@@ -59,6 +59,7 @@
   const db = getFirestore(app);
 
   let currentUser, playerSymbol, isPlayerTurn, currentRoomId;
+  let gameOver = false;
 
   const authSection = document.getElementById("auth-section");
   const roomSection = document.getElementById("room-section");
@@ -97,9 +98,11 @@
       playerO: null,
       board: Array(9).fill(""),
       turn: "X",
-      status: "waiting"
+      status: "waiting",
+      winner: ""
     });
 
+    await setUserStats(currentUser.uid);
     startGame(roomId, "X", true);
   };
 
@@ -115,16 +118,49 @@
         playerO: { uid: currentUser.uid, username },
         status: "playing"
       });
+      await setUserStats(currentUser.uid);
       startGame(roomId, "O", false);
     } else {
       alert("Room not found or already full.");
     }
   };
 
+  async function setUserStats(uid) {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      await setDoc(userRef, { wins: 0, losses: 0, ties: 0, gamesPlayed: 0 });
+    }
+  }
+
+  async function updateStats(uid, result) {
+    const userRef = doc(db, "users", uid);
+    const updates = { gamesPlayed: increment(1) };
+    if (result === "win") updates.wins = increment(1);
+    else if (result === "loss") updates.losses = increment(1);
+    else if (result === "tie") updates.ties = increment(1);
+    await updateDoc(userRef, updates);
+  }
+
+  function checkWinner(board) {
+    const wins = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    for (let [a,b,c] of wins) {
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return board[a];
+      }
+    }
+    return board.includes("") ? null : "tie";
+  }
+
   function startGame(roomId, symbol, isTurn) {
     currentRoomId = roomId;
     playerSymbol = symbol;
     isPlayerTurn = isTurn;
+    gameOver = false;
 
     document.getElementById("room-section").classList.add("hidden");
     document.getElementById("game-section").classList.remove("hidden");
@@ -136,30 +172,33 @@
     const opponentNameEl = document.getElementById("opponent-name");
 
     const roomRef = doc(db, "rooms", roomId);
-    onSnapshot(roomRef, (snap) => {
+    onSnapshot(roomRef, async (snap) => {
       const data = snap.data();
       const board = data.board;
       const turn = data.turn;
+      const winner = data.winner;
 
-      // Clear and rebuild the board
       boardDiv.innerHTML = "";
       board.forEach((cell, i) => {
         const div = document.createElement("div");
         div.className = "cell";
         div.textContent = cell;
 
-        if (cell === "" && turn === playerSymbol) {
+        if (cell === "" && turn === playerSymbol && !winner && !gameOver) {
           div.onclick = async () => {
             const updatedSnap = await getDoc(roomRef);
-            const updatedData = updatedSnap.data();
-            const updatedBoard = [...updatedData.board];
-
-            if (updatedBoard[i] === "" && updatedData.turn === playerSymbol) {
+            const updatedBoard = [...updatedSnap.data().board];
+            if (updatedBoard[i] === "" && updatedSnap.data().turn === playerSymbol) {
               updatedBoard[i] = playerSymbol;
-              await updateDoc(roomRef, {
+              const result = checkWinner(updatedBoard);
+              const updates = {
                 board: updatedBoard,
                 turn: playerSymbol === "X" ? "O" : "X"
-              });
+              };
+              if (result) {
+                updates.winner = result;
+              }
+              await updateDoc(roomRef, updates);
             }
           };
         }
@@ -169,8 +208,23 @@
 
       const opponent = playerSymbol === "X" ? data.playerO : data.playerX;
       opponentNameEl.textContent = opponent ? opponent.username : "Waiting...";
-      isPlayerTurn = data.turn === playerSymbol;
-      statusText.textContent = isPlayerTurn ? "Your turn" : "Opponent's turn";
+
+      if (data.winner && !gameOver) {
+        gameOver = true;
+        if (data.winner === "tie") {
+          statusText.textContent = "It's a tie!";
+          updateStats(currentUser.uid, "tie");
+        } else if (data.winner === playerSymbol) {
+          statusText.textContent = "🎉 You win!";
+          updateStats(currentUser.uid, "win");
+        } else {
+          statusText.textContent = "😓 You lose!";
+          updateStats(currentUser.uid, "loss");
+        }
+      } else if (!gameOver) {
+        isPlayerTurn = data.turn === playerSymbol;
+        statusText.textContent = isPlayerTurn ? "Your turn" : "Opponent's turn";
+      }
     });
   }
 </script>
