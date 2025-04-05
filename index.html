@@ -3,38 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tic-Tac-Toe Rooms</title>
+  <title>Real-Time Tic-Tac-Toe</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f0f0f;
+      font-family: Arial, sans-serif;
+      background: #111;
       color: #fff;
       text-align: center;
       padding: 20px;
     }
+
     .container {
       max-width: 400px;
       margin: auto;
-      background: #1c1c1c;
+      background: #222;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 0 10px #00ffcc;
     }
+
     input, button {
       padding: 10px;
-      margin: 10px;
+      margin: 10px 0;
       width: 90%;
       border: none;
       border-radius: 5px;
-      background: #2c2c2c;
-      color: white;
+      font-size: 16px;
     }
+
     button {
-      background-color: #00ffcc;
-      color: black;
+      background-color: #28a745;
+      color: white;
       font-weight: bold;
       cursor: pointer;
     }
+
     .board {
       display: grid;
       grid-template-columns: repeat(3, 80px);
@@ -42,6 +44,7 @@
       justify-content: center;
       margin-top: 20px;
     }
+
     .cell {
       width: 80px;
       height: 80px;
@@ -53,18 +56,19 @@
       cursor: pointer;
       border-radius: 5px;
     }
-    .hidden { display: none; }
+
+    .hidden {
+      display: none;
+    }
 
     .glow-box {
+      margin-top: 20px;
       padding: 10px;
-      margin: 10px auto;
-      width: 90%;
       background: #222;
-      border: 1px solid #00ffcc;
-      color: #00ffcc;
-      border-radius: 5px;
-      box-shadow: 0 0 10px #00ffcc;
+      border-radius: 10px;
+      color: #fff;
       font-weight: bold;
+      box-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc66;
     }
   </style>
 </head>
@@ -77,13 +81,10 @@
   <button id="login">Login</button>
 </div>
 
-<div class="container hidden" id="room-section">
-  <h2>Create / Join Room</h2>
-  <input type="text" id="username" placeholder="Your Username">
-  <button id="create-room">Create Room</button>
-  <p>OR</p>
-  <input type="text" id="room-id-input" placeholder="Enter Room ID">
-  <button id="join-room">Join Room</button>
+<div class="container hidden" id="dashboard-section">
+  <h2>Welcome</h2>
+  <input type="text" id="username" placeholder="Username">
+  <button id="play">Play</button>
   <button id="logout">Logout</button>
 </div>
 
@@ -91,16 +92,13 @@
   <h3>You (<span id="player-symbol"></span>) vs <span id="opponent-name">Opponent</span></h3>
   <p>Room ID: <span id="room-id-display"></span></p>
   <div class="board" id="game-board"></div>
-  <p id="game-status">Waiting...</p>
-  <p id="stats"></p>
+  <div class="glow-box" id="game-status">Waiting...</div>
 </div>
-
-<div class="glow-box hidden" id="message-box">Message</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, deleteDoc, increment, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDptrY_22JlFegSAzXU52Wg8Wu6TUXqqjI",
@@ -115,34 +113,27 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  let currentUser, playerSymbol, isPlayerTurn, currentRoomId;
-  let gameOver = false;
+  let currentUser, currentRoomId, playerSymbol, gameOver = false;
 
   const authSection = document.getElementById("auth-section");
-  const roomSection = document.getElementById("room-section");
+  const dashboardSection = document.getElementById("dashboard-section");
   const gameSection = document.getElementById("game-section");
-  const statusText = document.getElementById("game-status");
-  const boardDiv = document.getElementById("game-board");
-  const opponentNameEl = document.getElementById("opponent-name");
-  const messageBox = document.getElementById("message-box");
 
-  function showMessage(msg) {
-    messageBox.textContent = msg;
-    messageBox.classList.remove("hidden");
-    setTimeout(() => messageBox.classList.add("hidden"), 3000);
-  }
+  const loginBtn = document.getElementById("login");
+  const logoutBtn = document.getElementById("logout");
+  const playBtn = document.getElementById("play");
 
-  document.getElementById("login").onclick = async () => {
+  loginBtn.onclick = async () => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
-      showMessage("Login failed: " + err.message);
+      alert("Login failed: " + err.message);
     }
   };
 
-  document.getElementById("logout").onclick = async () => {
+  logoutBtn.onclick = async () => {
     await signOut(auth);
     location.reload();
   };
@@ -151,27 +142,45 @@
     if (user) {
       currentUser = user;
       authSection.classList.add("hidden");
-      roomSection.classList.remove("hidden");
-      await setUserStats(user.uid);
-      showStats(user.uid);
+      dashboardSection.classList.remove("hidden");
     }
   });
+
+  playBtn.onclick = async () => {
+    const username = document.getElementById("username").value || "Player";
+
+    const waitingQuery = query(collection(db, "rooms"), where("status", "==", "waiting"));
+    const waitingSnap = await getDocs(waitingQuery);
+
+    if (!waitingSnap.empty) {
+      const roomDoc = waitingSnap.docs[0];
+      const roomId = roomDoc.id;
+      await updateDoc(doc(db, "rooms", roomId), {
+        playerO: { uid: currentUser.uid, username },
+        status: "playing"
+      });
+      await setUserStats(currentUser.uid);
+      startGame(roomId, "O", false);
+    } else {
+      const roomId = Math.random().toString(36).substring(2, 8);
+      await setDoc(doc(db, "rooms", roomId), {
+        playerX: { uid: currentUser.uid, username },
+        playerO: null,
+        board: Array(9).fill(""),
+        turn: "X",
+        status: "waiting",
+        winner: ""
+      });
+      await setUserStats(currentUser.uid);
+      startGame(roomId, "X", true);
+    }
+  };
 
   async function setUserStats(uid) {
     const userRef = doc(db, "users", uid);
     const userSnap = await getDoc(userRef);
     if (!userSnap.exists()) {
       await setDoc(userRef, { wins: 0, losses: 0, ties: 0, gamesPlayed: 0 });
-    }
-  }
-
-  async function showStats(uid) {
-    const userRef = doc(db, "users", uid);
-    const snap = await getDoc(userRef);
-    if (snap.exists()) {
-      const d = snap.data();
-      document.getElementById("stats").textContent =
-        `Games: ${d.gamesPlayed}, Wins: ${d.wins}, Losses: ${d.losses}, Ties: ${d.ties}`;
     }
   }
 
@@ -182,56 +191,34 @@
     else if (result === "loss") updates.losses = increment(1);
     else if (result === "tie") updates.ties = increment(1);
     await updateDoc(userRef, updates);
-    showStats(uid);
   }
 
-  document.getElementById("create-room").onclick = async () => {
-    const username = document.getElementById("username").value || "Player";
-    const roomId = Math.random().toString(36).substring(2, 8);
-    const roomRef = doc(db, "rooms", roomId);
-    await setDoc(roomRef, {
-      playerX: { uid: currentUser.uid, username },
-      playerO: null,
-      board: Array(9).fill(""),
-      turn: "X",
-      status: "waiting",
-      winner: ""
-    });
-    startGame(roomId, "X");
-  };
-
-  document.getElementById("join-room").onclick = async () => {
-    const roomId = document.getElementById("room-id-input").value.trim();
-    const username = document.getElementById("username").value || "Player";
-    const roomRef = doc(db, "rooms", roomId);
-    const snap = await getDoc(roomRef);
-    if (snap.exists() && snap.data().status === "waiting") {
-      await updateDoc(roomRef, {
-        playerO: { uid: currentUser.uid, username },
-        status: "playing"
-      });
-      startGame(roomId, "O");
-    } else {
-      showMessage("Room not found or full.");
-    }
-  };
-
   function checkWinner(board) {
-    const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-    for (let [a,b,c] of wins) {
+    const winPatterns = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    for (let [a,b,c] of winPatterns) {
       if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
     }
     return board.includes("") ? null : "tie";
   }
 
-  function startGame(roomId, symbol) {
+  function startGame(roomId, symbol, isTurn) {
     currentRoomId = roomId;
     playerSymbol = symbol;
     gameOver = false;
-    roomSection.classList.add("hidden");
+
+    dashboardSection.classList.add("hidden");
     gameSection.classList.remove("hidden");
+
     document.getElementById("room-id-display").textContent = roomId;
     document.getElementById("player-symbol").textContent = symbol;
+
+    const boardDiv = document.getElementById("game-board");
+    const statusBox = document.getElementById("game-status");
+    const opponentNameEl = document.getElementById("opponent-name");
 
     const roomRef = doc(db, "rooms", roomId);
     onSnapshot(roomRef, async (snap) => {
@@ -245,23 +232,25 @@
         const div = document.createElement("div");
         div.className = "cell";
         div.textContent = cell;
-        if (cell === "" && turn === playerSymbol && !winner && !gameOver) {
+
+        if (!cell && turn === playerSymbol && !winner && !gameOver) {
           div.onclick = async () => {
-            const updated = await getDoc(roomRef);
-            const boardNow = updated.data().board;
-            if (boardNow[i] === "" && updated.data().turn === playerSymbol) {
-              const newBoard = [...boardNow];
-              newBoard[i] = playerSymbol;
-              const result = checkWinner(newBoard);
-              const updates = {
-                board: newBoard,
+            const fresh = await getDoc(roomRef);
+            const freshData = fresh.data();
+            if (freshData.board[i] === "" && freshData.turn === playerSymbol) {
+              const updatedBoard = [...freshData.board];
+              updatedBoard[i] = playerSymbol;
+              const result = checkWinner(updatedBoard);
+              const update = {
+                board: updatedBoard,
                 turn: playerSymbol === "X" ? "O" : "X"
               };
-              if (result) updates.winner = result;
-              await updateDoc(roomRef, updates);
+              if (result) update.winner = result;
+              await updateDoc(roomRef, update);
             }
           };
         }
+
         boardDiv.appendChild(div);
       });
 
@@ -271,20 +260,18 @@
       if (winner && !gameOver) {
         gameOver = true;
         if (winner === "tie") {
-          statusText.textContent = "🤝 It's a Tie!";
-          showMessage("🤝 It's a Tie!");
+          statusBox.textContent = "It's a tie!";
           updateStats(currentUser.uid, "tie");
         } else if (winner === playerSymbol) {
-          statusText.textContent = "🎉 You Win!";
-          showMessage("🎉 You Win!");
+          statusBox.textContent = "🎉 You win!";
           updateStats(currentUser.uid, "win");
         } else {
-          statusText.textContent = "😓 You Lose!";
-          showMessage("😓 You Lose!");
+          statusBox.textContent = "😓 You lose!";
           updateStats(currentUser.uid, "loss");
         }
+        setTimeout(() => location.reload(), 5000); // Auto-reload after game
       } else if (!gameOver) {
-        statusText.textContent = turn === playerSymbol ? "Your Turn" : "Opponent's Turn";
+        statusBox.textContent = turn === playerSymbol ? "Your turn" : "Opponent's turn";
       }
     });
   }
