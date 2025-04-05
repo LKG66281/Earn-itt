@@ -8,7 +8,7 @@
     body { font-family: Arial; background: #111; color: #fff; text-align: center; padding: 20px; }
     .container { max-width: 400px; margin: auto; background: #222; padding: 20px; border-radius: 10px; }
     input, button { padding: 10px; margin: 10px; width: 90%; border: none; border-radius: 5px; }
-    button { background-color: #28a745; color: white; font-weight: bold; }
+    button { background-color: #28a745; color: white; font-weight: bold; cursor: pointer; }
     .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 5px; justify-content: center; margin-top: 20px; }
     .cell { width: 80px; height: 80px; background: #333; font-size: 30px; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 5px; }
     .hidden { display: none; }
@@ -34,7 +34,7 @@
 </div>
 
 <div class="container hidden" id="game-section">
-  <h3>You vs <span id="opponent-name">Opponent</span></h3>
+  <h3>You (<span id="player-symbol"></span>) vs <span id="opponent-name">Opponent</span></h3>
   <p>Room ID: <span id="room-id-display"></span></p>
   <div class="board" id="game-board"></div>
   <p id="game-status">Waiting...</p>
@@ -67,7 +67,11 @@
   document.getElementById("login").onclick = async () => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    await signInWithEmailAndPassword(auth, email, password);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      alert("Login failed: " + err.message);
+    }
   };
 
   document.getElementById("logout").onclick = async () => {
@@ -125,34 +129,46 @@
     document.getElementById("room-section").classList.add("hidden");
     document.getElementById("game-section").classList.remove("hidden");
     document.getElementById("room-id-display").textContent = roomId;
+    document.getElementById("player-symbol").textContent = playerSymbol;
 
     const boardDiv = document.getElementById("game-board");
     const statusText = document.getElementById("game-status");
+    const opponentNameEl = document.getElementById("opponent-name");
 
     const roomRef = doc(db, "rooms", roomId);
     onSnapshot(roomRef, (snap) => {
       const data = snap.data();
+      const board = data.board;
+      const turn = data.turn;
+
+      // Clear and rebuild the board
       boardDiv.innerHTML = "";
-      data.board.forEach((cell, i) => {
+      board.forEach((cell, i) => {
         const div = document.createElement("div");
         div.className = "cell";
         div.textContent = cell;
-        if (cell === "" && isPlayerTurn) {
+
+        if (cell === "" && turn === playerSymbol) {
           div.onclick = async () => {
-            if (!isPlayerTurn || data.board[i] !== "") return;
-            const newBoard = [...data.board];
-            newBoard[i] = playerSymbol;
-            await updateDoc(roomRef, {
-              board: newBoard,
-              turn: playerSymbol === "X" ? "O" : "X"
-            });
+            const updatedSnap = await getDoc(roomRef);
+            const updatedData = updatedSnap.data();
+            const updatedBoard = [...updatedData.board];
+
+            if (updatedBoard[i] === "" && updatedData.turn === playerSymbol) {
+              updatedBoard[i] = playerSymbol;
+              await updateDoc(roomRef, {
+                board: updatedBoard,
+                turn: playerSymbol === "X" ? "O" : "X"
+              });
+            }
           };
         }
+
         boardDiv.appendChild(div);
       });
 
       const opponent = playerSymbol === "X" ? data.playerO : data.playerX;
-      document.getElementById("opponent-name").textContent = opponent ? opponent.username : "Waiting...";
+      opponentNameEl.textContent = opponent ? opponent.username : "Waiting...";
       isPlayerTurn = data.turn === playerSymbol;
       statusText.textContent = isPlayerTurn ? "Your turn" : "Opponent's turn";
     });
