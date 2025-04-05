@@ -1,18 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Real-Time Tic-Tac-Toe</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       background: #111;
+      font-family: 'Segoe UI', sans-serif;
       color: #fff;
       text-align: center;
       padding: 20px;
     }
-
     .container {
       max-width: 400px;
       margin: auto;
@@ -20,23 +17,19 @@
       padding: 20px;
       border-radius: 10px;
     }
-
     input, button {
       padding: 10px;
-      margin: 10px 0;
+      margin: 10px;
       width: 90%;
-      border: none;
       border-radius: 5px;
-      font-size: 16px;
+      border: none;
     }
-
     button {
       background-color: #28a745;
       color: white;
       font-weight: bold;
       cursor: pointer;
     }
-
     .board {
       display: grid;
       grid-template-columns: repeat(3, 80px);
@@ -44,7 +37,6 @@
       justify-content: center;
       margin-top: 20px;
     }
-
     .cell {
       width: 80px;
       height: 80px;
@@ -56,49 +48,47 @@
       cursor: pointer;
       border-radius: 5px;
     }
-
-    .hidden {
-      display: none;
-    }
-
-    .glow-box {
-      margin-top: 20px;
+    .hidden { display: none; }
+    .message-box {
+      background: #333;
       padding: 10px;
-      background: #222;
-      border-radius: 10px;
-      color: #fff;
-      font-weight: bold;
-      box-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc66;
+      border-radius: 5px;
+      margin-top: 10px;
+      box-shadow: 0 0 10px #0f0;
+      animation: glow 1s infinite alternate;
+    }
+    @keyframes glow {
+      from { box-shadow: 0 0 10px #0f0; }
+      to { box-shadow: 0 0 20px #0f0; }
     }
   </style>
 </head>
 <body>
 
-<div class="container" id="auth-section">
+<div class="container" id="login-section">
   <h2>Login</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button id="login">Login</button>
+  <input id="email" type="email" placeholder="Email" />
+  <input id="password" type="password" placeholder="Password" />
+  <input id="username" type="text" placeholder="Username (Saved)" />
+  <button id="login-btn">Login</button>
 </div>
 
-<div class="container hidden" id="dashboard-section">
-  <h2>Welcome</h2>
-  <input type="text" id="username" placeholder="Username">
-  <button id="play">Play</button>
-  <button id="logout">Logout</button>
+<div class="container hidden" id="dashboard">
+  <h2>Welcome, <span id="display-username"></span></h2>
+  <button id="play-btn">Play</button>
+  <button id="logout-btn">Logout</button>
 </div>
 
-<div class="container hidden" id="game-section">
-  <h3>You (<span id="player-symbol"></span>) vs <span id="opponent-name">Opponent</span></h3>
-  <p>Room ID: <span id="room-id-display"></span></p>
-  <div class="board" id="game-board"></div>
-  <div class="glow-box" id="game-status">Waiting...</div>
+<div class="container hidden" id="game">
+  <h3><span id="p1"></span> vs <span id="p2"></span></h3>
+  <div class="board" id="board"></div>
+  <div class="message-box" id="message-box">Waiting...</div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, deleteDoc, increment, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, query, where, getDocs, increment } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDptrY_22JlFegSAzXU52Wg8Wu6TUXqqjI",
@@ -113,169 +103,160 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  let currentUser, currentRoomId, playerSymbol, gameOver = false;
+  const loginSection = document.getElementById("login-section");
+  const dashboard = document.getElementById("dashboard");
+  const game = document.getElementById("game");
 
-  const authSection = document.getElementById("auth-section");
-  const dashboardSection = document.getElementById("dashboard-section");
-  const gameSection = document.getElementById("game-section");
+  const email = document.getElementById("email");
+  const password = document.getElementById("password");
+  const usernameInput = document.getElementById("username");
 
-  const loginBtn = document.getElementById("login");
-  const logoutBtn = document.getElementById("logout");
-  const playBtn = document.getElementById("play");
+  const messageBox = document.getElementById("message-box");
 
-  loginBtn.onclick = async () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+  let currentUser, currentRoomId, playerSymbol, isPlayerTurn;
+
+  document.getElementById("login-btn").onclick = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-      alert("Login failed: " + err.message);
+      const userCred = await signInWithEmailAndPassword(auth, email.value, password.value);
+      await setDoc(doc(db, "users", userCred.user.uid), {
+        username: usernameInput.value,
+        wins: 0,
+        losses: 0,
+        ties: 0,
+        gamesPlayed: 0
+      }, { merge: true });
+    } catch (e) {
+      alert("Login Failed");
     }
   };
 
-  logoutBtn.onclick = async () => {
-    await signOut(auth);
-    location.reload();
-  };
+  document.getElementById("logout-btn").onclick = () => signOut(auth);
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
-      authSection.classList.add("hidden");
-      dashboardSection.classList.remove("hidden");
+      loginSection.classList.add("hidden");
+      dashboard.classList.remove("hidden");
+
+      const userData = await getDoc(doc(db, "users", user.uid));
+      document.getElementById("display-username").innerText = userData.data()?.username || "Player";
     }
   });
 
-  playBtn.onclick = async () => {
-    const username = document.getElementById("username").value || "Player";
-
-    const waitingQuery = query(collection(db, "rooms"), where("status", "==", "waiting"));
-    const waitingSnap = await getDocs(waitingQuery);
+  document.getElementById("play-btn").onclick = async () => {
+    const waitingRef = collection(db, "waiting");
+    const q = query(waitingRef, where("uid", "!=", currentUser.uid));
+    const waitingSnap = await getDocs(q);
 
     if (!waitingSnap.empty) {
-      const roomDoc = waitingSnap.docs[0];
-      const roomId = roomDoc.id;
-      await updateDoc(doc(db, "rooms", roomId), {
-        playerO: { uid: currentUser.uid, username },
-        status: "playing"
-      });
-      await setUserStats(currentUser.uid);
-      startGame(roomId, "O", false);
-    } else {
-      const roomId = Math.random().toString(36).substring(2, 8);
-      await setDoc(doc(db, "rooms", roomId), {
-        playerX: { uid: currentUser.uid, username },
-        playerO: null,
+      const opponentDoc = waitingSnap.docs[0];
+      const opponent = opponentDoc.data();
+      await deleteDoc(opponentDoc.ref);
+
+      const roomRef = doc(collection(db, "rooms"));
+      await setDoc(roomRef, {
+        playerX: { uid: opponent.uid, username: opponent.username },
+        playerO: { uid: currentUser.uid, username: usernameInput.value },
         board: Array(9).fill(""),
         turn: "X",
-        status: "waiting",
         winner: ""
       });
-      await setUserStats(currentUser.uid);
-      startGame(roomId, "X", true);
+      startGame(roomRef.id, "O");
+    } else {
+      await addDoc(waitingRef, {
+        uid: currentUser.uid,
+        username: usernameInput.value
+      });
+      messageBox.innerText = "Waiting for opponent...";
+      const unsubscribe = onSnapshot(waitingRef, async (snap) => {
+        const q = query(collection(db, "rooms"));
+        const allRooms = await getDocs(q);
+        allRooms.forEach(room => {
+          const data = room.data();
+          if (data.playerX?.uid === currentUser.uid || data.playerO?.uid === currentUser.uid) {
+            unsubscribe();
+            startGame(room.id, "X");
+          }
+        });
+      });
     }
   };
 
-  async function setUserStats(uid) {
-    const userRef = doc(db, "users", uid);
-    const userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) {
-      await setDoc(userRef, { wins: 0, losses: 0, ties: 0, gamesPlayed: 0 });
-    }
+  async function updateStats(result) {
+    const ref = doc(db, "users", currentUser.uid);
+    const data = { gamesPlayed: increment(1) };
+    if (result === "win") data.wins = increment(1);
+    if (result === "loss") data.losses = increment(1);
+    if (result === "tie") data.ties = increment(1);
+    await updateDoc(ref, data);
   }
 
-  async function updateStats(uid, result) {
-    const userRef = doc(db, "users", uid);
-    const updates = { gamesPlayed: increment(1) };
-    if (result === "win") updates.wins = increment(1);
-    else if (result === "loss") updates.losses = increment(1);
-    else if (result === "tie") updates.ties = increment(1);
-    await updateDoc(userRef, updates);
-  }
-
-  function checkWinner(board) {
-    const winPatterns = [
-      [0,1,2],[3,4,5],[6,7,8],
-      [0,3,6],[1,4,7],[2,5,8],
-      [0,4,8],[2,4,6]
-    ];
-    for (let [a,b,c] of winPatterns) {
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
-    }
-    return board.includes("") ? null : "tie";
-  }
-
-  function startGame(roomId, symbol, isTurn) {
+  function startGame(roomId, symbol) {
     currentRoomId = roomId;
     playerSymbol = symbol;
-    gameOver = false;
+    isPlayerTurn = symbol === "X";
 
-    dashboardSection.classList.add("hidden");
-    gameSection.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+    game.classList.remove("hidden");
 
-    document.getElementById("room-id-display").textContent = roomId;
-    document.getElementById("player-symbol").textContent = symbol;
-
-    const boardDiv = document.getElementById("game-board");
-    const statusBox = document.getElementById("game-status");
-    const opponentNameEl = document.getElementById("opponent-name");
+    const boardEl = document.getElementById("board");
+    const p1 = document.getElementById("p1");
+    const p2 = document.getElementById("p2");
 
     const roomRef = doc(db, "rooms", roomId);
     onSnapshot(roomRef, async (snap) => {
       const data = snap.data();
-      const board = data.board;
-      const turn = data.turn;
-      const winner = data.winner;
-
-      boardDiv.innerHTML = "";
-      board.forEach((cell, i) => {
+      boardEl.innerHTML = "";
+      data.board.forEach((cell, i) => {
         const div = document.createElement("div");
         div.className = "cell";
-        div.textContent = cell;
-
-        if (!cell && turn === playerSymbol && !winner && !gameOver) {
+        div.innerText = cell;
+        if (cell === "" && data.turn === playerSymbol && !data.winner) {
           div.onclick = async () => {
-            const fresh = await getDoc(roomRef);
-            const freshData = fresh.data();
-            if (freshData.board[i] === "" && freshData.turn === playerSymbol) {
-              const updatedBoard = [...freshData.board];
-              updatedBoard[i] = playerSymbol;
-              const result = checkWinner(updatedBoard);
-              const update = {
-                board: updatedBoard,
-                turn: playerSymbol === "X" ? "O" : "X"
-              };
-              if (result) update.winner = result;
-              await updateDoc(roomRef, update);
-            }
+            const updatedBoard = [...data.board];
+            updatedBoard[i] = playerSymbol;
+            const winner = checkWinner(updatedBoard);
+            const update = {
+              board: updatedBoard,
+              turn: playerSymbol === "X" ? "O" : "X"
+            };
+            if (winner) update.winner = winner;
+            await updateDoc(roomRef, update);
           };
         }
-
-        boardDiv.appendChild(div);
+        boardEl.appendChild(div);
       });
 
-      const opponent = playerSymbol === "X" ? data.playerO : data.playerX;
-      opponentNameEl.textContent = opponent ? opponent.username : "Waiting...";
+      p1.innerText = data.playerX.username;
+      p2.innerText = data.playerO.username;
 
-      if (winner && !gameOver) {
-        gameOver = true;
-        if (winner === "tie") {
-          statusBox.textContent = "It's a tie!";
-          updateStats(currentUser.uid, "tie");
-        } else if (winner === playerSymbol) {
-          statusBox.textContent = "🎉 You win!";
-          updateStats(currentUser.uid, "win");
+      if (data.winner) {
+        if (data.winner === "tie") {
+          messageBox.innerText = "It's a tie!";
+          updateStats("tie");
+        } else if (data.winner === playerSymbol) {
+          messageBox.innerText = "🎉 You Win!";
+          updateStats("win");
         } else {
-          statusBox.textContent = "😓 You lose!";
-          updateStats(currentUser.uid, "loss");
+          messageBox.innerText = "😢 You Lose!";
+          updateStats("loss");
         }
-        setTimeout(() => location.reload(), 5000); // Auto-reload after game
-      } else if (!gameOver) {
-        statusBox.textContent = turn === playerSymbol ? "Your turn" : "Opponent's turn";
+        setTimeout(() => {
+          location.reload();
+        }, 4000);
+      } else {
+        messageBox.innerText = data.turn === playerSymbol ? "Your Turn" : "Opponent's Turn";
       }
     });
   }
-</script>
 
+  function checkWinner(b) {
+    const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    for (let [a,b1,c] of wins) {
+      if (b[a] && b[a] === b[b1] && b[a] === b[c]) return b[a];
+    }
+    return b.includes("") ? null : "tie";
+  }
+</script>
 </body>
 </html>
