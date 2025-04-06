@@ -1,29 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>EarnItt Auth</title>
+  <meta charset="UTF-8" />
+  <title>EarnItt Matchmaking</title>
   <style>
     body {
       background: #0f0f0f;
-      font-family: Arial, sans-serif;
       color: white;
+      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
     }
-
     .container {
       background: #1a1a1a;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 0 20px #00ffcc;
       text-align: center;
-      width: 300px;
+      width: 320px;
     }
-
     input, button {
       width: 90%;
       margin: 10px 0;
@@ -32,38 +30,27 @@
       border-radius: 6px;
       font-size: 16px;
     }
-
     input {
       background: #222;
       color: white;
     }
-
     button {
       background: #00ffcc;
       color: black;
       cursor: pointer;
     }
-
     button:hover {
       background: #00ddb3;
     }
-
-    #logout {
+    .hidden {
       display: none;
-      margin-top: 20px;
     }
-
     #message {
-      margin-top: 15px;
-      font-weight: bold;
+      margin-top: 10px;
       padding: 10px;
       background: #1f1f1f;
       border: 1px solid #00ffcc;
       border-radius: 6px;
-      display: none;
-    }
-
-    .hidden {
       display: none;
     }
   </style>
@@ -72,10 +59,10 @@
 
 <div class="container" id="auth-section">
   <h2 id="auth-title">Login</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
   <div id="signup-extra" class="hidden">
-    <input type="password" id="confirm-password" placeholder="Confirm Password">
+    <input type="password" id="confirm-password" placeholder="Confirm Password" />
   </div>
   <button id="auth-button">Login</button>
   <p>
@@ -83,15 +70,21 @@
   </p>
 </div>
 
-<div id="dashboard" class="container hidden">
-  <h2>Welcome, <span id="user-email"></span></h2>
+<div class="container hidden" id="username-section">
+  <h2>Set Username</h2>
+  <input type="text" id="username-input" placeholder="Enter username" />
+  <button id="save-username">Save Username</button>
+</div>
+
+<div class="container hidden" id="dashboard">
+  <h2>Hello, <span id="username-display"></span></h2>
+  <button id="play-btn">Play</button>
   <button id="logout">Logout</button>
 </div>
 
-<div id="message"></div>
+<div id="message" class="container hidden"></div>
 
 <script type="module">
-  // Firebase SDKs
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import {
     getAuth,
@@ -100,8 +93,17 @@
     onAuthStateChanged,
     signOut
   } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+  import {
+    getDatabase,
+    ref,
+    set,
+    get,
+    push,
+    onChildAdded,
+    remove,
+    child
+  } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
-  // Firebase Config (your project)
   const firebaseConfig = {
     apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
     authDomain: "earn-itt.firebaseapp.com",
@@ -109,81 +111,132 @@
     storageBucket: "earn-itt.firebasestorage.app",
     messagingSenderId: "785360520679",
     appId: "1:785360520679:web:ac2e2710ece34591a52942",
-    measurementId: "G-P4Q2KYTBBM"
+    measurementId: "G-P4Q2KYTBBM",
+    databaseURL: "https://earn-itt-default-rtdb.asia-southeast1.firebasedatabase.app/"
   };
 
-  // Init Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getDatabase(app);
 
-  const authSection = document.getElementById("auth-section");
-  const dashboard = document.getElementById("dashboard");
-  const logoutBtn = document.getElementById("logout");
-  const messageBox = document.getElementById("message");
+  const show = (id) => document.getElementById(id).classList.remove("hidden");
+  const hide = (id) => document.getElementById(id).classList.add("hidden");
 
   const showMessage = (msg) => {
-    messageBox.textContent = msg;
-    messageBox.style.display = "block";
-    setTimeout(() => {
-      messageBox.style.display = "none";
-    }, 3000);
+    const msgBox = document.getElementById("message");
+    msgBox.innerText = msg;
+    msgBox.style.display = "block";
+    setTimeout(() => (msgBox.style.display = "none"), 3000);
   };
 
-  // Toggle between login and signup
+  // Toggle Auth Mode
   let isSignup = false;
   document.getElementById("switch-auth").onclick = () => {
     isSignup = !isSignup;
-    document.getElementById("auth-title").textContent = isSignup ? "Sign Up" : "Login";
-    document.getElementById("auth-button").textContent = isSignup ? "Sign Up" : "Login";
+    document.getElementById("auth-title").innerText = isSignup ? "Sign Up" : "Login";
+    document.getElementById("auth-button").innerText = isSignup ? "Sign Up" : "Login";
     document.getElementById("signup-extra").classList.toggle("hidden");
-    document.getElementById("switch-auth").textContent = isSignup
+    document.getElementById("switch-auth").innerText = isSignup
       ? "Already have an account? Login"
       : "Don't have an account? Sign up";
   };
 
-  // Auth button click
+  // Auth Button
   document.getElementById("auth-button").onclick = async () => {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
-    const confirmPassword = document.getElementById("confirm-password").value.trim();
+    const confirm = document.getElementById("confirm-password").value.trim();
 
-    if (!email || !password) return showMessage("Please fill in all fields");
+    if (!email || !password) return showMessage("Fill all fields");
 
-    if (isSignup) {
-      if (password !== confirmPassword) return showMessage("Passwords do not match");
-      try {
+    try {
+      if (isSignup) {
+        if (password !== confirm) return showMessage("Passwords don’t match");
         await createUserWithEmailAndPassword(auth, email, password);
-        showMessage("Account created! Logged in.");
-      } catch (err) {
-        showMessage("Signup failed: " + err.message);
-      }
-    } else {
-      try {
+      } else {
         await signInWithEmailAndPassword(auth, email, password);
-      } catch (err) {
-        showMessage("Login failed: " + err.message);
       }
+    } catch (e) {
+      showMessage("Auth failed: " + e.message);
     }
   };
 
-  // Sign out
-  logoutBtn.onclick = () => {
+  // Save username
+  document.getElementById("save-username").onclick = async () => {
+    const username = document.getElementById("username-input").value.trim();
+    const user = auth.currentUser;
+    if (!username || !user) return;
+
+    await set(ref(db, "users/" + user.uid), {
+      email: user.email,
+      username: username,
+      stats: { wins: 0, losses: 0, ties: 0 }
+    });
+
+    document.getElementById("username-display").innerText = username;
+    hide("username-section");
+    show("dashboard");
+  };
+
+  // Auth Observer
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const snap = await get(ref(db, "users/" + user.uid));
+      if (snap.exists() && snap.val().username) {
+        document.getElementById("username-display").innerText = snap.val().username;
+        hide("auth-section");
+        show("dashboard");
+      } else {
+        hide("auth-section");
+        show("username-section");
+      }
+    } else {
+      show("auth-section");
+      hide("dashboard");
+      hide("username-section");
+    }
+  });
+
+  // Logout
+  document.getElementById("logout").onclick = () => {
     signOut(auth);
   };
 
-  // Auth state observer
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      authSection.classList.add("hidden");
-      dashboard.classList.remove("hidden");
-      logoutBtn.style.display = "block";
-      document.getElementById("user-email").textContent = user.email;
+  // Matchmaking
+  document.getElementById("play-btn").onclick = async () => {
+    const user = auth.currentUser;
+    const userSnap = await get(ref(db, "users/" + user.uid));
+    const username = userSnap.val().username;
+
+    const waitlistRef = ref(db, "waitlist");
+    const waitSnap = await get(waitlistRef);
+
+    if (waitSnap.exists()) {
+      const entries = Object.entries(waitSnap.val());
+      const [opponentKey, opponent] = entries[0];
+
+      const gameId = `${user.uid}_${opponent.uid}_${Date.now()}`;
+      const gameRef = ref(db, "games/" + gameId);
+      await set(gameRef, {
+        player1: username,
+        player2: opponent.username,
+        status: "waiting"
+      });
+
+      await remove(ref(db, "waitlist/" + opponentKey));
+
+      showMessage(`Matched with ${opponent.username}`);
+      // TODO: Redirect to game page
     } else {
-      authSection.classList.remove("hidden");
-      dashboard.classList.add("hidden");
-      logoutBtn.style.display = "none";
+      const key = push(waitlistRef).key;
+      await set(ref(db, "waitlist/" + key), {
+        uid: user.uid,
+        username: username
+      });
+
+      showMessage("Waiting for opponent...");
     }
-  });
+  };
 </script>
 
 </body>
