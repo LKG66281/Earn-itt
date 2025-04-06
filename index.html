@@ -1,3 +1,4 @@
+<!-- Full working Tic-Tac-Toe Multiplayer Game -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,6 +73,7 @@
 </head>
 <body>
 
+<!-- UI Sections -->
 <div class="container" id="auth-section">
   <h2 id="auth-title">Login</h2>
   <input type="email" id="email" placeholder="Email">
@@ -110,6 +112,7 @@
 
 <div class="glow-box hidden" id="message-box">Message</div>
 
+<!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
@@ -146,7 +149,7 @@
     setTimeout(() => messageBox.classList.add("hidden"), 3000);
   }
 
-  // Toggle login/signup
+  // Auth toggle
   let isLogin = true;
   document.getElementById("toggle-auth").onclick = () => {
     isLogin = !isLogin;
@@ -187,8 +190,7 @@
     const snap = await getDoc(doc(db, "users", currentUser.uid));
     const d = snap.data();
     document.getElementById("username-display").textContent = "Username: " + d.username;
-    document.getElementById("stats").textContent =
-      `Games: ${d.gamesPlayed}, Wins: ${d.wins}, Losses: ${d.losses}, Ties: ${d.ties}`;
+    document.getElementById("stats").textContent = `Games: ${d.gamesPlayed}, Wins: ${d.wins}, Losses: ${d.losses}, Ties: ${d.ties}`;
   }
 
   document.getElementById("logout").onclick = () => signOut(auth).then(() => location.reload());
@@ -198,6 +200,7 @@
     if (newName) {
       await updateDoc(doc(db, "users", currentUser.uid), { username: newName });
       loadUserData();
+      showMessage("Username updated!");
     }
   };
 
@@ -208,16 +211,19 @@
 
   document.getElementById("random-match").onclick = async () => {
     playOptions.classList.add("hidden");
-    const queueRef = collection(db, "queue");
-    const q = query(queueRef, where("status", "==", "waiting"), limit(1));
+    const queueRef = collection(db, "matchmaking");
+    const q = query(queueRef, where("status", "==", "waiting"), where("uid", "!=", currentUser.uid), limit(1));
     const results = await getDocs(q);
+
+    const myUsername = (await getDoc(doc(db, "users", currentUser.uid))).data().username;
+
     if (!results.empty) {
       const docSnap = results.docs[0];
       const { uid, username } = docSnap.data();
       const roomId = Math.random().toString(36).substr(2, 6);
       await setDoc(doc(db, "rooms", roomId), {
         playerX: { uid, username },
-        playerO: { uid: currentUser.uid, username: (await getDoc(doc(db, "users", currentUser.uid))).data().username },
+        playerO: { uid: currentUser.uid, username: myUsername },
         board: Array(9).fill(""),
         turn: "X",
         status: "playing",
@@ -228,7 +234,7 @@
     } else {
       await addDoc(queueRef, {
         uid: currentUser.uid,
-        username: (await getDoc(doc(db, "users", currentUser.uid))).data().username,
+        username: myUsername,
         status: "waiting"
       });
       showMessage("Waiting for an opponent...");
@@ -337,7 +343,7 @@
 
   function checkWinner(b) {
     const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-    for (let [a,b,c] of w) if (b[a] && b[a] === b[b] && b[b] === b[c]) return b[a];
+    for (let [a,b_,c] of w) if (b[a] && b[a] === b[b_] && b[b_] === b[c]) return b[a];
     return b.includes("") ? null : "tie";
   }
 
