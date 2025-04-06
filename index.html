@@ -22,8 +22,8 @@
     }
     input, button {
       padding: 10px;
-      margin: 10px;
-      width: 90%;
+      margin: 10px 0;
+      width: 100%;
       border: none;
       border-radius: 5px;
       background: #2c2c2c;
@@ -34,24 +34,6 @@
       color: black;
       font-weight: bold;
       cursor: pointer;
-    }
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 80px);
-      gap: 5px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .cell {
-      width: 80px;
-      height: 80px;
-      background: #333;
-      font-size: 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      border-radius: 5px;
     }
     .hidden { display: none; }
     .glow-box {
@@ -65,107 +47,291 @@
       box-shadow: 0 0 10px #00ffcc;
       font-weight: bold;
     }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 80px);
+      gap: 5px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .cell {
+      width: 80px;
+      height: 80px;
+      background: #333;
+      font-size: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
+<div class="container" id="auth-container">
+  <h2 id="auth-title">Login</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button id="auth-button">Login</button>
+  <p><a href="#" id="toggle-auth">Don't have an account? Sign up</a></p>
+</div>
 
-<div id="random-options">
+<div class="container hidden" id="dashboard">
+  <h2>Welcome, <span id="username-display"></span></h2>
+  <input type="text" id="username-input" placeholder="Enter your username">
+  <button id="save-username">Save Username</button>
+  <button id="play-btn">Play</button>
+  <button id="logout-btn">Logout</button>
+</div>
+
+<div class="container hidden" id="match-options">
+  <h3>Select Mode</h3>
   <button id="random-play">Find Random Match</button>
 </div>
-<div id="glow-message" class="glow-box hidden"></div>
 
+<div class="container hidden" id="game-container">
+  <h3><span id="player-label"></span> vs <span id="opponent-label"></span></h3>
+  <div class="board" id="board"></div>
+  <div id="glow-message" class="glow-box hidden"></div>
+</div>
+
+<!-- Firebase + Game Logic (in script next part) -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-  import {
-    getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot
-  } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot
+} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-    authDomain: "earn-itt.firebaseapp.com",
-    projectId: "earn-itt",
-    storageBucket: "earn-itt.appspot.com",
-    messagingSenderId: "785360520679",
-    appId: "1:785360520679:web:ac2e2710ece34591a52942",
-    measurementId: "G-P4Q2KYTBBM"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+  authDomain: "earn-itt.firebaseapp.com",
+  projectId: "earn-itt",
+  storageBucket: "earn-itt.appspot.com",
+  messagingSenderId: "785360520679",
+  appId: "1:785360520679:web:ac2e2710ece34591a52942"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  let currentUser = null;
-  let gameOver = false;
+// Elements
+const authContainer = document.getElementById("auth-container");
+const dashboard = document.getElementById("dashboard");
+const usernameDisplay = document.getElementById("username-display");
+const usernameInput = document.getElementById("username-input");
+const matchOptions = document.getElementById("match-options");
+const gameContainer = document.getElementById("game-container");
+const glowMessage = document.getElementById("glow-message");
 
-  function showMessage(text) {
-    const messageBox = document.getElementById("glow-message");
-    messageBox.innerText = text;
-    messageBox.classList.remove("hidden");
+let currentUser = null;
+let currentRoomId = null;
+let symbol = "";
+let gameOver = false;
+
+// Auth
+let isLogin = true;
+document.getElementById("toggle-auth").onclick = () => {
+  isLogin = !isLogin;
+  document.getElementById("auth-title").innerText = isLogin ? "Login" : "Sign Up";
+  document.getElementById("auth-button").innerText = isLogin ? "Login" : "Sign Up";
+  document.getElementById("toggle-auth").innerText = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
+};
+
+document.getElementById("auth-button").onclick = async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  try {
+    if (isLogin) {
+      await signInWithEmailAndPassword(auth, email, password);
+    } else {
+      await createUserWithEmailAndPassword(auth, email, password);
+    }
+  } catch (e) {
+    showMessage("Auth Error: " + e.message);
   }
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    authContainer.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+    const userRef = doc(db, "users", currentUser.uid);
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      usernameDisplay.innerText = snap.data().username || "Player";
+    }
+  } else {
+    currentUser = null;
+    authContainer.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+    matchOptions.classList.add("hidden");
+    gameContainer.classList.add("hidden");
+  }
+});
+
+document.getElementById("logout-btn").onclick = () => signOut(auth);
+
+document.getElementById("save-username").onclick = async () => {
+  const username = usernameInput.value.trim();
+  if (username) {
+    await setDoc(doc(db, "users", currentUser.uid), {
+      username,
+      wins: 0,
+      losses: 0,
+      ties: 0
+    }, { merge: true });
+    usernameDisplay.innerText = username;
+    showMessage("Username saved.");
+  }
+};
+
+document.getElementById("play-btn").onclick = () => {
+  dashboard.classList.add("hidden");
+  matchOptions.classList.remove("hidden");
+};
+
+document.getElementById("random-play").onclick = () => {
+  matchOptions.classList.add("hidden");
+  startRandomMatchmaking();
+};
+
+// 🔥 Glowing Message Box
+function showMessage(text) {
+  glowMessage.innerText = text;
+  glowMessage.classList.remove("hidden");
+  setTimeout(() => glowMessage.classList.add("hidden"), 3000);
+}
+
+// 🧠 Matchmaking Logic
+async function startRandomMatchmaking() {
+  const userRef = doc(db, "users", currentUser.uid);
+  const userSnap = await getDoc(userRef);
+  const username = userSnap.exists() ? userSnap.data().username : "Player";
 
   const matchmakingRef = doc(db, "matchmaking", "random");
+  const snap = await getDoc(matchmakingRef);
+  if (!snap.exists() || !snap.data().waiting) {
+    await setDoc(matchmakingRef, {
+      waiting: {
+        uid: currentUser.uid,
+        username
+      }
+    });
+    showMessage("Waiting for opponent...");
+    onSnapshot(matchmakingRef, async (matchSnap) => {
+      const data = matchSnap.data();
+      if (data && data.roomId && !gameOver) {
+        startGame(data.roomId, "O", data.waiting.username);
+      }
+    });
+  } else {
+    const waiting = snap.data().waiting;
+    const roomId = Math.random().toString(36).substring(2, 8);
+    await setDoc(doc(db, "rooms", roomId), {
+      playerX: waiting,
+      playerO: { uid: currentUser.uid, username },
+      board: Array(9).fill(""),
+      turn: "X",
+      status: "playing",
+      winner: ""
+    });
+    await updateDoc(matchmakingRef, {
+      roomId: roomId,
+      waiting: null
+    });
+    startGame(roomId, "X", waiting.username);
+  }
+}
 
-  async function startRandomMatchmaking() {
-    const user = auth.currentUser;
-    if (!user) {
-      showMessage("Please log in first.");
-      return;
-    }
+// 🎮 Game Logic
+function startGame(roomId, playerSymbol, opponentName) {
+  currentRoomId = roomId;
+  symbol = playerSymbol;
+  gameOver = false;
+  gameContainer.classList.remove("hidden");
+  document.getElementById("player-label").innerText = usernameDisplay.innerText;
+  document.getElementById("opponent-label").innerText = opponentName || "Opponent";
 
-    currentUser = user;
-
-    const userRef = doc(db, "users", currentUser.uid);
-    const userSnap = await getDoc(userRef);
-    const username = userSnap.exists() ? userSnap.data().username : "Player";
-
-    const snap = await getDoc(matchmakingRef);
-    if (!snap.exists() || !snap.data().waiting) {
-      await setDoc(matchmakingRef, {
-        waiting: {
-          uid: currentUser.uid,
-          username: username
-        }
-      });
-      showMessage("Waiting for opponent...");
-
-      onSnapshot(matchmakingRef, async (matchSnap) => {
-        const data = matchSnap.data();
-        if (data && data.roomId && !gameOver) {
-          startGame(data.roomId, "O");
-        }
-      });
-
-    } else {
-      const waiting = snap.data().waiting;
-      const roomId = Math.random().toString(36).substring(2, 8);
-      await setDoc(doc(db, "rooms", roomId), {
-        playerX: waiting,
-        playerO: { uid: currentUser.uid, username },
-        board: Array(9).fill(""),
-        turn: "X",
-        status: "playing",
-        winner: ""
-      });
-      await updateDoc(matchmakingRef, {
-        roomId: roomId,
-        waiting: null
-      });
-      startGame(roomId, "X");
-    }
+  const boardDiv = document.getElementById("board");
+  boardDiv.innerHTML = "";
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+    cell.dataset.index = i;
+    boardDiv.appendChild(cell);
   }
 
-  document.getElementById("random-play").onclick = () => {
-    document.getElementById("random-options").classList.add("hidden");
-    startRandomMatchmaking();
+  const roomRef = doc(db, "rooms", roomId);
+  onSnapshot(roomRef, async (roomSnap) => {
+    const data = roomSnap.data();
+    if (!data || data.status !== "playing") return;
+
+    data.board.forEach((val, i) => {
+      boardDiv.children[i].innerText = val;
+    });
+
+    if (data.winner && !gameOver) {
+      gameOver = true;
+      if (data.winner === symbol) {
+        showMessage("You Win!");
+        await updateStats("wins");
+      } else if (data.winner === "tie") {
+        showMessage("It's a Tie!");
+        await updateStats("ties");
+      } else {
+        showMessage("You Lose!");
+        await updateStats("losses");
+      }
+      setTimeout(() => {
+        gameContainer.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+      }, 3000);
+    }
+  });
+
+  boardDiv.onclick = async (e) => {
+    if (!e.target.classList.contains("cell")) return;
+    const index = parseInt(e.target.dataset.index);
+    const roomSnap = await getDoc(roomRef);
+    const data = roomSnap.data();
+
+    if (data.turn !== symbol || data.board[index] !== "" || gameOver) return;
+
+    const newBoard = [...data.board];
+    newBoard[index] = symbol;
+
+    const winner = checkWinner(newBoard);
+    await updateDoc(roomRef, {
+      board: newBoard,
+      turn: symbol === "X" ? "O" : "X",
+      winner: winner || (newBoard.every(cell => cell) ? "tie" : "")
+    });
   };
-  
-  // You still need to define this:
-  function startGame(roomId, symbol) {
-    showMessage(`Game started in room ${roomId}. You are '${symbol}'`);
-    // Add game board setup here
-  }
-</script>
+}
 
+function checkWinner(b) {
+  const winPatterns = [
+    [0,1,2], [3,4,5], [6,7,8],
+    [0,3,6], [1,4,7], [2,5,8],
+    [0,4,8], [2,4,6]
+  ];
+  for (let [a, b1, c] of winPatterns) {
+    if (b[a] && b[a] === b[b1] && b[a] === b[c]) return b[a];
+  }
+  return null;
+}
+
+async function updateStats(type) {
+  const userRef = doc(db, "users", currentUser.uid);
+  const snap = await getDoc(userRef);
+  const stats = snap.data();
+  await updateDoc(userRef, {
+    [type]: (stats[type] || 0) + 1
+  });
+}
+</script>
 </body>
 </html>
