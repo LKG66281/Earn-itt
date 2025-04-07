@@ -1,330 +1,417 @@
+<!-- Due to message size limitations, I’ll split the full code across several replies. Here’s Part 1 (Login + UI + Style + Firebase config): -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Tic-Tac-Toe Real-Time</title>
+  <meta charset="UTF-8" />
+  <title>Tic-Tac-Toe Multiplayer</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #0d0d0d;
-      color: #fff;
+      background-color: #0a0a0a;
+      color: #0ff;
     }
-    .container, .dashboard, .game, .wait-screen {
-      display: none;
+    .glow {
+      color: #0ff;
+      text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+    }
+    .container {
       padding: 20px;
-    }
-    .active {
-      display: block;
+      text-align: center;
     }
     input, button {
       padding: 10px;
-      margin: 5px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
       background: #111;
-      border: 1px solid #0ff;
       color: #0ff;
+      box-shadow: 0 0 5px #0ff;
     }
     button:hover {
       background: #0ff;
-      color: #111;
+      color: #000;
     }
-    #glow-message {
-      text-align: center;
-      font-size: 18px;
-      color: #0ff;
-      text-shadow: 0 0 10px #0ff;
-      margin-top: 20px;
-    }
-    .board {
+    #game-board {
       display: grid;
       grid-template-columns: repeat(3, 100px);
       grid-gap: 5px;
-      margin: 20px auto;
+      justify-content: center;
+      margin: 20px 0;
     }
     .cell {
       width: 100px;
       height: 100px;
       background: #111;
-      border: 2px solid #0ff;
+      color: #0ff;
+      font-size: 2em;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 36px;
-      color: #0ff;
       cursor: pointer;
+      box-shadow: 0 0 5px #0ff;
     }
-    .wait-screen {
-      text-align: center;
-      font-size: 20px;
-      color: #0ff;
+    .hidden {
+      display: none;
+    }
+    #messageBox {
+      margin-top: 15px;
+      padding: 10px;
+      background: #111;
+      border-radius: 5px;
+      box-shadow: 0 0 5px #0ff;
+    }
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .dashboard {
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="auth-section">
-    <h2>Login / Signup</h2>
-    <input type="email" id="email" placeholder="Email"><br>
-    <input type="password" id="password" placeholder="Password"><br>
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Sign Up</button>
+  <div class="container">
+    <h1 class="glow">Tic-Tac-Toe Multiplayer</h1>
+
+    <div id="auth-section" class="flex-col">
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <button onclick="signup()">Signup</button>
+      <p><a href="#" onclick="toggleLogin()">Already have an account?</a></p>
+    </div>
+
+    <div id="dashboard" class="hidden flex-col">
+      <p>Welcome, <span id="user-email"></span></p>
+      <input type="text" id="username" placeholder="Set Username" />
+      <button onclick="setUsername()">Save Username</button>
+
+      <div class="dashboard">
+        <button onclick="showPlayOptions()">Play</button>
+        <div id="play-options" class="hidden">
+          <button onclick="startRandomMatch()">Random Match</button>
+          <button onclick="showFriendOptions()">Play With Friend</button>
+        </div>
+
+        <div id="friend-options" class="hidden">
+          <input type="text" id="room-id" placeholder="Room ID" />
+          <button onclick="createRoom()">Create Room</button>
+          <button onclick="joinRoom()">Join Room</button>
+        </div>
+      </div>
+
+      <div id="stats">
+        <p>Games Played: <span id="played">0</span></p>
+        <p>Wins: <span id="wins">0</span></p>
+        <p>Losses: <span id="losses">0</span></p>
+        <p>Ties: <span id="ties">0</span></p>
+      </div>
+      <button onclick="logout()">Logout</button>
+    </div>
+
+    <div id="game-section" class="hidden">
+      <h2 id="game-status"></h2>
+      <div id="game-board"></div>
+    </div>
+
+    <div id="messageBox" class="glow hidden"></div>
   </div>
 
-  <div class="dashboard container" id="dashboard">
-    <h2>Welcome, <span id="display-username"></span></h2>
-    <input type="text" id="username-input" placeholder="Enter username">
-    <button onclick="updateUsername()">Update Username</button>
-    <p>Wins: <span id="wins">0</span>, Losses: <span id="losses">0</span>, Ties: <span id="ties">0</span></p>
-    <button onclick="showPlayOptions()">Play</button>
-    <button onclick="logout()">Logout</button>
-  </div>
-
-  <div class="container" id="play-options">
-    <button onclick="randomMatch()">Random Match</button>
-    <button onclick="showFriendOptions()">Play With Friend</button>
-    <button onclick="backToDashboard()">Back</button>
-  </div>
-
-  <div class="container" id="friend-options">
-    <input type="text" id="room-id-input" placeholder="Room ID">
-    <button onclick="createRoom()">Create Room</button>
-    <button onclick="joinRoom()">Join Room</button>
-    <button onclick="backToPlayOptions()">Back</button>
-  </div>
-
-  <div class="wait-screen container" id="wait-screen">
-    <p>Waiting for an opponent...</p>
-  </div>
-
-  <div class="game container" id="game-section">
-    <p><span id="player1-name"></span> vs <span id="player2-name"></span></p>
-    <div class="board" id="board"></div>
-    <div id="glow-message"></div>
-  </div>
-
+  <!-- Firebase Scripts -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, browserSessionPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    // Firebase Config – Replace with your own
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, addDoc, collection, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAzC4muCeG7r5uUZb8pxi-nVgfSIltVfYM",
-      authDomain: "realtime-tictactoe-game.firebaseapp.com",
-      projectId: "realtime-tictactoe-game",
-      storageBucket: "realtime-tictactoe-game.appspot.com",
-      messagingSenderId: "1096570547401",
-      appId: "1:1096570547401:web:9461f3b15e4e4df63f8a56"
-    };
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+  authDomain: "earn-itt.firebaseapp.com",
+  projectId: "earn-itt",
+  storageBucket: "earn-itt.firebasestorage.app",
+  messagingSenderId: "785360520679",
+  appId: "1:785360520679:web:ac2e2710ece34591a52942",
+  measurementId: "G-P4Q2KYTBBM"
+};
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    let currentUser = null;
-    let roomId = "";
-    let isPlayer1 = false;
-    let unsubscribeGame = null;
+    const auth = getAuth();
+    const db = getFirestore();
 
-    setPersistence(auth, browserSessionPersistence);
+    // Continue in next message...
+    // Utility functions
+    const qs = (id) => document.getElementById(id);
+    const show = (el) => el.classList.remove("hidden");
+    const hide = (el) => el.classList.add("hidden");
+    const msgBox = qs("messageBox");
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        currentUser = user;
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, "users", user.uid), { username: "Anonymous", wins: 0, losses: 0, ties: 0 });
-        }
-        showDashboard();
-      } else {
-        showSection("auth-section");
-      }
-    });
-
-    function showSection(id) {
-      document.querySelectorAll(".container").forEach(el => el.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
+    function showMessage(msg) {
+      msgBox.textContent = msg;
+      show(msgBox);
+      setTimeout(() => hide(msgBox), 3000);
     }
 
+    // Auth
     async function login() {
-      await signInWithEmailAndPassword(auth, email.value, password.value);
+      const email = qs("email").value;
+      const password = qs("password").value;
+      await signInWithEmailAndPassword(auth, email, password);
     }
 
     async function signup() {
-      await createUserWithEmailAndPassword(auth, email.value, password.value);
+      const email = qs("email").value;
+      const password = qs("password").value;
+      await createUserWithEmailAndPassword(auth, email, password);
     }
 
     async function logout() {
       await signOut(auth);
     }
 
-    async function showDashboard() {
-      showSection("dashboard");
-      const docSnap = await getDoc(doc(db, "users", currentUser.uid));
-      const data = docSnap.data();
-      document.getElementById("display-username").textContent = data.username;
-      document.getElementById("wins").textContent = data.wins || 0;
-      document.getElementById("losses").textContent = data.losses || 0;
-      document.getElementById("ties").textContent = data.ties || 0;
+    function toggleLogin() {
+      qs("email").value = "";
+      qs("password").value = "";
     }
 
-    async function updateUsername() {
-      const name = document.getElementById("username-input").value;
-      await updateDoc(doc(db, "users", currentUser.uid), { username: name });
-      showDashboard();
+    let currentUser = null;
+    let roomUnsub = null;
+    let roomId = "";
+    let isMyTurn = false;
+    let symbol = "";
+    let gameEnded = false;
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        show(qs("dashboard"));
+        hide(qs("auth-section"));
+        qs("user-email").textContent = user.email;
+        loadUsername();
+        loadStats();
+      } else {
+        currentUser = null;
+        show(qs("auth-section"));
+        hide(qs("dashboard"));
+        hide(qs("game-section"));
+      }
+    });
+
+    async function setUsername() {
+      const name = qs("username").value.trim();
+      if (name) {
+        const userRef = doc(db, "users", currentUser.uid);
+        await setDoc(userRef, { username: name }, { merge: true });
+        showMessage("Username saved!");
+      }
+    }
+
+    async function loadUsername() {
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        qs("username").value = data.username || "";
+      }
+    }
+
+    async function loadStats() {
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        qs("played").textContent = data.played || 0;
+        qs("wins").textContent = data.wins || 0;
+        qs("losses").textContent = data.losses || 0;
+        qs("ties").textContent = data.ties || 0;
+      }
     }
 
     function showPlayOptions() {
-      showSection("play-options");
+      show(qs("play-options"));
     }
 
     function showFriendOptions() {
-      showSection("friend-options");
+      show(qs("friend-options"));
     }
 
-    function backToDashboard() {
-      showDashboard();
+    function createBoard() {
+      const board = qs("game-board");
+      board.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.index = i;
+        cell.onclick = () => handleMove(i);
+        board.appendChild(cell);
+      }
     }
 
-    function backToPlayOptions() {
-      showPlayOptions();
-    }
-
-    async function createRoom() {
-      const id = document.getElementById("room-id-input").value;
-      const userData = (await getDoc(doc(db, "users", currentUser.uid))).data();
-      await setDoc(doc(db, "rooms", id), {
-        player1: currentUser.uid,
-        player1Name: userData.username,
-        board: Array(9).fill(""),
-        turn: "X",
-        winner: ""
+    function updateBoard(state) {
+      const cells = document.querySelectorAll(".cell");
+      state.forEach((val, i) => {
+        cells[i].textContent = val;
       });
-      joinGame(id, true);
     }
 
-    async function joinRoom() {
-      const id = document.getElementById("room-id-input").value;
-      const roomRef = doc(db, "rooms", id);
-      const roomSnap = await getDoc(roomRef);
-      if (roomSnap.exists()) {
-        const userData = (await getDoc(doc(db, "users", currentUser.uid))).data();
-        await updateDoc(roomRef, {
-          player2: currentUser.uid,
-          player2Name: userData.username
-        });
-        joinGame(id, false);
-      }
-    }
-
-    async function randomMatch() {
-      showSection("wait-screen");
-      const userData = (await getDoc(doc(db, "users", currentUser.uid))).data();
-      const q = query(collection(db, "matchmaking"));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        const docRef = snap.docs[0].ref;
-        const other = snap.docs[0].data().uid;
-        await deleteDoc(docRef);
-        const newRoom = await addDoc(collection(db, "rooms"), {
-          player1: other,
-          player1Name: "Waiting",
-          player2: currentUser.uid,
-          player2Name: userData.username,
-          board: Array(9).fill(""),
-          turn: "X",
-          winner: ""
-        });
-        joinGame(newRoom.id, false);
-      } else {
-        const waitRef = await addDoc(collection(db, "matchmaking"), {
-          uid: currentUser.uid
-        });
-        const unsub = onSnapshot(doc(db, "matchmaking", waitRef.id), async (docSnap) => {
-          if (!docSnap.exists()) {
-            const q2 = query(collection(db, "rooms"), where("player1", "==", currentUser.uid));
-            const snap2 = await getDocs(q2);
-            if (!snap2.empty) {
-              unsub();
-              joinGame(snap2.docs[0].id, true);
-            }
-          }
-        });
-      }
-    }
-
-    function joinGame(id, asPlayer1) {
-      showSection("game-section");
-      roomId = id;
-      isPlayer1 = asPlayer1;
-      const roomRef = doc(db, "rooms", id);
-      unsubscribeGame = onSnapshot(roomRef, (docSnap) => {
-        const data = docSnap.data();
-        if (!data) return;
-        document.getElementById("player1-name").textContent = data.player1Name || "Player 1";
-        document.getElementById("player2-name").textContent = data.player2Name || "Player 2";
-        renderBoard(data.board);
-        const symbol = isPlayer1 ? "X" : "O";
-        if (data.winner) {
-          document.getElementById("glow-message").textContent = data.winner === "Tie" ? "It's a Tie!" : `${data.winner} wins!`;
-          updateStats(data.winner);
-          setTimeout(() => {
-            unsubscribeGame();
-            showDashboard();
-          }, 3000);
-        } else {
-          document.getElementById("glow-message").textContent = data.turn === symbol ? "Your Turn" : "Opponent's Turn";
+    function handleMove(index) {
+      if (!isMyTurn || gameEnded) return;
+      const roomRef = doc(db, "rooms", roomId);
+      getDoc(roomRef).then(snap => {
+        const data = snap.data();
+        if (data.board[index] === "") {
+          data.board[index] = symbol;
+          data.turn = data.turn === "X" ? "O" : "X";
+          updateDoc(roomRef, { board: data.board, turn: data.turn });
         }
       });
     }
 
-    function renderBoard(board) {
-      const boardEl = document.getElementById("board");
-      boardEl.innerHTML = "";
-      board.forEach((cell, i) => {
-        const div = document.createElement("div");
-        div.className = "cell";
-        div.textContent = cell;
-        div.onclick = () => makeMove(i, board);
-        boardEl.appendChild(div);
-      });
-    }
-
-    async function makeMove(index, board) {
-      const symbol = isPlayer1 ? "X" : "O";
-      const roomRef = doc(db, "rooms", roomId);
-      const roomSnap = await getDoc(roomRef);
-      const data = roomSnap.data();
-      if (data.turn !== symbol || data.board[index] || data.winner) return;
-      board[index] = symbol;
-      const winner = checkWinner(board);
-      await updateDoc(roomRef, {
-        board,
-        turn: symbol === "X" ? "O" : "X",
-        winner
-      });
-    }
-
-    function checkWinner(b) {
-      const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    function checkGameOver(board) {
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
       for (let combo of wins) {
-        const [a,b1,c] = combo;
-        if (b[a] && b[a] === b[b1] && b[a] === b[c]) return b[a];
+        const [a, b, c] = combo;
+        if (board[a] && board[a] === board[b] && board[b] === board[c]) return board[a];
       }
-      return b.includes("") ? "" : "Tie";
+      return board.includes("") ? null : "Tie";
     }
 
     async function updateStats(result) {
-      const ref = doc(db, "users", currentUser.uid);
-      const snap = await getDoc(ref);
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
       const data = snap.data();
-      if (result === "Tie") {
-        await updateDoc(ref, { ties: (data.ties || 0) + 1 });
-      } else {
-        const symbol = isPlayer1 ? "X" : "O";
-        if (result === symbol) {
-          await updateDoc(ref, { wins: (data.wins || 0) + 1 });
-        } else {
-          await updateDoc(ref, { losses: (data.losses || 0) + 1 });
+      const updates = {
+        played: (data.played || 0) + 1,
+        wins: (data.wins || 0),
+        losses: (data.losses || 0),
+        ties: (data.ties || 0)
+      };
+      if (result === "win") updates.wins++;
+      else if (result === "lose") updates.losses++;
+      else updates.ties++;
+      await updateDoc(userRef, updates);
+      loadStats();
+    }
+
+    function playGame(roomData) {
+      hide(qs("dashboard"));
+      show(qs("game-section"));
+      createBoard();
+      roomId = roomData.id;
+      symbol = roomData.X === currentUser.uid ? "X" : "O";
+      isMyTurn = roomData.turn === symbol;
+      gameEnded = false;
+      qs("game-status").textContent = `${symbol === "X" ? "You are X" : "You are O"}`;
+
+      roomUnsub = onSnapshot(doc(db, "rooms", roomId), (snap) => {
+        const data = snap.data();
+        updateBoard(data.board);
+        const winner = checkGameOver(data.board);
+        if (winner && !gameEnded) {
+          gameEnded = true;
+          let result = "tie";
+          if (winner === symbol) result = "win";
+          else if (winner !== "Tie") result = "lose";
+          showMessage(result.toUpperCase());
+          updateStats(result);
+          setTimeout(() => {
+            roomUnsub();
+            deleteDoc(doc(db, "rooms", roomId));
+            show(qs("dashboard"));
+            hide(qs("game-section"));
+          }, 3000);
         }
+        isMyTurn = data.turn === symbol;
+      });
+    }
+
+    // Final part with matchmaking (random + friend)
+    // Coming up next...
+    // Random Matchmaking
+    async function randomMatch() {
+      showMessage("Searching for opponent...");
+      const matchRef = collection(db, "matchmaking");
+      const q = query(matchRef, limit(1));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        // No one waiting, add self
+        const docRef = await addDoc(matchRef, {
+          uid: currentUser.uid,
+          timestamp: Date.now()
+        });
+
+        const unsub = onSnapshot(doc(db, "matchmaking", docRef.id), async (docSnap) => {
+          const data = docSnap.data();
+          if (data && data.matched) {
+            unsub();
+            await deleteDoc(docRef);
+            playGame({ id: data.roomId, ...data });
+          }
+        });
+
+        // Timeout if no one joins
+        setTimeout(async () => {
+          const matchSnap = await getDoc(docRef);
+          if (matchSnap.exists()) {
+            await deleteDoc(docRef);
+            showMessage("No match found.");
+          }
+        }, 20000);
+
+      } else {
+        // Match with someone
+        const other = snap.docs[0];
+        const otherData = other.data();
+        const roomRef = await addDoc(collection(db, "rooms"), {
+          X: otherData.uid,
+          O: currentUser.uid,
+          board: ["", "", "", "", "", "", "", "", ""],
+          turn: "X"
+        });
+        await updateDoc(other.ref, {
+          matched: true,
+          roomId: roomRef.id
+        });
+        playGame({ id: roomRef.id, X: otherData.uid, O: currentUser.uid, turn: "X", board: ["", "", "", "", "", "", "", "", ""] });
       }
+    }
+
+    // Friend Matchmaking
+    async function createFriendRoom() {
+      const roomRef = await addDoc(collection(db, "rooms"), {
+        X: currentUser.uid,
+        O: null,
+        board: ["", "", "", "", "", "", "", "", ""],
+        turn: "X"
+      });
+      showMessage(`Room ID: ${roomRef.id}`);
+      const unsub = onSnapshot(roomRef, (snap) => {
+        const data = snap.data();
+        if (data.O) {
+          unsub();
+          playGame({ id: roomRef.id, ...data });
+        }
+      });
+    }
+
+    async function joinFriendRoom() {
+      const roomId = prompt("Enter Room ID:");
+      if (!roomId) return;
+      const roomRef = doc(db, "rooms", roomId);
+      const snap = await getDoc(roomRef);
+      if (!snap.exists()) return showMessage("Room not found.");
+      const data = snap.data();
+      if (data.O) return showMessage("Room full.");
+      await updateDoc(roomRef, { O: currentUser.uid });
+      playGame({ id: roomId, ...data, O: currentUser.uid });
     }
   </script>
 </body>
