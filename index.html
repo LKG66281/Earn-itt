@@ -83,8 +83,21 @@ const firebaseConfig = {
       show(qs("login-section"));
     };
     qs("signup-btn").onclick = async () => {
-      const email = qs("signup-email").value;
-      const pass = qs("signup-pass").value;
+  const email = qs("signup-email").value.trim();
+  const pass = qs("signup-pass").value;
+
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    showMessage("Please enter a valid email address.");
+    return;
+  }
+
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    showMessage(e.message);
+  }
+};
+
       try {
         await createUserWithEmailAndPassword(auth, email, pass);
       } catch (e) {
@@ -92,8 +105,21 @@ const firebaseConfig = {
       }
     };
     qs("login-btn").onclick = async () => {
-      const email = qs("login-email").value;
-      const pass = qs("login-pass").value;
+  const email = qs("login-email").value.trim();
+  const pass = qs("login-pass").value;
+
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    showMessage("Please enter a valid email address.");
+    return;
+  }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    showMessage(e.message);
+  }
+};
+
       try {
         await signInWithEmailAndPassword(auth, email, pass);
       } catch (e) {
