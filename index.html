@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Neon Glow Tic-Tac-Toe</title>
   <script type="module">
-    // Firebase config
+    // Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import {
       getAuth, onAuthStateChanged, signInWithEmailAndPassword,
@@ -15,16 +15,16 @@
       collection, addDoc, getDocs, onSnapshot, query, limit
     } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-  authDomain: "earn-itt.firebaseapp.com",
-  projectId: "earn-itt",
-  storageBucket: "earn-itt.firebasestorage.app",
-  messagingSenderId: "785360520679",
-  appId: "1:785360520679:web:ac2e2710ece34591a52942",
-  measurementId: "G-P4Q2KYTBBM"
-};
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+      authDomain: "earn-itt.firebaseapp.com",
+      projectId: "earn-itt",
+      storageBucket: "earn-itt.appspot.com",
+      messagingSenderId: "785360520679",
+      appId: "1:785360520679:web:ac2e2710ece34591a52942",
+      measurementId: "G-P4Q2KYTBBM"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -38,6 +38,7 @@ const firebaseConfig = {
     let symbol = "";
     let isMyTurn = false;
     let gameEnded = false;
+    let currentRoom = null;
     let roomUnsub = null;
 
     function showMessage(msg) {
@@ -53,23 +54,26 @@ const firebaseConfig = {
         show(qs("dashboard"));
         hide(qs("login-section"));
         hide(qs("signup-section"));
-        const docSnap = await getDoc(doc(db, "users", user.uid));
+
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
         if (!docSnap.exists()) {
-          await setDoc(doc(db, "users", user.uid), {
+          await setDoc(docRef, {
             username: user.email.split("@")[0],
             wins: 0,
             losses: 0,
             ties: 0
           });
         }
-        const userData = (await getDoc(doc(db, "users", user.uid))).data();
-        qs("username").textContent = userData.username;
-        qs("stats").textContent = `W:${userData.wins} L:${userData.losses} T:${userData.ties}`;
+
+        const data = (await getDoc(docRef)).data();
+        qs("username").textContent = data.username;
+        qs("stats").textContent = `W:${data.wins} L:${data.losses} T:${data.ties}`;
       } else {
         currentUser = null;
         show(qs("login-section"));
-        hide(qs("dashboard"));
         hide(qs("signup-section"));
+        hide(qs("dashboard"));
         hide(qs("game-section"));
       }
     });
@@ -82,67 +86,45 @@ const firebaseConfig = {
       hide(qs("signup-section"));
       show(qs("login-section"));
     };
+
     qs("signup-btn").onclick = async () => {
-  const email = qs("signup-email").value.trim();
-  const pass = qs("signup-pass").value;
-
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    showMessage("Please enter a valid email address.");
-    return;
-  }
-
-  try {
-    await createUserWithEmailAndPassword(auth, email, pass);
-  } catch (e) {
-    showMessage(e.message);
-  }
-};
-
+      const email = qs("signup-email").value.trim();
+      const pass = qs("signup-pass").value;
+      if (!/^\S+@\S+\.\S+$/.test(email)) return showMessage("Enter valid email.");
       try {
         await createUserWithEmailAndPassword(auth, email, pass);
       } catch (e) {
         showMessage(e.message);
       }
     };
+
     qs("login-btn").onclick = async () => {
-  const email = qs("login-email").value.trim();
-  const pass = qs("login-pass").value;
-
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    showMessage("Please enter a valid email address.");
-    return;
-  }
-
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch (e) {
-    showMessage(e.message);
-  }
-};
-
+      const email = qs("login-email").value.trim();
+      const pass = qs("login-pass").value;
+      if (!/^\S+@\S+\.\S+$/.test(email)) return showMessage("Enter valid email.");
       try {
         await signInWithEmailAndPassword(auth, email, pass);
       } catch (e) {
         showMessage(e.message);
       }
     };
+
     qs("logout-btn").onclick = () => signOut(auth);
 
     qs("update-username").onclick = async () => {
-      const newUsername = qs("username-input").value;
-      if (newUsername) {
-        await updateDoc(doc(db, "users", currentUser.uid), { username: newUsername });
-        const userData = (await getDoc(doc(db, "users", currentUser.uid))).data();
-        qs("username").textContent = userData.username;
-        showMessage("Username updated!");
-      }
+      const newName = qs("username-input").value.trim();
+      if (!newName) return;
+      await updateDoc(doc(db, "users", currentUser.uid), { username: newName });
+      const updated = (await getDoc(doc(db, "users", currentUser.uid))).data();
+      qs("username").textContent = updated.username;
+      showMessage("Username updated!");
     };
 
     qs("play-random").onclick = () => randomMatch();
     qs("play-friend").onclick = () => {
-      const choice = confirm("Create a room?");
-      if (choice) createFriendRoom();
-      else joinFriendRoom();
+      confirm("Create a room?")
+        ? createFriendRoom()
+        : joinFriendRoom();
     };
 
     async function updateStats(result) {
@@ -151,7 +133,7 @@ const firebaseConfig = {
       const data = snap.data();
       if (result === "win") data.wins++;
       else if (result === "lose") data.losses++;
-      else if (result === "tie") data.ties++;
+      else data.ties++;
       await updateDoc(ref, data);
     }
 
@@ -167,10 +149,9 @@ const firebaseConfig = {
         [0,3,6],[1,4,7],[2,5,8],
         [0,4,8],[2,4,6]
       ];
-      for (const [a,b,c] of win) {
+      for (const [a,b,c] of win)
         if (board[a] && board[a] === board[b] && board[b] === board[c])
           return board[a];
-      }
       return board.includes("") ? null : "Tie";
     }
 
@@ -181,41 +162,39 @@ const firebaseConfig = {
       cell.textContent = symbol;
       isMyTurn = false;
       updateDoc(doc(db, "rooms", currentRoom.id), {
-        board: currentRoom.board.map((val, idx) => idx === i ? symbol : val),
+        board: currentRoom.board.map((v, idx) => idx === i ? symbol : v),
         turn: symbol === "X" ? "O" : "X"
       });
     }
 
-    let currentRoom = null;
-
-    function playGame(roomData) {
-      currentRoom = roomData;
-      symbol = roomData.X === currentUser.uid ? "X" : "O";
-      isMyTurn = roomData.turn === symbol;
+    function playGame(data) {
+      currentRoom = data;
+      symbol = data.X === currentUser.uid ? "X" : "O";
+      isMyTurn = data.turn === symbol;
       gameEnded = false;
       show(qs("game-section"));
       hide(qs("dashboard"));
       qs("game-status").textContent = `You are ${symbol}`;
-      updateBoard(roomData.board);
+      updateBoard(data.board);
 
-      roomUnsub = onSnapshot(doc(db, "rooms", roomData.id), (snap) => {
-        const data = snap.data();
-        currentRoom.board = data.board;
-        updateBoard(data.board);
-        const winner = checkGameOver(data.board);
-        if (winner && !gameEnded) {
+      roomUnsub = onSnapshot(doc(db, "rooms", data.id), (snap) => {
+        const room = snap.data();
+        currentRoom.board = room.board;
+        updateBoard(room.board);
+        const result = checkGameOver(room.board);
+        if (result && !gameEnded) {
           gameEnded = true;
-          const result = winner === symbol ? "win" : (winner === "Tie" ? "tie" : "lose");
-          showMessage(result.toUpperCase());
-          updateStats(result);
+          const outcome = result === symbol ? "win" : result === "Tie" ? "tie" : "lose";
+          showMessage(outcome.toUpperCase());
+          updateStats(outcome);
           setTimeout(async () => {
             roomUnsub();
-            await deleteDoc(doc(db, "rooms", roomData.id));
+            await deleteDoc(doc(db, "rooms", data.id));
             show(qs("dashboard"));
             hide(qs("game-section"));
           }, 3000);
         }
-        isMyTurn = data.turn === symbol;
+        isMyTurn = room.turn === symbol;
       });
     }
 
@@ -224,34 +203,34 @@ const firebaseConfig = {
       const ref = collection(db, "matchmaking");
       const q = query(ref, limit(1));
       const snap = await getDocs(q);
+
       if (snap.empty) {
         const docRef = await addDoc(ref, { uid: currentUser.uid, timestamp: Date.now() });
-        const unsub = onSnapshot(doc(db, "matchmaking", docRef.id), async (snap) => {
-          const data = snap.data();
-          if (data?.matched) {
+        const unsub = onSnapshot(doc(db, "matchmaking", docRef.id), async (s) => {
+          const d = s.data();
+          if (d?.matched) {
             unsub();
             await deleteDoc(docRef);
-            playGame({ id: data.roomId, ...data });
+            playGame({ id: d.roomId, ...d });
           }
         });
         setTimeout(async () => {
-          const matchSnap = await getDoc(docRef);
-          if (matchSnap.exists()) {
+          const check = await getDoc(docRef);
+          if (check.exists()) {
             await deleteDoc(docRef);
             showMessage("No match found.");
           }
         }, 20000);
       } else {
         const other = snap.docs[0];
-        const otherData = other.data();
         const roomRef = await addDoc(collection(db, "rooms"), {
-          X: otherData.uid,
+          X: other.data().uid,
           O: currentUser.uid,
-          board: ["","","","","","","","",""],
+          board: Array(9).fill(""),
           turn: "X"
         });
         await updateDoc(other.ref, { matched: true, roomId: roomRef.id });
-        playGame({ id: roomRef.id, X: otherData.uid, O: currentUser.uid, board: ["","","","","","","","",""], turn: "X" });
+        playGame({ id: roomRef.id, X: other.data().uid, O: currentUser.uid, board: Array(9).fill(""), turn: "X" });
       }
     }
 
@@ -259,7 +238,7 @@ const firebaseConfig = {
       const roomRef = await addDoc(collection(db, "rooms"), {
         X: currentUser.uid,
         O: null,
-        board: ["","","","","","","","",""],
+        board: Array(9).fill(""),
         turn: "X"
       });
       showMessage(`Room ID: ${roomRef.id}`);
@@ -273,13 +252,13 @@ const firebaseConfig = {
     }
 
     async function joinFriendRoom() {
-      const id = prompt("Room ID?");
+      const id = prompt("Enter Room ID:");
       if (!id) return;
       const ref = doc(db, "rooms", id);
       const snap = await getDoc(ref);
-      if (!snap.exists()) return showMessage("Not found");
+      if (!snap.exists()) return showMessage("Room not found.");
       const data = snap.data();
-      if (data.O) return showMessage("Full");
+      if (data.O) return showMessage("Room is full.");
       await updateDoc(ref, { O: currentUser.uid });
       playGame({ id: id, ...data, O: currentUser.uid });
     }
@@ -292,12 +271,10 @@ const firebaseConfig = {
       color: #fff;
       text-align: center;
     }
-
     section {
       display: none;
       margin-top: 50px;
     }
-
     input, button {
       margin: 10px;
       padding: 10px;
@@ -306,16 +283,13 @@ const firebaseConfig = {
       color: #0ff;
       border: 1px solid #0ff;
     }
-
     button:hover {
       background: #0ff;
       color: #111;
     }
-
     .glow {
       text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
     }
-
     .board {
       display: grid;
       grid-template-columns: repeat(3, 80px);
@@ -323,7 +297,6 @@ const firebaseConfig = {
       justify-content: center;
       margin: 20px;
     }
-
     .cell {
       width: 80px;
       height: 80px;
@@ -332,7 +305,6 @@ const firebaseConfig = {
       border: 1px solid #0ff;
       cursor: pointer;
     }
-
     #message-box {
       margin-top: 20px;
       padding: 10px;
