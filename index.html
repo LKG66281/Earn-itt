@@ -3,81 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login / Signup</title>
+  <title>Business Auth Dashboard</title>
   <style>
     body {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
       margin: 0;
-      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
     }
+
     .container {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0,255,255,0.3);
-      width: 90%;
       max-width: 400px;
-      text-align: center;
+      margin: 100px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
     }
+
     h2 {
+      text-align: center;
       margin-bottom: 20px;
+      color: #333;
     }
-    input {
+
+    input, button {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
+
     button {
-      width: 100%;
-      padding: 12px;
-      background: #00ffc8;
-      color: #000;
+      background-color: #007BFF;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
       border: none;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #toggle-auth {
+      text-align: center;
       margin-top: 10px;
-    }
-    a {
-      display: block;
-      margin-top: 15px;
-      color: #00ffc8;
+      color: #007BFF;
       cursor: pointer;
     }
-    #message {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #ffcb05;
+
+    #message-box {
+      display: none;
+      background: #fffae6;
+      color: #664d03;
+      border: 1px solid #ffecb5;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      text-align: center;
     }
+
+    #dashboard {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 300px;
+      background: #007BFF;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h3 {
+      margin-bottom: 10px;
+    }
+
+    .sidebar p {
+      margin: 5px 0;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .logout-btn {
+      background-color: #dc3545;
+      color: white;
+      margin-top: 20px;
+    }
+
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2 id="form-title">Login</h2>
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
-  <button id="submit-btn">Login</button>
-  <a id="toggle-link">Don't have an account? Sign up</a>
-  <div id="message"></div>
+<!-- Auth Section -->
+<div class="container" id="auth-container">
+  <h2 id="auth-title">Login</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button id="auth-button">Login</button>
+  <p id="toggle-auth">Don't have an account? Sign up</p>
+  <div id="message-box"></div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" style="display: none;">
+  <div class="sidebar">
+    <h3 id="profile-name">Welcome</h3>
+    <p id="profile-email">Email: </p>
+    <p id="profile-id">User ID: </p>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+  <div class="main-content">
+    <h2>🎉 Dashboard</h2>
+    <p>This is your private business dashboard powered by Firebase Auth and Firestore.</p>
+  </div>
 </div>
 
 <script type="module">
-  // Firebase SDKs
+  // Firebase Setup
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-  // Firebase config from your project
   const firebaseConfig = {
     apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
     authDomain: "earn-itt.firebaseapp.com",
@@ -94,56 +147,60 @@
 
   let isLogin = true;
 
-  const emailEl = document.getElementById('email');
-  const passEl = document.getElementById('password');
-  const submitBtn = document.getElementById('submit-btn');
-  const toggleLink = document.getElementById('toggle-link');
-  const formTitle = document.getElementById('form-title');
-  const messageBox = document.getElementById('message');
+  const authTitle = document.getElementById("auth-title");
+  const authButton = document.getElementById("auth-button");
+  const toggleAuth = document.getElementById("toggle-auth");
+  const messageBox = document.getElementById("message-box");
 
-  toggleLink.onclick = () => {
+  toggleAuth.onclick = () => {
     isLogin = !isLogin;
-    formTitle.textContent = isLogin ? 'Login' : 'Sign Up';
-    submitBtn.textContent = isLogin ? 'Login' : 'Sign Up';
-    toggleLink.textContent = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
-    messageBox.textContent = "";
+    authTitle.textContent = isLogin ? "Login" : "Sign Up";
+    authButton.textContent = isLogin ? "Login" : "Sign Up";
+    toggleAuth.textContent = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
   };
 
-  submitBtn.onclick = async () => {
-    const email = emailEl.value.trim();
-    const pass = passEl.value.trim();
-    if (!email || !pass) {
-      messageBox.textContent = "Please fill out both fields.";
-      return;
-    }
-
+  authButton.onclick = async () => {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
     try {
-      let userCred;
       if (isLogin) {
-        userCred = await signInWithEmailAndPassword(auth, email, pass);
-        const snap = await getDoc(doc(db, "users", userCred.user.uid));
-        messageBox.textContent = `Welcome back, ${snap.exists() ? snap.data().email : "user"}!`;
+        await signInWithEmailAndPassword(auth, email, pass);
       } else {
-        userCred = await createUserWithEmailAndPassword(auth, email, pass);
+        const userCred = await createUserWithEmailAndPassword(auth, email, pass);
         await setDoc(doc(db, "users", userCred.user.uid), {
-          email: email,
-          createdAt: new Date()
+          email,
+          createdAt: new Date().toISOString()
         });
-        messageBox.textContent = "Signup successful! You can now login.";
-        toggleLink.click(); // switch to login
       }
     } catch (err) {
-      messageBox.textContent = err.message;
+      showMessage(err.message);
     }
   };
 
-  // Optional: Automatically show welcome message if logged in
-  onAuthStateChanged(auth, user => {
+  function showMessage(msg) {
+    messageBox.textContent = msg;
+    messageBox.style.display = "block";
+    setTimeout(() => {
+      messageBox.style.display = "none";
+    }, 4000);
+  }
+
+  onAuthStateChanged(auth, async user => {
     if (user) {
-      messageBox.textContent = `You're already logged in as ${user.email}`;
+      const uid = user.uid;
+      const userDoc = await getDoc(doc(db, "users", uid));
+      const data = userDoc.exists() ? userDoc.data() : {};
+      document.getElementById("profile-name").textContent = `Welcome, ${data.username || "User"}`;
+      document.getElementById("profile-email").textContent = `Email: ${user.email}`;
+      document.getElementById("profile-id").textContent = `User ID: ${user.uid}`;
+      document.getElementById("auth-container").style.display = "none";
+      document.getElementById("dashboard").style.display = "flex";
     }
   });
-</script>
 
+  window.logout = () => {
+    signOut(auth).then(() => location.reload());
+  };
+</script>
 </body>
 </html>
