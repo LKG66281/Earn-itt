@@ -1,281 +1,149 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Tic-Tac-Toe Multiplayer</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login / Signup</title>
   <style>
     body {
-      background: #000;
-      color: #0f0;
-      font-family: monospace;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    .glow {
-      text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
-    }
-    #gameBoard {
-      display: grid;
-      grid-template-columns: repeat(3, 100px);
-      grid-gap: 5px;
-      justify-content: center;
-      margin: 20px auto;
-    }
-    .cell {
-      width: 100px;
-      height: 100px;
-      background: #111;
-      border: 1px solid #0f0;
-      font-size: 2em;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: white;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,255,255,0.3);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00ffc8;
+      color: #000;
+      border: none;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    a {
+      display: block;
+      margin-top: 15px;
+      color: #00ffc8;
       cursor: pointer;
     }
-    #messageBox {
-      margin-top: 10px;
-      color: #0f0;
-      font-weight: bold;
-      padding: 10px;
-      border: 1px solid #0f0;
-      width: fit-content;
-      margin-left: auto;
-      margin-right: auto;
-      border-radius: 5px;
-      box-shadow: 0 0 10px #0f0;
-    }
-    #loginSection, #dashboard, #matchOptions {
+    #message {
       margin-top: 20px;
-    }
-    input, button {
-      padding: 10px;
-      background: #111;
-      color: #0f0;
-      border: 1px solid #0f0;
-      margin: 5px;
-      border-radius: 5px;
+      font-weight: bold;
+      color: #ffcb05;
     }
   </style>
 </head>
 <body>
-  <h1 class="glow">🔥 Tic-Tac-Toe 🔥</h1>
-  <div id="messageBox"></div>
 
-  <div id="loginSection">
-    <input type="email" id="emailInput" placeholder="Email"><br>
-    <input type="password" id="passwordInput" placeholder="Password"><br>
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Sign Up</button>
-  </div>
+<div class="container">
+  <h2 id="form-title">Login</h2>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button id="submit-btn">Login</button>
+  <a id="toggle-link">Don't have an account? Sign up</a>
+  <div id="message"></div>
+</div>
 
-  <div id="dashboard" style="display:none;">
-    <div>
-      Username: <span id="currentUsername"></span><br>
-      <input id="usernameInput" placeholder="Update Username">
-      <button onclick="updateUsername()">Save</button>
-    </div>
-    <div>
-      <button onclick="toggleMatchOptions()">Play</button>
-      <div id="matchOptions" style="display:none;">
-        <button onclick="findMatchRandomly()">🎲 Random Match</button>
-      </div>
-    </div>
-    <div>
-      <p>Wins: <span id="wins">0</span></p>
-      <p>Losses: <span id="losses">0</span></p>
-      <p>Ties: <span id="ties">0</span></p>
-      <button onclick="logout()">Logout</button>
-    </div>
-  </div>
+<script type="module">
+  // Firebase SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-  <div id="gameBoard"></div>
+  // Firebase config from your project
+  const firebaseConfig = {
+    apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+    authDomain: "earn-itt.firebaseapp.com",
+    projectId: "earn-itt",
+    storageBucket: "earn-itt.firebasestorage.app",
+    messagingSenderId: "785360520679",
+    appId: "1:785360520679:web:ac2e2710ece34591a52942",
+    measurementId: "G-P4Q2KYTBBM"
+  };
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script>
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-      authDomain: "earn-itt.firebaseapp.com",
-      projectId: "earn-itt",
-      storageBucket: "earn-itt.firebasestorage.app",
-      messagingSenderId: "785360520679",
-      appId: "1:785360520679:web:ac2e2710ece34591a52942",
-      measurementId: "G-P4Q2KYTBBM"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    let currentUser = null;
-    let currentRoom = null;
-    let board = Array(9).fill('');
-    let currentTurn = 'X';
+  let isLogin = true;
 
-    function showMessage(msg) {
-      document.getElementById("messageBox").innerText = msg;
+  const emailEl = document.getElementById('email');
+  const passEl = document.getElementById('password');
+  const submitBtn = document.getElementById('submit-btn');
+  const toggleLink = document.getElementById('toggle-link');
+  const formTitle = document.getElementById('form-title');
+  const messageBox = document.getElementById('message');
+
+  toggleLink.onclick = () => {
+    isLogin = !isLogin;
+    formTitle.textContent = isLogin ? 'Login' : 'Sign Up';
+    submitBtn.textContent = isLogin ? 'Login' : 'Sign Up';
+    toggleLink.textContent = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
+    messageBox.textContent = "";
+  };
+
+  submitBtn.onclick = async () => {
+    const email = emailEl.value.trim();
+    const pass = passEl.value.trim();
+    if (!email || !pass) {
+      messageBox.textContent = "Please fill out both fields.";
+      return;
     }
 
-    auth.onAuthStateChanged(async user => {
-      if (user) {
-        currentUser = user;
-        document.getElementById("loginSection").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        await loadUsername();
-        await loadStats();
-      }
-    });
-
-    async function login() {
-      const email = document.getElementById("emailInput").value;
-      const password = document.getElementById("passwordInput").value;
-      await auth.signInWithEmailAndPassword(email, password);
-    }
-
-    async function signup() {
-      const email = document.getElementById("emailInput").value;
-      const password = document.getElementById("passwordInput").value;
-      await auth.createUserWithEmailAndPassword(email, password);
-    }
-
-    function logout() {
-      auth.signOut();
-      location.reload();
-    }
-
-    async function loadUsername() {
-      const doc = await db.collection("users").doc(currentUser.uid).get();
-      if (doc.exists && doc.data().username) {
-        document.getElementById("currentUsername").innerText = doc.data().username;
-      }
-    }
-
-    async function updateUsername() {
-      const username = document.getElementById("usernameInput").value;
-      await db.collection("users").doc(currentUser.uid).set({ username }, { merge: true });
-      document.getElementById("currentUsername").innerText = username;
-    }
-
-    async function loadStats() {
-      const doc = await db.collection("stats").doc(currentUser.uid).get();
-      if (doc.exists) {
-        const data = doc.data();
-        document.getElementById("wins").innerText = data.wins || 0;
-        document.getElementById("losses").innerText = data.losses || 0;
-        document.getElementById("ties").innerText = data.ties || 0;
-      }
-    }
-
-    function toggleMatchOptions() {
-      const options = document.getElementById("matchOptions");
-      options.style.display = options.style.display === "none" ? "block" : "none";
-    }
-
-    async function findMatchRandomly() {
-      showMessage("Searching for a match...");
-      const userDoc = await db.collection("users").doc(currentUser.uid).get();
-      const username = userDoc.data().username || "Anonymous";
-
-      const waitingQuery = await db.collection("waiting").limit(1).get();
-
-      if (waitingQuery.empty) {
-        await db.collection("waiting").doc(currentUser.uid).set({ uid: currentUser.uid, username, timestamp: Date.now() });
-        const unsub = db.collection("rooms").where("playerO", "==", currentUser.uid)
-          .onSnapshot(snapshot => {
-            snapshot.docChanges().forEach(change => {
-              if (change.type === "added") {
-                currentRoom = change.doc.id;
-                unsub();
-                startGame(currentRoom, "O");
-              }
-            });
-          });
+    try {
+      let userCred;
+      if (isLogin) {
+        userCred = await signInWithEmailAndPassword(auth, email, pass);
+        const snap = await getDoc(doc(db, "users", userCred.user.uid));
+        messageBox.textContent = `Welcome back, ${snap.exists() ? snap.data().email : "user"}!`;
       } else {
-        const waitingPlayer = waitingQuery.docs[0].data();
-        const roomRef = await db.collection("rooms").add({
-          playerX: waitingPlayer.uid,
-          playerO: currentUser.uid,
-          board: Array(9).fill(''),
-          turn: 'X',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        userCred = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db, "users", userCred.user.uid), {
+          email: email,
+          createdAt: new Date()
         });
-        await db.collection("waiting").doc(waitingPlayer.uid).delete();
-        currentRoom = roomRef.id;
-        startGame(currentRoom, "X");
+        messageBox.textContent = "Signup successful! You can now login.";
+        toggleLink.click(); // switch to login
       }
+    } catch (err) {
+      messageBox.textContent = err.message;
     }
+  };
 
-    function renderBoard() {
-      const gameBoard = document.getElementById("gameBoard");
-      gameBoard.innerHTML = "";
-      board.forEach((cell, i) => {
-        const div = document.createElement("div");
-        div.className = "cell";
-        div.innerText = cell;
-        div.onclick = () => makeMove(i);
-        gameBoard.appendChild(div);
-      });
+  // Optional: Automatically show welcome message if logged in
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      messageBox.textContent = `You're already logged in as ${user.email}`;
     }
+  });
+</script>
 
-    function startGame(roomId, symbol) {
-      showMessage("Match found! You are " + symbol);
-      db.collection("rooms").doc(roomId).onSnapshot(doc => {
-        const data = doc.data();
-        board = data.board;
-        currentTurn = data.turn;
-        renderBoard();
-        checkWinner(data.board, symbol);
-      });
-    }
-
-    function makeMove(index) {
-      if (!board || board[index] !== '') return;
-      db.collection("rooms").doc(currentRoom).get().then(doc => {
-        const data = doc.data();
-        if (data.turn !== getSymbol()) return;
-        board[index] = data.turn;
-        const nextTurn = data.turn === 'X' ? 'O' : 'X';
-        db.collection("rooms").doc(currentRoom).update({ board, turn: nextTurn });
-      });
-    }
-
-    function getSymbol() {
-      return currentTurn;
-    }
-
-    async function checkWinner(b, symbol) {
-      const wins = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ];
-      for (let combo of wins) {
-        const [a,b1,c] = combo;
-        if (board[a] && board[a] === board[b1] && board[a] === board[c]) {
-          showMessage(`Player ${board[a]} wins!`);
-          await updateStats(board[a] === symbol ? "wins" : "losses");
-          return;
-        }
-      }
-      if (board.every(cell => cell)) {
-        showMessage("It's a tie!");
-        await updateStats("ties");
-      }
-    }
-
-    async function updateStats(type) {
-      const statRef = db.collection("stats").doc(currentUser.uid);
-      await db.runTransaction(async (t) => {
-        const doc = await t.get(statRef);
-        const prev = doc.exists ? doc.data()[type] || 0 : 0;
-        t.set(statRef, { [type]: prev + 1 }, { merge: true });
-      });
-      setTimeout(() => {
-        location.reload();
-      }, 3000);
-    }
-  </script>
 </body>
 </html>
