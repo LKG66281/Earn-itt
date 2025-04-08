@@ -3,136 +3,138 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Business Dashboard</title>
+  <title>Dashboard</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #0f0f0f;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      background: #0d0d0d;
+      color: #fff;
     }
 
     .container {
-      background: #1a1a1a;
-      border-radius: 10px;
-      padding: 30px;
-      width: 100%;
       max-width: 400px;
-      box-shadow: 0 0 15px #00ffe0;
+      margin: 100px auto;
+      padding: 20px;
+      background: #1c1c1c;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #0ff;
       text-align: center;
     }
 
     input, button {
-      display: block;
-      width: 100%;
+      width: 90%;
+      padding: 10px;
       margin: 10px 0;
-      padding: 12px;
       border: none;
       border-radius: 5px;
-      background: #2a2a2a;
-      color: white;
-      font-size: 16px;
+      background: #2c2c2c;
+      color: #fff;
     }
 
     button {
-      background: #00ffe0;
+      background: #0ff;
       color: #000;
       font-weight: bold;
       cursor: pointer;
     }
 
-    #message-box {
-      background: #00ffe0;
-      color: #000;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 5px;
-      display: none;
-      font-weight: bold;
+    .dashboard {
+      display: flex;
+      height: 100vh;
+      position: relative;
     }
 
-    #dashboard {
-      display: none;
-      max-width: 1000px;
-      flex-direction: row;
+    .profile-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #0ff;
+      margin: 10px;
+      cursor: pointer;
+    }
+
+    .profile-circle img {
       width: 100%;
-      gap: 20px;
+      height: 100%;
+      object-fit: cover;
     }
 
     .sidebar {
-      width: 250px;
+      width: 60px;
       background: #111;
-      border-radius: 10px;
+      display: flex;
+      align-items: flex-start;
+      padding: 10px;
+    }
+
+    .slide-panel {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100%;
+      background: #1c1c1c;
+      box-shadow: -5px 0 15px #0ff;
       padding: 20px;
-      text-align: center;
-      box-shadow: 0 0 10px #00ffe0;
+      transition: right 0.3s ease;
+      z-index: 10;
     }
 
-    .profile-pic {
-      width: 120px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 3px solid #00ffe0;
-      cursor: pointer;
-      margin-bottom: 10px;
+    .slide-panel.show {
+      right: 0;
     }
 
-    .main-content {
-      flex: 1;
-      padding: 20px;
-      background: #222;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #00ffe0;
-    }
-
-    .hidden {
+    .glow-box {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      padding: 15px 25px;
+      border-radius: 8px;
+      color: #0ff;
+      font-weight: bold;
+      box-shadow: 0 0 20px #0ff;
       display: none;
-    }
-
-    label {
-      display: block;
-      margin-top: 10px;
-      text-align: left;
+      z-index: 999;
     }
   </style>
 </head>
 <body>
 
-<div class="container" id="auth-section">
-  <h2 id="form-title">Login</h2>
+<div class="container" id="auth-container">
+  <h2 id="auth-title">Login</h2>
   <input type="email" id="email" placeholder="Email">
   <input type="password" id="password" placeholder="Password">
   <button id="auth-btn">Login</button>
   <p><a href="#" id="toggle-auth">Don't have an account? Sign up</a></p>
-  <div id="message-box"></div>
 </div>
 
-<div id="dashboard" class="hidden">
+<div class="dashboard hidden" id="dashboard">
   <div class="sidebar">
-    <img src="https://via.placeholder.com/120" alt="Profile" id="profile-pic" class="profile-pic">
-    <h3 id="username-display">Your Name</h3>
-    <p id="bio-display">Your bio here...</p>
-    <input type="file" id="profile-image" class="hidden">
-    <input type="text" id="username" placeholder="New Username">
-    <input type="text" id="bio" placeholder="Your Bio">
-    <button id="update-profile">Update Profile</button>
-    <button id="logout">Logout</button>
-  </div>
-  <div class="main-content">
-    <h2>Dashboard</h2>
-    <p>Welcome to your dashboard!</p>
+    <div class="profile-circle" id="profile-circle">
+      <img src="https://via.placeholder.com/60" id="profile-pic" />
+    </div>
   </div>
 </div>
 
+<div class="slide-panel" id="slide-panel">
+  <h3>Update Profile</h3>
+  <input type="file" id="profile-img-input">
+  <input type="text" id="username" placeholder="Username">
+  <input type="text" id="bio" placeholder="Bio">
+  <button id="save-profile">Save</button>
+</div>
+
+<div class="glow-box" id="message-box">Message</div>
+
+<!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -150,89 +152,99 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  const showMessage = (msg) => {
-    const box = document.getElementById("message-box");
-    box.textContent = msg;
-    box.style.display = "block";
-    setTimeout(() => box.style.display = "none", 3000);
-  };
+  const emailInput = document.getElementById("email");
+  const passInput = document.getElementById("password");
+  const authBtn = document.getElementById("auth-btn");
+  const toggleAuth = document.getElementById("toggle-auth");
+  const authContainer = document.getElementById("auth-container");
+  const dashboard = document.getElementById("dashboard");
+  const profileCircle = document.getElementById("profile-circle");
+  const profilePic = document.getElementById("profile-pic");
+  const slidePanel = document.getElementById("slide-panel");
+  const usernameInput = document.getElementById("username");
+  const bioInput = document.getElementById("bio");
+  const profileImgInput = document.getElementById("profile-img-input");
+  const saveProfile = document.getElementById("save-profile");
+  const messageBox = document.getElementById("message-box");
 
   let isLogin = true;
-  document.getElementById("toggle-auth").onclick = () => {
+  let currentUser = null;
+
+  toggleAuth.onclick = () => {
     isLogin = !isLogin;
-    document.getElementById("form-title").textContent = isLogin ? "Login" : "Sign Up";
-    document.getElementById("auth-btn").textContent = isLogin ? "Login" : "Sign Up";
-    document.getElementById("toggle-auth").textContent = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
+    document.getElementById("auth-title").textContent = isLogin ? "Login" : "Sign Up";
+    authBtn.textContent = isLogin ? "Login" : "Sign Up";
+    toggleAuth.textContent = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
   };
 
-  document.getElementById("auth-btn").onclick = async () => {
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
+  function showMessage(msg) {
+    messageBox.textContent = msg;
+    messageBox.style.display = "block";
+    setTimeout(() => messageBox.style.display = "none", 3000);
+  }
+
+  authBtn.onclick = async () => {
+    const email = emailInput.value;
+    const pass = passInput.value;
     try {
-      let userCred;
       if (isLogin) {
-        userCred = await signInWithEmailAndPassword(auth, email, pass);
+        await signInWithEmailAndPassword(auth, email, pass);
+        showMessage("✅ Successfully logged in!");
       } else {
-        userCred = await createUserWithEmailAndPassword(auth, email, pass);
-        await setDoc(doc(db, "users", userCred.user.uid), {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db, "users", cred.user.uid), {
           username: "New User",
-          bio: "No bio",
-          profileUrl: ""
+          bio: "",
+          imageUrl: ""
         });
+        showMessage("✅ Account created!");
       }
-      showMessage("✅ Successfully logged in!");
     } catch (e) {
       showMessage("❌ " + e.message);
     }
   };
 
-  onAuthStateChanged(auth, async (user) => {
+  onAuthStateChanged(auth, async user => {
     if (user) {
-      document.getElementById("auth-section").style.display = "none";
-      document.getElementById("dashboard").style.display = "flex";
+      currentUser = user;
+      authContainer.classList.add("hidden");
+      dashboard.classList.remove("hidden");
+
       const snap = await getDoc(doc(db, "users", user.uid));
-      const data = snap.data();
-      document.getElementById("username-display").textContent = data.username;
-      document.getElementById("bio-display").textContent = data.bio;
-      if (data.profileUrl) {
-        document.getElementById("profile-pic").src = data.profileUrl;
+      if (snap.exists()) {
+        const data = snap.data();
+        if (data.imageUrl) {
+          profilePic.src = data.imageUrl;
+        }
+        usernameInput.value = data.username || "";
+        bioInput.value = data.bio || "";
       }
-    } else {
-      document.getElementById("auth-section").style.display = "block";
-      document.getElementById("dashboard").style.display = "none";
     }
   });
 
-  document.getElementById("logout").onclick = () => {
-    signOut(auth);
+  profileCircle.onclick = () => {
+    slidePanel.classList.toggle("show");
   };
 
-  document.getElementById("profile-pic").onclick = () => {
-    document.getElementById("profile-image").click();
-  };
+  saveProfile.onclick = async () => {
+    let imageUrl = null;
 
-  document.getElementById("update-profile").onclick = async () => {
-    const user = auth.currentUser;
-    const username = document.getElementById("username").value;
-    const bio = document.getElementById("bio").value;
-    const updates = {};
-    if (username) updates.username = username;
-    if (bio) updates.bio = bio;
-
-    const fileInput = document.getElementById("profile-image");
-    const file = fileInput.files[0];
-    if (file) {
-      const fileRef = ref(storage, `profiles/${user.uid}.jpg`);
-      await uploadBytes(fileRef, file);
-      const url = await getDownloadURL(fileRef);
-      updates.profileUrl = url;
+    if (profileImgInput.files.length > 0) {
+      const file = profileImgInput.files[0];
+      const storageRef = ref(storage, `profiles/${currentUser.uid}`);
+      await uploadBytes(storageRef, file);
+      imageUrl = await getDownloadURL(storageRef);
+      profilePic.src = imageUrl;
     }
 
-    if (Object.keys(updates).length > 0) {
-      await updateDoc(doc(db, "users", user.uid), updates);
-      showMessage("✅ Profile updated");
-      location.reload();
-    }
+    const data = {};
+    if (usernameInput.value) data.username = usernameInput.value;
+    if (bioInput.value) data.bio = bioInput.value;
+    if (imageUrl) data.imageUrl = imageUrl;
+
+    await updateDoc(doc(db, "users", currentUser.uid), data);
+    showMessage("✅ Profile updated!");
+    slidePanel.classList.remove("show");
   };
 </script>
 </body>
