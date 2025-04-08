@@ -3,139 +3,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Business Auth Dashboard</title>
+  <title>Business Dashboard</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #f4f4f4;
+      background-color: #0f0f0f;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
 
     .container {
-      max-width: 400px;
-      margin: 100px auto;
-      background: white;
-      padding: 30px;
+      background: #1a1a1a;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    }
-
-    h2 {
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 15px #00ffe0;
       text-align: center;
-      margin-bottom: 20px;
-      color: #333;
     }
 
     input, button {
+      display: block;
       width: 100%;
-      padding: 12px;
       margin: 10px 0;
+      padding: 12px;
+      border: none;
       border-radius: 5px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
+      background: #2a2a2a;
+      color: white;
+      font-size: 16px;
     }
 
     button {
-      background-color: #007BFF;
-      color: white;
+      background: #00ffe0;
+      color: #000;
       font-weight: bold;
-      cursor: pointer;
-      border: none;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #toggle-auth {
-      text-align: center;
-      margin-top: 10px;
-      color: #007BFF;
       cursor: pointer;
     }
 
     #message-box {
-      display: none;
-      background: #fffae6;
-      color: #664d03;
-      border: 1px solid #ffecb5;
+      background: #00ffe0;
+      color: #000;
       padding: 10px;
-      border-radius: 5px;
       margin-top: 10px;
-      text-align: center;
+      border-radius: 5px;
+      display: none;
+      font-weight: bold;
     }
 
     #dashboard {
-      display: flex;
-      height: 100vh;
+      display: none;
+      max-width: 1000px;
+      flex-direction: row;
+      width: 100%;
+      gap: 20px;
     }
 
     .sidebar {
-      width: 300px;
-      background: #007BFF;
-      color: white;
+      width: 250px;
+      background: #111;
+      border-radius: 10px;
       padding: 20px;
-      box-sizing: border-box;
+      text-align: center;
+      box-shadow: 0 0 10px #00ffe0;
     }
 
-    .sidebar h3 {
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #00ffe0;
+      cursor: pointer;
       margin-bottom: 10px;
-    }
-
-    .sidebar p {
-      margin: 5px 0;
     }
 
     .main-content {
       flex: 1;
-      padding: 40px;
+      padding: 20px;
+      background: #222;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00ffe0;
     }
 
-    .logout-btn {
-      background-color: #dc3545;
-      color: white;
-      margin-top: 20px;
+    .hidden {
+      display: none;
     }
 
+    label {
+      display: block;
+      margin-top: 10px;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
 
-<!-- Auth Section -->
-<div class="container" id="auth-container">
-  <h2 id="auth-title">Login</h2>
+<div class="container" id="auth-section">
+  <h2 id="form-title">Login</h2>
   <input type="email" id="email" placeholder="Email">
   <input type="password" id="password" placeholder="Password">
-  <button id="auth-button">Login</button>
-  <p id="toggle-auth">Don't have an account? Sign up</p>
+  <button id="auth-btn">Login</button>
+  <p><a href="#" id="toggle-auth">Don't have an account? Sign up</a></p>
   <div id="message-box"></div>
 </div>
 
-<!-- Dashboard -->
-<div id="dashboard" style="display: none;">
+<div id="dashboard" class="hidden">
   <div class="sidebar">
-    <h3 id="profile-name">Welcome</h3>
-    <p id="profile-email">Email: </p>
-    <p id="profile-id">User ID: </p>
-    <button class="logout-btn" onclick="logout()">Logout</button>
+    <img src="https://via.placeholder.com/120" alt="Profile" id="profile-pic" class="profile-pic">
+    <h3 id="username-display">Your Name</h3>
+    <p id="bio-display">Your bio here...</p>
+    <input type="file" id="profile-image" class="hidden">
+    <input type="text" id="username" placeholder="New Username">
+    <input type="text" id="bio" placeholder="Your Bio">
+    <button id="update-profile">Update Profile</button>
+    <button id="logout">Logout</button>
   </div>
   <div class="main-content">
-    <h2>🎉 Dashboard</h2>
-    <p>This is your private business dashboard powered by Firebase Auth and Firestore.</p>
+    <h2>Dashboard</h2>
+    <p>Welcome to your dashboard!</p>
   </div>
 </div>
 
 <script type="module">
-  // Firebase Setup
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
     authDomain: "earn-itt.firebaseapp.com",
     projectId: "earn-itt",
-    storageBucket: "earn-itt.firebasestorage.app",
+    storageBucket: "earn-itt.appspot.com",
     messagingSenderId: "785360520679",
     appId: "1:785360520679:web:ac2e2710ece34591a52942",
     measurementId: "G-P4Q2KYTBBM"
@@ -144,62 +148,91 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
-  let isLogin = true;
-
-  const authTitle = document.getElementById("auth-title");
-  const authButton = document.getElementById("auth-button");
-  const toggleAuth = document.getElementById("toggle-auth");
-  const messageBox = document.getElementById("message-box");
-
-  toggleAuth.onclick = () => {
-    isLogin = !isLogin;
-    authTitle.textContent = isLogin ? "Login" : "Sign Up";
-    authButton.textContent = isLogin ? "Login" : "Sign Up";
-    toggleAuth.textContent = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
+  const showMessage = (msg) => {
+    const box = document.getElementById("message-box");
+    box.textContent = msg;
+    box.style.display = "block";
+    setTimeout(() => box.style.display = "none", 3000);
   };
 
-  authButton.onclick = async () => {
+  let isLogin = true;
+  document.getElementById("toggle-auth").onclick = () => {
+    isLogin = !isLogin;
+    document.getElementById("form-title").textContent = isLogin ? "Login" : "Sign Up";
+    document.getElementById("auth-btn").textContent = isLogin ? "Login" : "Sign Up";
+    document.getElementById("toggle-auth").textContent = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
+  };
+
+  document.getElementById("auth-btn").onclick = async () => {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
     try {
+      let userCred;
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, pass);
+        userCred = await signInWithEmailAndPassword(auth, email, pass);
       } else {
-        const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+        userCred = await createUserWithEmailAndPassword(auth, email, pass);
         await setDoc(doc(db, "users", userCred.user.uid), {
-          email,
-          createdAt: new Date().toISOString()
+          username: "New User",
+          bio: "No bio",
+          profileUrl: ""
         });
       }
-    } catch (err) {
-      showMessage(err.message);
+      showMessage("✅ Successfully logged in!");
+    } catch (e) {
+      showMessage("❌ " + e.message);
     }
   };
 
-  function showMessage(msg) {
-    messageBox.textContent = msg;
-    messageBox.style.display = "block";
-    setTimeout(() => {
-      messageBox.style.display = "none";
-    }, 4000);
-  }
-
-  onAuthStateChanged(auth, async user => {
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
-      const uid = user.uid;
-      const userDoc = await getDoc(doc(db, "users", uid));
-      const data = userDoc.exists() ? userDoc.data() : {};
-      document.getElementById("profile-name").textContent = `Welcome, ${data.username || "User"}`;
-      document.getElementById("profile-email").textContent = `Email: ${user.email}`;
-      document.getElementById("profile-id").textContent = `User ID: ${user.uid}`;
-      document.getElementById("auth-container").style.display = "none";
+      document.getElementById("auth-section").style.display = "none";
       document.getElementById("dashboard").style.display = "flex";
+      const snap = await getDoc(doc(db, "users", user.uid));
+      const data = snap.data();
+      document.getElementById("username-display").textContent = data.username;
+      document.getElementById("bio-display").textContent = data.bio;
+      if (data.profileUrl) {
+        document.getElementById("profile-pic").src = data.profileUrl;
+      }
+    } else {
+      document.getElementById("auth-section").style.display = "block";
+      document.getElementById("dashboard").style.display = "none";
     }
   });
 
-  window.logout = () => {
-    signOut(auth).then(() => location.reload());
+  document.getElementById("logout").onclick = () => {
+    signOut(auth);
+  };
+
+  document.getElementById("profile-pic").onclick = () => {
+    document.getElementById("profile-image").click();
+  };
+
+  document.getElementById("update-profile").onclick = async () => {
+    const user = auth.currentUser;
+    const username = document.getElementById("username").value;
+    const bio = document.getElementById("bio").value;
+    const updates = {};
+    if (username) updates.username = username;
+    if (bio) updates.bio = bio;
+
+    const fileInput = document.getElementById("profile-image");
+    const file = fileInput.files[0];
+    if (file) {
+      const fileRef = ref(storage, `profiles/${user.uid}.jpg`);
+      await uploadBytes(fileRef, file);
+      const url = await getDownloadURL(fileRef);
+      updates.profileUrl = url;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await updateDoc(doc(db, "users", user.uid), updates);
+      showMessage("✅ Profile updated");
+      location.reload();
+    }
   };
 </script>
 </body>
