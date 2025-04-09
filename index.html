@@ -3,102 +3,101 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard</title>
+  <title>EarnItt Neon Auth</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #0d0d0d;
+      background: #0a0a0a;
       color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .container {
+      background: #111;
+      border: 2px solid #0ff;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
       max-width: 400px;
-      margin: 100px auto;
-      padding: 20px;
-      background: #1c1c1c;
-      border-radius: 10px;
-      box-shadow: 0 0 15px #0ff;
-      text-align: center;
+      box-shadow: 0 0 20px #0ff;
     }
 
-    input, button {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 5px;
-      background: #2c2c2c;
-      color: #fff;
+    h2 {
+      text-align: center;
+      color: #0ff;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      background: #000;
+      border: 1px solid #0ff;
+      border-radius: 8px;
+      color: #0ff;
     }
 
     button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
       background: #0ff;
       color: #000;
       font-weight: bold;
+      border-radius: 8px;
       cursor: pointer;
+      transition: 0.3s;
     }
 
-    .dashboard {
-      display: flex;
-      height: 100vh;
-      position: relative;
+    button:hover {
+      background: #00ffffaa;
     }
 
-    .profile-circle {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 2px solid #0ff;
-      margin: 10px;
+    .toggle-auth {
+      text-align: center;
+      margin-top: 10px;
       cursor: pointer;
+      color: #0ff;
+      text-decoration: underline;
     }
 
-    .profile-circle img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    #dashboard {
+      display: none;
+      flex-direction: column;
+      gap: 15px;
     }
 
-    .sidebar {
-      width: 60px;
-      background: #111;
-      display: flex;
-      align-items: flex-start;
-      padding: 10px;
-    }
-
-    .slide-panel {
+    .message {
       position: fixed;
-      top: 0;
-      right: -300px;
-      width: 300px;
-      height: 100%;
-      background: #1c1c1c;
-      box-shadow: -5px 0 15px #0ff;
-      padding: 20px;
-      transition: right 0.3s ease;
-      z-index: 10;
-    }
-
-    .slide-panel.show {
-      right: 0;
-    }
-
-    .glow-box {
-      position: fixed;
-      bottom: 20px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: #111;
-      padding: 15px 25px;
-      border-radius: 8px;
+      background: #222;
       color: #0ff;
-      font-weight: bold;
-      box-shadow: 0 0 20px #0ff;
+      padding: 15px 25px;
+      border: 2px solid #0ff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #0ff;
       display: none;
-      z-index: 999;
+      z-index: 1000;
+      animation: fadeInOut 3s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
@@ -106,146 +105,104 @@
 
 <div class="container" id="auth-container">
   <h2 id="auth-title">Login</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button id="auth-btn">Login</button>
-  <p><a href="#" id="toggle-auth">Don't have an account? Sign up</a></p>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="handleAuth()">Login</button>
+  <div class="toggle-auth" onclick="toggleAuth()">Don't have an account? Sign Up</div>
 </div>
 
-<div class="dashboard hidden" id="dashboard">
-  <div class="sidebar">
-    <div class="profile-circle" id="profile-circle">
-      <img src="https://via.placeholder.com/60" id="profile-pic" />
-    </div>
-  </div>
+<div class="container" id="dashboard">
+  <h2>Welcome 🎮</h2>
+  <input type="text" id="usernameInput" placeholder="Set or change your username"/>
+  <button onclick="saveUsername()">Save Username</button>
+  <button onclick="play()">Play</button>
+  <button onclick="logout()">Logout</button>
 </div>
 
-<div class="slide-panel" id="slide-panel">
-  <h3>Update Profile</h3>
-  <input type="file" id="profile-img-input">
-  <input type="text" id="username" placeholder="Username">
-  <input type="text" id="bio" placeholder="Bio">
-  <button id="save-profile">Save</button>
-</div>
+<div class="message" id="messageBox"></div>
 
-<div class="glow-box" id="message-box">Message</div>
-
-<!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
-
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
     authDomain: "earn-itt.firebaseapp.com",
     projectId: "earn-itt",
-    storageBucket: "earn-itt.appspot.com",
+    storageBucket: "earn-itt.firebasestorage.app",
     messagingSenderId: "785360520679",
     appId: "1:785360520679:web:ac2e2710ece34591a52942",
     measurementId: "G-P4Q2KYTBBM"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-
-  const emailInput = document.getElementById("email");
-  const passInput = document.getElementById("password");
-  const authBtn = document.getElementById("auth-btn");
-  const toggleAuth = document.getElementById("toggle-auth");
-  const authContainer = document.getElementById("auth-container");
-  const dashboard = document.getElementById("dashboard");
-  const profileCircle = document.getElementById("profile-circle");
-  const profilePic = document.getElementById("profile-pic");
-  const slidePanel = document.getElementById("slide-panel");
-  const usernameInput = document.getElementById("username");
-  const bioInput = document.getElementById("bio");
-  const profileImgInput = document.getElementById("profile-img-input");
-  const saveProfile = document.getElementById("save-profile");
-  const messageBox = document.getElementById("message-box");
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
   let isLogin = true;
-  let currentUser = null;
 
-  toggleAuth.onclick = () => {
+  function toggleAuth() {
     isLogin = !isLogin;
     document.getElementById("auth-title").textContent = isLogin ? "Login" : "Sign Up";
-    authBtn.textContent = isLogin ? "Login" : "Sign Up";
-    toggleAuth.textContent = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
-  };
-
-  function showMessage(msg) {
-    messageBox.textContent = msg;
-    messageBox.style.display = "block";
-    setTimeout(() => messageBox.style.display = "none", 3000);
+    document.querySelector("button").textContent = isLogin ? "Login" : "Sign Up";
+    document.querySelector(".toggle-auth").textContent = isLogin 
+      ? "Don't have an account? Sign Up" 
+      : "Already have an account? Login";
   }
 
-  authBtn.onclick = async () => {
-    const email = emailInput.value;
-    const pass = passInput.value;
-    try {
-      if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, pass);
-        showMessage("✅ Successfully logged in!");
-      } else {
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        await setDoc(doc(db, "users", cred.user.uid), {
-          username: "New User",
-          bio: "",
-          imageUrl: ""
-        });
-        showMessage("✅ Account created!");
-      }
-    } catch (e) {
-      showMessage("❌ " + e.message);
-    }
-  };
+  function showMessage(msg, success = true) {
+    const box = document.getElementById("messageBox");
+    box.style.color = success ? "#0f0" : "#f00";
+    box.textContent = msg;
+    box.style.display = "block";
+    setTimeout(() => box.style.display = "none", 3000);
+  }
 
-  onAuthStateChanged(auth, async user => {
-    if (user) {
-      currentUser = user;
-      authContainer.classList.add("hidden");
-      dashboard.classList.remove("hidden");
-
-      const snap = await getDoc(doc(db, "users", user.uid));
-      if (snap.exists()) {
-        const data = snap.data();
-        if (data.imageUrl) {
-          profilePic.src = data.imageUrl;
-        }
-        usernameInput.value = data.username || "";
-        bioInput.value = data.bio || "";
-      }
+  function handleAuth() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    
+    if (isLogin) {
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => showDashboard())
+        .catch(err => showMessage("Login failed: " + err.message, false));
+    } else {
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => showDashboard())
+        .catch(err => showMessage("Sign up failed: " + err.message, false));
     }
+  }
+
+  function showDashboard() {
+    document.getElementById("auth-container").style.display = "none";
+    document.getElementById("dashboard").style.display = "flex";
+    showMessage("Login successful!");
+  }
+
+  function saveUsername() {
+    const user = auth.currentUser;
+    const username = document.getElementById("usernameInput").value;
+    if (!username) return showMessage("Username can't be empty", false);
+
+    db.collection("users").doc(user.uid).set({ username })
+      .then(() => showMessage("Username saved!"))
+      .catch(err => showMessage("Error saving username: " + err.message, false));
+  }
+
+  function play() {
+    showMessage("Launching game... 🎮");
+    // Add your game logic or redirect here
+  }
+
+  function logout() {
+    auth.signOut().then(() => {
+      document.getElementById("auth-container").style.display = "block";
+      document.getElementById("dashboard").style.display = "none";
+      showMessage("Logged out");
+    });
+  }
+
+  auth.onAuthStateChanged(user => {
+    if (user) showDashboard();
   });
-
-  profileCircle.onclick = () => {
-    slidePanel.classList.toggle("show");
-  };
-
-  saveProfile.onclick = async () => {
-    let imageUrl = null;
-
-    if (profileImgInput.files.length > 0) {
-      const file = profileImgInput.files[0];
-      const storageRef = ref(storage, `profiles/${currentUser.uid}`);
-      await uploadBytes(storageRef, file);
-      imageUrl = await getDownloadURL(storageRef);
-      profilePic.src = imageUrl;
-    }
-
-    const data = {};
-    if (usernameInput.value) data.username = usernameInput.value;
-    if (bioInput.value) data.bio = bioInput.value;
-    if (imageUrl) data.imageUrl = imageUrl;
-
-    await updateDoc(doc(db, "users", currentUser.uid), data);
-    showMessage("✅ Profile updated!");
-    slidePanel.classList.remove("show");
-  };
 </script>
+
 </body>
 </html>
