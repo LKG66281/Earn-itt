@@ -151,17 +151,18 @@
     };
 
     const authAction = () => {
-      const email = emailInput.value;
-      const pass = password.value;
-      const action = isLogin ? auth.signInWithEmailAndPassword : auth.createUserWithEmailAndPassword;
-      action(email, pass).then(({ user }) => {
-        currentUser = user;
-        document.getElementById("auth").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-        loadUsername();
-        showMessage("Logged in!");
-      }).catch(e => showMessage(e.message));
-    };
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+  const action = isLogin ? auth.signInWithEmailAndPassword : auth.createUserWithEmailAndPassword;
+  action(email, pass).then(({ user }) => {
+    currentUser = user;
+    document.getElementById("auth").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    loadUsername();
+    showMessage("Logged in!");
+  }).catch(e => showMessage(e.message));
+};
+
 
     const saveUsername = () => {
       const name = usernameInput.value;
