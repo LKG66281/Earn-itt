@@ -266,26 +266,33 @@
     </div>
 
     <script type="module">
-        // Firebase SDK Import
+        // Firebase SDK Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
-        // Firebase Configuration
+        // Firebase Configuration - REPLACE WITH YOUR OWN CONFIG
         const firebaseConfig = {
-            apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-            authDomain: "earn-itt.firebaseapp.com",
-            projectId: "earn-itt",
-            storageBucket: "earn-itt.firebasestorage.app",
-            messagingSenderId: "785360520679",
-            appId: "1:785360520679:web:ac2e2710ece34591a52942",
-            measurementId: "G-P4Q2KYTBBM"
+            apiKey: "your-api-key",
+            authDomain: "your-project-id.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.firebasestorage.app",
+            messagingSenderId: "your-messaging-sender-id",
+            appId: "your-app-id",
+            measurementId: "your-measurement-id"
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        let auth, db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+            showMessage('Failed to initialize app. Check console.', 'error');
+        }
 
         // DOM Elements
         const authContainer = document.getElementById('authContainer');
@@ -316,6 +323,11 @@
         const leaveRoom = document.getElementById('leaveRoom');
         const playersDisplay = document.getElementById('playersDisplay');
 
+        // Verify DOM elements
+        if (!authButton) console.error('authButton not found');
+        if (!playButton) console.error('playButton not found');
+        if (!createRoom) console.error('createRoom not found');
+
         let isSignUp = true;
         let currentRoomId = null;
         let currentPlayer = null;
@@ -324,6 +336,7 @@
 
         // Show Message Function
         function showMessage(message, type) {
+            console.log(`Showing message: ${message} (${type})`);
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${type}`;
             msgDiv.textContent = message;
@@ -337,198 +350,269 @@
 
         // Show/Hide Containers
         function showContainer(container) {
-            [authContainer, dashboard, gamePage, friendOptions, gameRoom, waitingArea].forEach(c => c.style.display = 'none');
-            container.style.display = 'block';
+            console.log(`Showing container: ${container.id}`);
+            [authContainer, dashboard, gamePage, friendOptions, gameRoom, waitingArea].forEach(c => {
+                if (c) c.style.display = 'none';
+            });
+            if (container) container.style.display = 'block';
         }
 
         // Toggle Auth Mode
-        toggleAuth.addEventListener('click', () => {
-            isSignUp = !isSignUp;
-            formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
-            authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
-            toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
-        });
+        if (toggleAuth) {
+            toggleAuth.addEventListener('click', () => {
+                console.log('Toggle auth clicked');
+                isSignUp = !isSignUp;
+                formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
+                authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
+                toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
+            });
+        }
 
         // Authentication Handler
-        authButton.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            try {
-                if (isSignUp) {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    showMessage('Sign Up Successful!', 'success');
-                } else {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showMessage('Login Successful!', 'success');
+        if (authButton) {
+            authButton.addEventListener('click', async () => {
+                console.log('Auth button clicked');
+                const email = emailInput?.value;
+                const password = passwordInput?.value;
+                if (!email || !password) {
+                    showMessage('Please enter email and password', 'error');
+                    return;
                 }
-                emailInput.value = '';
-                passwordInput.value = '';
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
+                try {
+                    if (isSignUp) {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                        showMessage('Sign Up Successful!', 'success');
+                    } else {
+                        await signInWithEmailAndPassword(auth, email, password);
+                        showMessage('Login Successful!', 'success');
+                    }
+                    if (emailInput) emailInput.value = '';
+                    if (passwordInput) passwordInput.value = '';
+                } catch (error) {
+                    console.error('Auth error:', error.code, error.message);
+                    showMessage(`Error: ${error.message}`, 'error');
+                }
+            });
+        }
 
         // Save Username
-        saveUsernameButton.addEventListener('click', async () => {
-            const username = usernameInput.value.trim();
-            if (username) {
+        if (saveUsernameButton) {
+            saveUsernameButton.addEventListener('click', async () => {
+                console.log('Save username clicked');
+                const username = usernameInput?.value.trim();
+                if (!username) {
+                    showMessage('Please enter a username', 'error');
+                    return;
+                }
                 try {
                     const user = auth.currentUser;
                     if (user) {
-                        await setDoc(doc(db, 'users', user.uid), { username, stats: { wins: 0, losses: 0, ties: 0 } }, { merge: true });
+                        await setDoc(doc(db, 'users', user.uid), { 
+                            username, 
+                            stats: { wins: 0, losses: 0, ties: 0 } 
+                        }, { merge: true });
                         showMessage('Username saved!', 'success');
-                        usernameInput.value = '';
+                        if (usernameInput) usernameInput.value = '';
+                    } else {
+                        showMessage('No user logged in', 'error');
                     }
                 } catch (error) {
+                    console.error('Save username error:', error);
                     showMessage(`Error: ${error.message}`, 'error');
                 }
-            } else {
-                showMessage('Please enter a username', 'error');
-            }
-        });
+            });
+        }
 
         // Play Button
-        playButton.addEventListener('click', () => {
-            const user = auth.currentUser;
-            if (user) {
-                getDoc(doc(db, 'users', user.uid)).then(docSnap => {
-                    if (docSnap.exists() && docSnap.data().username) {
+        if (playButton) {
+            playButton.addEventListener('click', async () => {
+                console.log('Play button clicked');
+                const user = auth.currentUser;
+                if (!user) {
+                    showMessage('Please log in first', 'error');
+                    return;
+                }
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists() && userDoc.data().username) {
                         showContainer(gamePage);
                     } else {
                         showMessage('Please set a username first', 'error');
                     }
-                });
-            }
-        });
+                } catch (error) {
+                    console.error('Play button error:', error);
+                    showMessage(`Error: ${error.message}`, 'error');
+                }
+            });
+        }
 
         // Back to Dashboard
-        backToDashboard.addEventListener('click', () => showContainer(dashboard));
+        if (backToDashboard) {
+            backToDashboard.addEventListener('click', () => {
+                console.log('Back to dashboard clicked');
+                showContainer(dashboard);
+            });
+        }
 
         // Play with Friend
-        playWithFriend.addEventListener('click', () => showContainer(friendOptions));
+        if (playWithFriend) {
+            playWithFriend.addEventListener('click', () => {
+                console.log('Play with friend clicked');
+                showContainer(friendOptions);
+            });
+        }
 
         // Back to Game Page
-        backToGamePage.addEventListener('click', () => showContainer(gamePage));
+        if (backToGamePage) {
+            backToGamePage.addEventListener('click', () => {
+                console.log('Back to game page clicked');
+                showContainer(gamePage);
+            });
+        }
 
         // Create Room
-        createRoom.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) return;
-            try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const username = userDoc.data()?.username || 'Player';
-                const roomRef = await addDoc(collection(db, 'rooms'), {
-                    player1: user.uid,
-                    player1Username: username,
-                    player2: null,
-                    player2Username: null,
-                    board: ['', '', '', '', '', '', '', '', ''],
-                    turn: 'X',
-                    status: 'waiting',
-                    createdAt: Date.now()
-                });
-                currentRoomId = roomRef.id;
-                currentPlayer = 'X';
-                showContainer(gameRoom);
-                roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
-                gameStatus.textContent = 'Waiting for opponent...';
-                listenToRoom(currentRoomId, username);
-                showMessage('Room created! Share the Room ID.', 'success');
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
+        if (createRoom) {
+            createRoom.addEventListener('click', async () => {
+                console.log('Create room clicked');
+                const user = auth.currentUser;
+                if (!user) {
+                    showMessage('Please log in', 'error');
+                    return;
+                }
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    const username = userDoc.data()?.username || 'Player';
+                    const roomRef = await addDoc(collection(db, 'rooms'), {
+                        player1: user.uid,
+                        player1Username: username,
+                        player2: null,
+                        player2Username: null,
+                        board: ['', '', '', '', '', '', '', '', ''],
+                        turn: 'X',
+                        status: 'waiting',
+                        createdAt: Date.now()
+                    });
+                    currentRoomId = roomRef.id;
+                    currentPlayer = 'X';
+                    showContainer(gameRoom);
+                    if (roomIdDisplay) roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
+                    if (gameStatus) gameStatus.textContent = 'Waiting for opponent...';
+                    listenToRoom(currentRoomId, username);
+                    showMessage('Room created! Share the Room ID.', 'success');
+                } catch (error) {
+                    console.error('Create room error:', error);
+                    showMessage(`Error: ${error.message}`, 'error');
+                }
+            });
+        }
 
         // Join Room
-        joinRoom.addEventListener('click', async () => {
-            const roomId = prompt('Enter Room ID:');
-            if (!roomId) {
-                showMessage('Please enter a Room ID', 'error');
-                return;
-            }
-            try {
-                const user = auth.currentUser;
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const username = userDoc.data()?.username || 'Player';
-                const roomDoc = await getDoc(doc(db, 'rooms', roomId));
-                if (!roomDoc.exists()) {
-                    showMessage('Room not found', 'error');
+        if (joinRoom) {
+            joinRoom.addEventListener('click', async () => {
+                console.log('Join room clicked');
+                const roomId = prompt('Enter Room ID:');
+                if (!roomId) {
+                    showMessage('Please enter a Room ID', 'error');
                     return;
                 }
-                const roomData = roomDoc.data();
-                if (roomData.player2) {
-                    showMessage('Room is full', 'error');
-                    return;
+                try {
+                    const user = auth.currentUser;
+                    if (!user) {
+                        showMessage('Please log in', 'error');
+                        return;
+                    }
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    const username = userDoc.data()?.username || 'Player';
+                    const roomDoc = await getDoc(doc(db, 'rooms', roomId));
+                    if (!roomDoc.exists()) {
+                        showMessage('Room not found', 'error');
+                        return;
+                    }
+                    const roomData = roomDoc.data();
+                    if (roomData.player2) {
+                        showMessage('Room is full', 'error');
+                        return;
+                    }
+                    if (roomData.player1 === user.uid) {
+                        showMessage('You cannot join your own room', 'error');
+                        return;
+                    }
+                    await updateDoc(doc(db, 'rooms', roomId), {
+                        player2: user.uid,
+                        player2Username: username,
+                        status: 'active'
+                    });
+                    currentRoomId = roomId;
+                    currentPlayer = 'O';
+                    showContainer(gameRoom);
+                    if (roomIdDisplay) roomIdDisplay.textContent = `Room ID: ${roomId}`;
+                    listenToRoom(roomId, username);
+                    showMessage('Joined room successfully!', 'success');
+                } catch (error) {
+                    console.error('Join room error:', error);
+                    showMessage(`Error: ${error.message}`, 'error');
                 }
-                if (roomData.player1 === user.uid) {
-                    showMessage('You cannot join your own room', 'error');
-                    return;
-                }
-                await updateDoc(doc(db, 'rooms', roomId), {
-                    player2: user.uid,
-                    player2Username: username,
-                    status: 'active'
-                });
-                currentRoomId = roomId;
-                currentPlayer = 'O';
-                showContainer(gameRoom);
-                roomIdDisplay.textContent = `Room ID: ${roomId}`;
-                listenToRoom(roomId, username);
-                showMessage('Joined room successfully!', 'success');
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
+            });
+        }
 
         // Play with Random Player
-        playRandom.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) return;
-            try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const username = userDoc.data()?.username || 'Player';
-                showContainer(waitingArea);
-                const matchmakingRef = await addDoc(collection(db, 'matchmaking'), {
-                    userId: user.uid,
-                    username,
-                    timestamp: Date.now()
-                });
-                const unsubscribeMatch = onSnapshot(collection(db, 'matchmaking'), async snapshot => {
-                    const entries = snapshot.docs.filter(doc => doc.data().userId !== user.uid);
-                    if (entries.length > 0) {
-                        const opponent = entries[0].data();
-                        const roomRef = await addDoc(collection(db, 'rooms'), {
-                            player1: user.uid,
-                            player1Username: username,
-                            player2: opponent.userId,
-                            player2Username: opponent.username,
-                            board: ['', '', '', '', '', '', '', '', ''],
-                            turn: 'X',
-                            status: 'active',
-                            createdAt: Date.now()
-                        });
-                        currentRoomId = roomRef.id;
-                        currentPlayer = 'X';
-                        opponentUsername = opponent.username;
-                        await deleteDoc(doc(db, 'matchmaking', matchmakingRef.id));
-                        await deleteDoc(doc(db, 'matchmaking', entries[0].id));
-                        unsubscribeMatch();
-                        showContainer(gameRoom);
-                        roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
-                        listenToRoom(roomRef.id, username);
-                        showMessage('Opponent found! Game started.', 'success');
-                    }
-                });
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-                showContainer(gamePage);
-            }
-        });
+        if (playRandom) {
+            playRandom.addEventListener('click', async () => {
+                console.log('Play random clicked');
+                const user = auth.currentUser;
+                if (!user) {
+                    showMessage('Please log in', 'error');
+                    return;
+                }
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    const username = userDoc.data()?.username || 'Player';
+                    showContainer(waitingArea);
+                    const matchmakingRef = await addDoc(collection(db, 'matchmaking'), {
+                        userId: user.uid,
+                        username,
+                        timestamp: Date.now()
+                    });
+                    const unsubscribeMatch = onSnapshot(collection(db, 'matchmaking'), async snapshot => {
+                        const entries = snapshot.docs.filter(doc => doc.data().userId !== user.uid);
+                        if (entries.length > 0) {
+                            const opponent = entries[0].data();
+                            const roomRef = await addDoc(collection(db, 'rooms'), {
+                                player1: user.uid,
+                                player1Username: username,
+                                player2: opponent.userId,
+                                player2Username: opponent.username,
+                                board: ['', '', '', '', '', '', '', '', ''],
+                                turn: 'X',
+                                status: 'active',
+                                createdAt: Date.now()
+                            });
+                            currentRoomId = roomRef.id;
+                            currentPlayer = 'X';
+                            opponentUsername = opponent.username;
+                            await deleteDoc(doc(db, 'matchmaking', matchmakingRef.id));
+                            await deleteDoc(doc(db, 'matchmaking', entries[0].id));
+                            unsubscribeMatch();
+                            showContainer(gameRoom);
+                            if (roomIdDisplay) roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
+                            listenToRoom(roomRef.id, username);
+                            showMessage('Opponent found! Game started.', 'success');
+                        }
+                    });
+                } catch (error) {
+                    console.error('Play random error:', error);
+                    showMessage(`Error: ${error.message}`, 'error');
+                    showContainer(gamePage);
+                }
+            });
+        }
 
         // Listen to Room Updates
         function listenToRoom(roomId, username) {
+            console.log(`Listening to room: ${roomId}`);
             if (unsubscribeRoom) unsubscribeRoom();
             unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), async snapshot => {
+                console.log('Room snapshot received');
                 if (!snapshot.exists()) {
                     showMessage('Room closed', 'error');
                     cleanupGame();
@@ -536,8 +620,8 @@
                 }
                 const data = snapshot.data();
                 if (data.status === 'active' && data.player1 && data.player2) {
-                    gameStatus.textContent = `Current Turn: ${data.turn}`;
-                    playersDisplay.textContent = `${data.player1Username} (X) vs ${data.player2Username} (O)`;
+                    if (gameStatus) gameStatus.textContent = `Current Turn: ${data.turn}`;
+                    if (playersDisplay) playersDisplay.textContent = `${data.player1Username} (X) vs ${data.player2Username} (O)`;
                     opponentUsername = currentPlayer === 'X' ? data.player2Username : data.player1Username;
                     renderBoard(data.board);
                     if (data.winner) {
@@ -546,12 +630,16 @@
                         await handleGameEnd('tie', username);
                     }
                 }
+            }, error => {
+                console.error('Room listener error:', error);
+                showMessage(`Room error: ${error.message}`, 'error');
             });
         }
 
         // Render Tic-Tac-Toe Board
         function renderBoard(board) {
-            const cells = gameBoard.querySelectorAll('.cell');
+            console.log('Rendering board:', board);
+            const cells = gameBoard?.querySelectorAll('.cell') || [];
             cells.forEach((cell, index) => {
                 cell.textContent = board[index];
                 cell.className = 'cell';
@@ -561,32 +649,41 @@
         }
 
         // Handle Cell Click
-        gameBoard.addEventListener('click', async e => {
-            const cell = e.target;
-            if (!cell.classList.contains('cell') || !currentRoomId) return;
-            const index = cell.dataset.index;
-            try {
-                const roomDoc = await getDoc(doc(db, 'rooms', currentRoomId));
-                const data = roomDoc.data();
-                if (data.board[index] !== '' || data.winner || data.status !== 'active') return;
-                if ((currentPlayer === 'X' && data.turn !== 'X') || (currentPlayer === 'O' && data.turn !== 'O')) {
-                    showMessage('Not your turn!', 'error');
-                    return;
+        if (gameBoard) {
+            gameBoard.addEventListener('click', async e => {
+                console.log('Game board clicked');
+                const cell = e.target;
+                if (!cell.classList.contains('cell') || !currentRoomId) return;
+                const index = cell.dataset.index;
+                try {
+                    const roomDoc = await getDoc(doc(db, 'rooms', currentRoomId));
+                    const data = roomDoc.data();
+                    if (!data) {
+                        showMessage('Room not found', 'error');
+                        return;
+                    }
+                    if (data.board[index] !== '' || data.winner || data.status !== 'active') return;
+                    if ((currentPlayer === 'X' && data.turn !== 'X') || (currentPlayer === 'O' && data.turn !== 'O')) {
+                        showMessage('Not your turn!', 'error');
+                        return;
+                    }
+                    const newBoard = [...data.board];
+                    newBoard[index] = currentPlayer;
+                    const newTurn = currentPlayer === 'X' ? 'O' : 'X';
+                    await updateDoc(doc(db, 'rooms', currentRoomId), {
+                        board: newBoard,
+                        turn: newTurn
+                    });
+                } catch (error) {
+                    console.error('Cell click error:', error);
+                    showMessage(`Error: ${error.message}`, 'error');
                 }
-                const newBoard = [...data.board];
-                newBoard[index] = currentPlayer;
-                const newTurn = currentPlayer === 'X' ? 'O' : 'X';
-                await updateDoc(doc(db, 'rooms', currentRoomId), {
-                    board: newBoard,
-                    turn: newTurn
-                });
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
+            });
+        }
 
         // Handle Game End
         async function handleGameEnd(result, username) {
+            console.log(`Game ended: ${result}`);
             const user = auth.currentUser;
             if (!user || !currentRoomId) return;
             try {
@@ -610,14 +707,18 @@
                     showContainer(dashboard);
                 }, 2000);
             } catch (error) {
+                console.error('Game end error:', error);
                 showMessage(`Error updating stats: ${error.message}`, 'error');
             }
         }
 
         // Cleanup Game
         function cleanupGame() {
+            console.log('Cleaning up game');
             if (currentRoomId) {
-                updateDoc(doc(db, 'rooms', currentRoomId), { status: 'closed' }).catch(() => {});
+                updateDoc(doc(db, 'rooms', currentRoomId), { status: 'closed' }).catch(error => {
+                    console.error('Cleanup error:', error);
+                });
                 currentRoomId = null;
             }
             if (unsubscribeRoom) {
@@ -626,58 +727,69 @@
             }
             currentPlayer = null;
             opponentUsername = null;
-            gameBoard.querySelectorAll('.cell').forEach(cell => {
-                cell.textContent = '';
-                cell.className = 'cell';
-            });
-            gameStatus.textContent = 'Waiting for opponent...';
-            roomIdDisplay.textContent = '';
-            playersDisplay.textContent = '';
+            if (gameBoard) {
+                gameBoard.querySelectorAll('.cell').forEach(cell => {
+                    cell.textContent = '';
+                    cell.className = 'cell';
+                });
+            }
+            if (gameStatus) gameStatus.textContent = 'Waiting for opponent...';
+            if (roomIdDisplay) roomIdDisplay.textContent = '';
+            if (playersDisplay) playersDisplay.textContent = '';
             showContainer(dashboard);
         }
 
         // Leave Room
-        leaveRoom.addEventListener('click', () => {
-            showMessage('Left room', 'success');
-            cleanupGame();
-        });
+        if (leaveRoom) {
+            leaveRoom.addEventListener('click', () => {
+                console.log('Leave room clicked');
+                showMessage('Left room', 'success');
+                cleanupGame();
+            });
+        }
 
         // Auth State Listener
         onAuthStateChanged(auth, async user => {
+            console.log('Auth state changed:', user ? user.uid : 'No user');
             if (user) {
-                authContainer.style.display = 'none';
-                dashboard.style.display = 'block';
-                userEmailSpan.textContent = user.email;
+                if (authContainer) authContainer.style.display = 'none';
+                if (dashboard) dashboard.style.display = 'block';
+                if (userEmailSpan) userEmailSpan.textContent = user.email;
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (userDoc.exists() && userDoc.data().username) {
+                    if (userDoc.exists() && userDoc.data().username && usernameInput) {
                         usernameInput.placeholder = `Current: ${userDoc.data().username}`;
-                    } else {
+                    } else if (usernameInput) {
                         usernameInput.placeholder = 'Set Username';
                     }
                 } catch (error) {
+                    console.error('Fetch username error:', error);
                     showMessage(`Error fetching username: ${error.message}`, 'error');
                 }
             } else {
-                authContainer.style.display = 'block';
-                dashboard.style.display = 'none';
-                gamePage.style.display = 'none';
-                friendOptions.style.display = 'none';
-                gameRoom.style.display = 'none';
-                waitingArea.style.display = 'none';
+                if (authContainer) authContainer.style.display = 'block';
+                if (dashboard) dashboard.style.display = 'none';
+                if (gamePage) gamePage.style.display = 'none';
+                if (friendOptions) friendOptions.style.display = 'none';
+                if (gameRoom) gameRoom.style.display = 'none';
+                if (waitingArea) waitingArea.style.display = 'none';
                 cleanupGame();
             }
         });
 
         // Logout
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                showMessage('Logged out successfully!', 'success');
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                console.log('Logout button clicked');
+                try {
+                    await signOut(auth);
+                    showMessage('Logged out successfully!', 'success');
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    showMessage(`Error: ${error.message}`, 'error');
+                }
+            });
+        }
     </script>
 </body>
 </html>
