@@ -8,19 +8,15 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background: #0a0a0a;
-      color: #fff;
+      color: #0ff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow-x: hidden;
     }
     .container {
       background: #111;
@@ -28,19 +24,14 @@
       border-radius: 15px;
       padding: 30px;
       width: 90%;
-      max-width: 450px;
+      max-width: 400px;
       box-shadow: 0 0 20px #0ff;
       display: none;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
     }
-    .active {
-      display: flex !important;
-    }
-    h2 {
-      text-align: center;
-      color: #0ff;
-    }
+    .active { display: flex !important; }
+    h2 { text-align: center; }
     input {
       width: 100%;
       padding: 12px;
@@ -60,9 +51,7 @@
       cursor: pointer;
       transition: 0.3s;
     }
-    button:hover {
-      background: #00ffffaa;
-    }
+    button:hover { background: #00ffffaa; }
     .toggle-auth {
       text-align: center;
       color: #0ff;
@@ -90,62 +79,25 @@
       90% { opacity: 1; }
       100% { opacity: 0; }
     }
-
-    .game-board {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-      margin: 10px 0;
-    }
-    .cell {
-      width: 80px;
-      height: 80px;
-      font-size: 2em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-      border: 2px solid #0ff;
-      border-radius: 10px;
-      color: #0ff;
-      cursor: pointer;
-    }
-
-    .game-status {
-      text-align: center;
-      margin: 10px 0;
-      color: #0ff;
-    }
-
-    #room-id-display {
-      text-align: center;
-      margin: 10px 0;
-      font-size: 14px;
-      color: #0ff;
-    }
   </style>
 </head>
 <body>
 
-<!-- AUTH SECTION -->
 <div class="container active" id="auth-container">
   <h2 id="auth-title">Login</h2>
   <input type="email" id="email" placeholder="Email" />
   <input type="password" id="password" placeholder="Password" />
-  <button onclick="handleAuth()">Login</button>
+  <button id="authButton">Login</button>
   <div class="toggle-auth" onclick="toggleAuth()">Don't have an account? Sign Up</div>
 </div>
 
-<!-- DASHBOARD -->
 <div class="container" id="dashboard">
   <h2>Welcome, <span id="usernameDisplay">Player</span> 🎮</h2>
   <input type="text" id="usernameInput" placeholder="Set or change your username"/>
   <button onclick="saveUsername()">Save Username</button>
-  <button onclick="goToGameMenu()">Play</button>
   <button onclick="logout()">Logout</button>
 </div>
 
-<!-- 🔔 Message Popup -->
 <div class="message" id="messageBox"></div>
 
 <script>
@@ -163,43 +115,49 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
+  // Show Message
   function showMessage(msg) {
-    const box = document.getElementById('messageBox');
+    const box = document.getElementById("messageBox");
     box.textContent = msg;
-    box.style.display = 'block';
-    setTimeout(() => box.style.display = 'none', 3000);
+    box.style.display = "block";
+    setTimeout(() => box.style.display = "none", 3000);
   }
 
+  // Auth toggle
   let isLogin = true;
   function toggleAuth() {
     isLogin = !isLogin;
     document.getElementById("auth-title").innerText = isLogin ? "Login" : "Sign Up";
-    document.querySelector("#auth-container button").innerText = isLogin ? "Login" : "Sign Up";
+    document.getElementById("authButton").innerText = isLogin ? "Login" : "Sign Up";
     document.querySelector(".toggle-auth").innerText = isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
   }
 
-  function handleAuth() {
+  // Auth handler
+  document.getElementById("authButton").addEventListener("click", () => {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
     const fn = isLogin ? auth.signInWithEmailAndPassword : auth.createUserWithEmailAndPassword;
     fn(email, pass)
       .then(() => showMessage("Login successful!"))
       .catch(err => showMessage("Auth failed: " + err.message));
-  }
+  });
 
+  // Auth state listener
   auth.onAuthStateChanged(async user => {
     if (user) {
       document.getElementById("auth-container").classList.remove("active");
       document.getElementById("dashboard").classList.add("active");
-      const userDoc = await db.collection("users").doc(user.uid).get();
-      const username = userDoc.exists ? userDoc.data().username : "Player";
-      document.getElementById("usernameDisplay").textContent = username || "Player";
+
+      const doc = await db.collection("users").doc(user.uid).get();
+      const username = doc.exists ? doc.data().username : "Player";
+      document.getElementById("usernameDisplay").textContent = username;
     } else {
       document.getElementById("dashboard").classList.remove("active");
       document.getElementById("auth-container").classList.add("active");
     }
   });
 
+  // Save username
   async function saveUsername() {
     const user = auth.currentUser;
     const username = document.getElementById("usernameInput").value.trim();
@@ -209,191 +167,12 @@
     document.getElementById("usernameDisplay").textContent = username;
   }
 
+  // Logout
   function logout() {
     auth.signOut();
-    showMessage("Logged out!");
-  }
-
-  function goToGameMenu() {
-    document.getElementById("dashboard").innerHTML = `
-      <h2>Select Game Mode</h2>
-      <button onclick="showFriendOptions()">Play with Friend</button>
-      <button onclick="startMatchmaking()">Play with Random Player</button>
-      <button onclick="location.reload()">Back</button>
-    `;
-  }
-
-  function showFriendOptions() {
-    document.getElementById("dashboard").innerHTML = `
-      <h2>Play With Friend</h2>
-      <button onclick="createRoom()">Create Room</button>
-      <button onclick="joinRoomPrompt()">Join Room</button>
-      <button onclick="goToGameMenu()">Back</button>
-    `;
-  }
-
-  async function createRoom() {
-    const user = auth.currentUser;
-    const userDoc = await db.collection("users").doc(user.uid).get();
-    const username = userDoc.data().username || "Player";
-    const roomRef = await db.collection("rooms").add({
-      host: user.uid,
-      players: [{ uid: user.uid, username }],
-      state: "waiting"
-    });
-    const roomId = roomRef.id;
-    showMessage("Room Created: " + roomId);
-    waitForFriend(roomId);
-  }
-
-  function joinRoomPrompt() {
-    const roomId = prompt("Enter Room ID");
-    if (roomId) joinRoom(roomId);
-  }
-
-  async function joinRoom(roomId) {
-    const roomRef = db.collection("rooms").doc(roomId);
-    const roomDoc = await roomRef.get();
-    if (!roomDoc.exists) return showMessage("Room doesn't exist!");
-
-    const user = auth.currentUser;
-    const userDoc = await db.collection("users").doc(user.uid).get();
-    const username = userDoc.data().username || "Player";
-
-    const roomData = roomDoc.data();
-    if (roomData.players.length >= 2) return showMessage("Room is full!");
-
-    await roomRef.update({
-      players: firebase.firestore.FieldValue.arrayUnion({ uid: user.uid, username }),
-      state: "full"
-    });
-
-    showMessage("Joined Room: " + roomId);
-    launchGame(roomId);
-  }
-
-  function waitForFriend(roomId) {
-    const unsub = db.collection("rooms").doc(roomId).onSnapshot(doc => {
-      const data = doc.data();
-      if (data.players.length === 2) {
-        unsub();
-        launchGame(roomId);
-      }
-    });
-    document.getElementById("dashboard").innerHTML = `<h2>Waiting for friend...</h2><div id="room-id-display">Room ID: ${roomId}</div><button onclick="location.reload()">Cancel</button>`;
-  }
-
-  async function startMatchmaking() {
-    const user = auth.currentUser;
-    const userDoc = await db.collection("users").doc(user.uid).get();
-    const username = userDoc.data().username || "Player";
-
-    const queueRef = db.collection("matchmaking").doc("queue");
-    const queueDoc = await queueRef.get();
-
-    if (!queueDoc.exists || !queueDoc.data().waiting) {
-      await queueRef.set({ waiting: { uid: user.uid, username } });
-      showMessage("Searching for opponent...");
-      const unsub = queueRef.onSnapshot(async snap => {
-        const data = snap.data();
-        if (data.matched && data.matched.includes(user.uid)) {
-          unsub();
-          const roomId = data.roomId;
-          showMessage("Match found!");
-          launchGame(roomId);
-        }
-      });
-    } else {
-      const other = queueDoc.data().waiting;
-      const roomRef = await db.collection("rooms").add({
-        players: [other, { uid: user.uid, username }],
-        state: "full"
-      });
-      const roomId = roomRef.id;
-      await queueRef.set({ matched: [other.uid, user.uid], roomId });
-      launchGame(roomId);
-    }
-  }
-
-  function launchGame(roomId) {
-    document.getElementById("dashboard").innerHTML = `<h2>Tic-Tac-Toe</h2><div class="game-status" id="gameStatus">Loading...</div><div class="game-board" id="gameBoard"></div><button onclick="location.reload()">Exit</button>`;
-    initGame(roomId);
-  }
-
-  function initGame(roomId) {
-    const boardEl = document.getElementById("gameBoard");
-    const statusEl = document.getElementById("gameStatus");
-    const board = Array(9).fill(null);
-    let turn = "X";
-    let currentPlayer = null;
-    let opponent = null;
-
-    const roomRef = db.collection("rooms").doc(roomId);
-    roomRef.onSnapshot(async doc => {
-      const data = doc.data();
-      const players = data.players;
-      const user = auth.currentUser;
-
-      if (!currentPlayer) {
-        if (players[0].uid === user.uid) {
-          currentPlayer = { ...players[0], symbol: "X" };
-          opponent = { ...players[1], symbol: "O" };
-        } else {
-          currentPlayer = { ...players[1], symbol: "O" };
-          opponent = { ...players[0], symbol: "X" };
-        }
-        statusEl.textContent = `${currentPlayer.username} vs ${opponent.username}`;
-      }
-
-      if (data.board) {
-        data.board.forEach((val, i) => board[i] = val);
-        turn = data.turn || "X";
-        renderBoard();
-        checkWinner();
-      }
-    });
-
-    function renderBoard() {
-      boardEl.innerHTML = "";
-      board.forEach((val, idx) => {
-        const cell = document.createElement("div");
-        cell.className = "cell";
-        cell.textContent = val || "";
-        cell.onclick = () => makeMove(idx);
-        boardEl.appendChild(cell);
-      });
-    }
-
-    function makeMove(index) {
-      if (board[index] || turn !== currentPlayer.symbol) return;
-      board[index] = currentPlayer.symbol;
-      turn = currentPlayer.symbol === "X" ? "O" : "X";
-      roomRef.update({ board, turn });
-    }
-
-    function checkWinner() {
-      const wins = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ];
-      for (const [a,b,c] of wins) {
-        if (board[a] && board[a] === board[b] && board[b] === board[c]) {
-          statusEl.textContent = `${board[a] === currentPlayer.symbol ? "You win!" : "You lose!"}`;
-          showMessage(statusEl.textContent);
-          setTimeout(() => location.reload(), 3000);
-          return;
-        }
-      }
-      if (!board.includes(null)) {
-        statusEl.textContent = "It's a tie!";
-        showMessage("It's a tie!");
-        setTimeout(() => location.reload(), 3000);
-      }
-    }
-
-    renderBoard();
+    showMessage("Logged out");
   }
 </script>
+
 </body>
 </html>
