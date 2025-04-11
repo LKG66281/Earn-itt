@@ -1,178 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EarnItt Game Portal</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #0a0a0a;
-      color: #0ff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background: #111;
-      border: 2px solid #0ff;
-      border-radius: 15px;
-      padding: 30px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 0 20px #0ff;
-      display: none;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .active { display: flex !important; }
-    h2 { text-align: center; }
-    input {
-      width: 100%;
-      padding: 12px;
-      background: #000;
-      border: 1px solid #0ff;
-      border-radius: 8px;
-      color: #0ff;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #0ff;
-      color: #000;
-      font-weight: bold;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover { background: #00ffffaa; }
-    .toggle-auth {
-      text-align: center;
-      color: #0ff;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-    #messageBox {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #222;
-      color: #0ff;
-      padding: 15px 25px;
-      border: 2px solid #0ff;
-      border-radius: 10px;
-      box-shadow: 0 0 15px #0ff;
-      display: none;
-      z-index: 1000;
-      animation: fadeInOut 3s ease-in-out;
-    }
-    @keyframes fadeInOut {
-      0% { opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Firebase Auth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #0a0a0a;
+            overflow: hidden;
+        }
+
+        .container {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            margin-bottom: 20px;
+        }
+
+        .input-box {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+        }
+
+        input:focus {
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px solid #00ffff;
+            border-radius: 5px;
+            color: #00ffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        button:hover {
+            background: #00ffff;
+            color: #0a0a0a;
+            box-shadow: 0 0 15px #00ffff;
+        }
+
+        .toggle-text {
+            color: #00ffff;
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-block;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .toggle-text:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .message.success {
+            background: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .message.error {
+            background: #ff0000;
+            text-shadow: 0 0 5px #ff0000;
+        }
+
+        .dashboard {
+            display: none;
+            color: #fff;
+        }
+
+        .dashboard h2 {
+            margin-bottom: 30px;
+        }
+
+        .dashboard input {
+            margin-bottom: 20px;
+        }
+
+        .play-btn {
+            margin-top: 20px;
+            background: #ff00ff;
+            border: 2px solid #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+
+        .play-btn:hover {
+            background: #ff00ff;
+            color: #0a0a0a;
+            box-shadow: 0 0 15px #ff00ff;
+        }
+    </style>
 </head>
 <body>
+    <div class="container" id="authContainer">
+        <h2 id="formTitle">Sign Up</h2>
+        <div class="input-box">
+            <input type="email" id="email" placeholder="Email" required>
+        </div>
+        <div class="input-box">
+            <input type="password" id="password" placeholder="Password" required>
+        </div>
+        <button id="authButton">Sign Up</button>
+        <span class="toggle-text" id="toggleAuth">Already have an account? Login</span>
+    </div>
 
-<div class="container active" id="auth-container">
-  <h2 id="auth-title">Login</h2>
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
-  <button id="authButton">Login</button>
-  <div class="toggle-auth" onclick="toggleAuth()">Don't have an account? Sign Up</div>
-</div>
+    <div class="container dashboard" id="dashboard">
+        <h2>Welcome, <span id="userEmail"></span></h2>
+        <div class="input-box">
+            <input type="text" id="username" placeholder="Set Username">
+        </div>
+        <button id="saveUsername">Save Username</button>
+        <button class="play-btn" id="playButton">Play</button>
+        <button id="logoutButton">Logout</button>
+    </div>
 
-<div class="container" id="dashboard">
-  <h2>Welcome, <span id="usernameDisplay">Player</span> 🎮</h2>
-  <input type="text" id="usernameInput" placeholder="Set or change your username"/>
-  <button onclick="saveUsername()">Save Username</button>
-  <button onclick="logout()">Logout</button>
-</div>
+    <script type="module">
+        // Firebase SDK Import
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
-<div class="message" id="messageBox"></div>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+            authDomain: "earn-itt.firebaseapp.com",
+            projectId: "earn-itt",
+            storageBucket: "earn-itt.firebasestorage.app",
+            messagingSenderId: "785360520679",
+            appId: "1:785360520679:web:ac2e2710ece34591a52942",
+            measurementId: "G-P4Q2KYTBBM"
+        };
 
-<script>
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-    authDomain: "earn-itt.firebaseapp.com",
-    projectId: "earn-itt",
-    storageBucket: "earn-itt.firebasestorage.app",
-    messagingSenderId: "785360520679",
-    appId: "1:785360520679:web:ac2e2710ece34591a52942",
-    measurementId: "G-P4Q2KYTBBM"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-  // Show Message
-  function showMessage(msg) {
-    const box = document.getElementById("messageBox");
-    box.textContent = msg;
-    box.style.display = "block";
-    setTimeout(() => box.style.display = "none", 3000);
-  }
+        // DOM Elements
+        const authContainer = document.getElementById('authContainer');
+        const dashboard = document.getElementById('dashboard');
+        const formTitle = document.getElementById('formTitle');
+        const authButton = document.getElementById('authButton');
+        const toggleAuth = document.getElementById('toggleAuth');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const userEmailSpan = document.getElementById('userEmail');
+        const usernameInput = document.getElementById('username');
+        const saveUsernameButton = document.getElementById('saveUsername');
+        const playButton = document.getElementById('playButton');
+        const logoutButton = document.getElementById('logoutButton');
 
-  // Auth toggle
-  let isLogin = true;
-  function toggleAuth() {
-    isLogin = !isLogin;
-    document.getElementById("auth-title").innerText = isLogin ? "Login" : "Sign Up";
-    document.getElementById("authButton").innerText = isLogin ? "Login" : "Sign Up";
-    document.querySelector(".toggle-auth").innerText = isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
-  }
+        let isSignUp = true;
 
-  // Auth handler
-  document.getElementById("authButton").addEventListener("click", () => {
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
-    const fn = isLogin ? auth.signInWithEmailAndPassword : auth.createUserWithEmailAndPassword;
-    fn(email, pass)
-      .then(() => showMessage("Login successful!"))
-      .catch(err => showMessage("Auth failed: " + err.message));
-  });
+        // Show Message Function
+        function showMessage(message, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+            msgDiv.textContent = message;
+            document.body.appendChild(msgDiv);
+            msgDiv.style.opacity = '1';
+            setTimeout(() => {
+                msgDiv.style.opacity = '0';
+                setTimeout(() => msgDiv.remove(), 300);
+            }, 3000);
+        }
 
-  // Auth state listener
-  auth.onAuthStateChanged(async user => {
-    if (user) {
-      document.getElementById("auth-container").classList.remove("active");
-      document.getElementById("dashboard").classList.add("active");
+        // Toggle between Sign Up and Login
+        toggleAuth.addEventListener('click', () => {
+            isSignUp = !isSignUp;
+            formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
+            authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
+            toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
+        });
 
-      const doc = await db.collection("users").doc(user.uid).get();
-      const username = doc.exists ? doc.data().username : "Player";
-      document.getElementById("usernameDisplay").textContent = username;
-    } else {
-      document.getElementById("dashboard").classList.remove("active");
-      document.getElementById("auth-container").classList.add("active");
-    }
-  });
+        // Authentication Handler
+        authButton.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
 
-  // Save username
-  async function saveUsername() {
-    const user = auth.currentUser;
-    const username = document.getElementById("usernameInput").value.trim();
-    if (!username) return showMessage("Username can't be empty");
-    await db.collection("users").doc(user.uid).set({ username }, { merge: true });
-    showMessage("Username saved!");
-    document.getElementById("usernameDisplay").textContent = username;
-  }
+            try {
+                if (isSignUp) {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    showMessage('Sign Up Successful!', 'success');
+                } else {
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    showMessage('Login Successful!', 'success');
+                }
+                emailInput.value = '';
+                passwordInput.value = '';
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        });
 
-  // Logout
-  function logout() {
-    auth.signOut();
-    showMessage("Logged out");
-  }
-</script>
+        // Save Username
+        saveUsernameButton.addEventListener('click', async () => {
+            const username = usernameInput.value.trim();
+            if (username) {
+                try {
+                    const user = auth.currentUser;
+                    if (user) {
+                        await setDoc(doc(db, 'users', user.uid), { username }, { merge: true });
+                        showMessage('Username saved!', 'success');
+                        usernameInput.value = '';
+                    }
+                } catch (error) {
+                    showMessage(`Error: ${error.message}`, 'error');
+                }
+            } else {
+                showMessage('Please enter a username', 'error');
+            }
+        });
 
+        // Play Button (Placeholder)
+        playButton.addEventListener('click', () => {
+            showMessage('Play button clicked! (Add your game logic)', 'success');
+        });
+
+        // Logout
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showMessage('Logged out successfully!', 'success');
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Auth State Listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                authContainer.style.display = 'none';
+                dashboard.style.display = 'block';
+                userEmailSpan.textContent = user.email;
+
+                // Fetch and display username
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists() && userDoc.data().username) {
+                        usernameInput.placeholder = `Current: ${userDoc.data().username}`;
+                    } else {
+                        usernameInput.placeholder = 'Set Username';
+                    }
+                } catch (error) {
+                    showMessage(`Error fetching username: ${error.message}`, 'error');
+                }
+            } else {
+                authContainer.style.display = 'block';
+                dashboard.style.display = 'none';
+            }
+        });
+    </script>
 </body>
-</html>
+  </html>
