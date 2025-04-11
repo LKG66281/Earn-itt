@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,7 +83,7 @@
       <h2 id="authTitle">Login</h2>
       <input id="email" placeholder="Email"><br>
       <input id="password" type="password" placeholder="Password"><br>
-      <button class="neon-btn" onclick="authAction()">Login</button>
+      <button id="authBtn" class="neon-btn" onclick="authAction()">Login</button>
       <button class="neon-btn" onclick="toggleAuth()">Switch to Signup</button>
     </div>
 
@@ -148,24 +147,30 @@
     const toggleAuth = () => {
       isLogin = !isLogin;
       document.getElementById("authTitle").innerText = isLogin ? "Login" : "Sign Up";
+      document.getElementById("authBtn").innerText = isLogin ? "Login" : "Sign Up";
     };
 
     const authAction = () => {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
-  const action = isLogin ? auth.signInWithEmailAndPassword : auth.createUserWithEmailAndPassword;
-  action(email, pass).then(({ user }) => {
-    currentUser = user;
-    document.getElementById("auth").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-    loadUsername();
-    showMessage("Logged in!");
-  }).catch(e => showMessage(e.message));
-};
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
 
+      if (!email || !pass) {
+        showMessage("Email and password required");
+        return;
+      }
+
+      const action = isLogin ? auth.signInWithEmailAndPassword : auth.createUserWithEmailAndPassword;
+      action(email, pass).then(({ user }) => {
+        currentUser = user;
+        document.getElementById("auth").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        loadUsername();
+        showMessage("Logged in!");
+      }).catch(e => showMessage(e.message));
+    };
 
     const saveUsername = () => {
-      const name = usernameInput.value;
+      const name = document.getElementById("usernameInput").value;
       db.collection("users").doc(currentUser.uid).set({ username: name });
       document.getElementById("usernameDisplay").innerText = name;
       showMessage("Username saved!");
@@ -201,7 +206,7 @@
     };
 
     const joinRoom = () => {
-      const id = roomIdInput.value;
+      const id = document.getElementById("roomIdInput").value;
       const ref = db.collection("rooms").doc(id);
       ref.get().then(doc => {
         if (doc.exists) {
@@ -217,7 +222,7 @@
     const waitForOpponent = (id) => {
       const ref = db.collection("rooms").doc(id);
       ref.onSnapshot(doc => {
-        if (doc.data().players.length == 2) {
+        if (doc.data().players.length === 2) {
           startGame(id);
         }
       });
