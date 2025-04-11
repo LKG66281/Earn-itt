@@ -3,293 +3,397 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🔥 Neon Tic-Tac-Toe</title>
+  <title>EarnItt Game Portal</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #0f0f0f;
+      background: #0a0a0a;
       color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      overflow-x: hidden;
     }
-    .neon-btn, input, button {
-      padding: 10px 20px;
-      margin: 10px;
-      font-size: 1rem;
-      background: black;
-      color: #0ff;
+    .container {
+      background: #111;
       border: 2px solid #0ff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px #0ff;
-      cursor: pointer;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 0 20px #0ff;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .active {
+      display: flex !important;
+    }
+    h2 {
+      text-align: center;
+      color: #0ff;
     }
     input {
-      background: #111;
-      color: #0ff;
+      width: 100%;
+      padding: 12px;
+      background: #000;
       border: 1px solid #0ff;
+      border-radius: 8px;
+      color: #0ff;
     }
-    .hidden { display: none; }
-    .container {
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0ff;
+      color: #000;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #00ffffaa;
+    }
+    .toggle-auth {
       text-align: center;
-      max-width: 400px;
-      width: 90%;
+      color: #0ff;
+      cursor: pointer;
+      text-decoration: underline;
     }
-    .message {
+    #messageBox {
       position: fixed;
-      bottom: 20px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: #111;
-      padding: 10px 20px;
+      background: #222;
       color: #0ff;
+      padding: 15px 25px;
       border: 2px solid #0ff;
-      border-radius: 8px;
-      box-shadow: 0 0 20px #0ff;
-      z-index: 100;
-      animation: fade 2s forwards;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #0ff;
+      display: none;
+      z-index: 1000;
+      animation: fadeInOut 3s ease-in-out;
     }
-    @keyframes fade {
-      0% { opacity: 1; }
-      100% { opacity: 0; bottom: 10px; }
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
     }
-    .board {
+
+    .game-board {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 5px;
-      margin: 20px auto;
-      width: 300px;
+      margin: 10px 0;
     }
     .cell {
-      width: 100px;
-      height: 100px;
-      font-size: 3rem;
-      background: #111;
-      color: #0ff;
-      border: 2px solid #0ff;
+      width: 80px;
+      height: 80px;
+      font-size: 2em;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      background: #000;
+      border: 2px solid #0ff;
+      border-radius: 10px;
+      color: #0ff;
       cursor: pointer;
+    }
+
+    .game-status {
+      text-align: center;
+      margin: 10px 0;
+      color: #0ff;
+    }
+
+    #room-id-display {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 14px;
+      color: #0ff;
     }
   </style>
 </head>
 <body>
-  <div id="app" class="container">
-    <div id="auth">
-      <h2 id="authTitle">Login</h2>
-      <input id="email" placeholder="Email"><br>
-      <input id="password" type="password" placeholder="Password"><br>
-      <button id="authBtn" class="neon-btn" onclick="authAction()">Login</button>
-      <button class="neon-btn" onclick="toggleAuth()">Switch to Signup</button>
-    </div>
 
-    <div id="dashboard" class="hidden">
-      <h2>Welcome, <span id="usernameDisplay">User</span></h2>
-      <input id="usernameInput" placeholder="Set username">
-      <button class="neon-btn" onclick="saveUsername()">Save Username</button><br>
-      <button class="neon-btn" onclick="gotoMode()">▶ Play</button>
-    </div>
+<!-- AUTH SECTION -->
+<div class="container active" id="auth-container">
+  <h2 id="auth-title">Login</h2>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="handleAuth()">Login</button>
+  <div class="toggle-auth" onclick="toggleAuth()">Don't have an account? Sign Up</div>
+</div>
 
-    <div id="modeSelect" class="hidden">
+<!-- DASHBOARD -->
+<div class="container" id="dashboard">
+  <h2>Welcome, <span id="usernameDisplay">Player</span> 🎮</h2>
+  <input type="text" id="usernameInput" placeholder="Set or change your username"/>
+  <button onclick="saveUsername()">Save Username</button>
+  <button onclick="goToGameMenu()">Play</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- 🔔 Message Popup -->
+<div class="message" id="messageBox"></div>
+
+<script>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+    authDomain: "earn-itt.firebaseapp.com",
+    projectId: "earn-itt",
+    storageBucket: "earn-itt.firebasestorage.app",
+    messagingSenderId: "785360520679",
+    appId: "1:785360520679:web:ac2e2710ece34591a52942",
+    measurementId: "G-P4Q2KYTBBM"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  function showMessage(msg) {
+    const box = document.getElementById('messageBox');
+    box.textContent = msg;
+    box.style.display = 'block';
+    setTimeout(() => box.style.display = 'none', 3000);
+  }
+
+  let isLogin = true;
+  function toggleAuth() {
+    isLogin = !isLogin;
+    document.getElementById("auth-title").innerText = isLogin ? "Login" : "Sign Up";
+    document.querySelector("#auth-container button").innerText = isLogin ? "Login" : "Sign Up";
+    document.querySelector(".toggle-auth").innerText = isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
+  }
+
+  function handleAuth() {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+    const fn = isLogin ? auth.signInWithEmailAndPassword : auth.createUserWithEmailAndPassword;
+    fn(email, pass)
+      .then(() => showMessage("Login successful!"))
+      .catch(err => showMessage("Auth failed: " + err.message));
+  }
+
+  auth.onAuthStateChanged(async user => {
+    if (user) {
+      document.getElementById("auth-container").classList.remove("active");
+      document.getElementById("dashboard").classList.add("active");
+      const userDoc = await db.collection("users").doc(user.uid).get();
+      const username = userDoc.exists ? userDoc.data().username : "Player";
+      document.getElementById("usernameDisplay").textContent = username || "Player";
+    } else {
+      document.getElementById("dashboard").classList.remove("active");
+      document.getElementById("auth-container").classList.add("active");
+    }
+  });
+
+  async function saveUsername() {
+    const user = auth.currentUser;
+    const username = document.getElementById("usernameInput").value.trim();
+    if (!username) return showMessage("Username can't be empty");
+    await db.collection("users").doc(user.uid).set({ username }, { merge: true });
+    showMessage("Username saved!");
+    document.getElementById("usernameDisplay").textContent = username;
+  }
+
+  function logout() {
+    auth.signOut();
+    showMessage("Logged out!");
+  }
+
+  function goToGameMenu() {
+    document.getElementById("dashboard").innerHTML = `
       <h2>Select Game Mode</h2>
-      <button class="neon-btn" onclick="playFriend()">Play with Friend</button>
-      <button class="neon-btn" onclick="playRandom()">Play with Random Player</button>
-    </div>
+      <button onclick="showFriendOptions()">Play with Friend</button>
+      <button onclick="startMatchmaking()">Play with Random Player</button>
+      <button onclick="location.reload()">Back</button>
+    `;
+  }
 
-    <div id="friendMode" class="hidden">
-      <h3>Friend Mode</h3>
-      <button class="neon-btn" onclick="createRoom()">Create Room</button><br>
-      <input id="roomIdInput" placeholder="Enter Room ID">
-      <button class="neon-btn" onclick="joinRoom()">Join Room</button>
-      <p id="roomIdDisplay"></p>
-    </div>
+  function showFriendOptions() {
+    document.getElementById("dashboard").innerHTML = `
+      <h2>Play With Friend</h2>
+      <button onclick="createRoom()">Create Room</button>
+      <button onclick="joinRoomPrompt()">Join Room</button>
+      <button onclick="goToGameMenu()">Back</button>
+    `;
+  }
 
-    <div id="game" class="hidden">
-      <h3 id="playerTurn"></h3>
-      <div class="board" id="board"></div>
-    </div>
-  </div>
+  async function createRoom() {
+    const user = auth.currentUser;
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    const username = userDoc.data().username || "Player";
+    const roomRef = await db.collection("rooms").add({
+      host: user.uid,
+      players: [{ uid: user.uid, username }],
+      state: "waiting"
+    });
+    const roomId = roomRef.id;
+    showMessage("Room Created: " + roomId);
+    waitForFriend(roomId);
+  }
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-      authDomain: "earn-itt.firebaseapp.com",
-      projectId: "earn-itt",
-      storageBucket: "earn-itt.firebasestorage.app",
-      messagingSenderId: "785360520679",
-      appId: "1:785360520679:web:ac2e2710ece34591a52942",
-      measurementId: "G-P4Q2KYTBBM"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  function joinRoomPrompt() {
+    const roomId = prompt("Enter Room ID");
+    if (roomId) joinRoom(roomId);
+  }
 
-    let isLogin = true;
-    let currentUser = null;
-    let currentRoom = null;
-    let isMyTurn = false;
+  async function joinRoom(roomId) {
+    const roomRef = db.collection("rooms").doc(roomId);
+    const roomDoc = await roomRef.get();
+    if (!roomDoc.exists) return showMessage("Room doesn't exist!");
 
-    const showMessage = msg => {
-      const m = document.createElement('div');
-      m.className = 'message';
-      m.innerText = msg;
-      document.body.appendChild(m);
-      setTimeout(() => m.remove(), 2000);
-    };
+    const user = auth.currentUser;
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    const username = userDoc.data().username || "Player";
 
-    const toggleAuth = () => {
-      isLogin = !isLogin;
-      document.getElementById("authTitle").innerText = isLogin ? "Login" : "Sign Up";
-      document.getElementById("authBtn").innerText = isLogin ? "Login" : "Sign Up";
-    };
+    const roomData = roomDoc.data();
+    if (roomData.players.length >= 2) return showMessage("Room is full!");
 
-    const authAction = () => {
-      const email = document.getElementById("email").value;
-      const pass = document.getElementById("password").value;
+    await roomRef.update({
+      players: firebase.firestore.FieldValue.arrayUnion({ uid: user.uid, username }),
+      state: "full"
+    });
 
-      if (!email || !pass) {
-        showMessage("Email and password required");
-        return;
+    showMessage("Joined Room: " + roomId);
+    launchGame(roomId);
+  }
+
+  function waitForFriend(roomId) {
+    const unsub = db.collection("rooms").doc(roomId).onSnapshot(doc => {
+      const data = doc.data();
+      if (data.players.length === 2) {
+        unsub();
+        launchGame(roomId);
       }
+    });
+    document.getElementById("dashboard").innerHTML = `<h2>Waiting for friend...</h2><div id="room-id-display">Room ID: ${roomId}</div><button onclick="location.reload()">Cancel</button>`;
+  }
 
-      const action = isLogin ? auth.signInWithEmailAndPassword : auth.createUserWithEmailAndPassword;
-      action(email, pass).then(({ user }) => {
-        currentUser = user;
-        document.getElementById("auth").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-        loadUsername();
-        showMessage("Logged in!");
-      }).catch(e => showMessage(e.message));
-    };
+  async function startMatchmaking() {
+    const user = auth.currentUser;
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    const username = userDoc.data().username || "Player";
 
-    const saveUsername = () => {
-      const name = document.getElementById("usernameInput").value;
-      db.collection("users").doc(currentUser.uid).set({ username: name });
-      document.getElementById("usernameDisplay").innerText = name;
-      showMessage("Username saved!");
-    };
+    const queueRef = db.collection("matchmaking").doc("queue");
+    const queueDoc = await queueRef.get();
 
-    const loadUsername = () => {
-      db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
-        const name = doc.data()?.username || "User";
-        document.getElementById("usernameDisplay").innerText = name;
-      });
-    };
-
-    const gotoMode = () => {
-      document.getElementById("dashboard").classList.add("hidden");
-      document.getElementById("modeSelect").classList.remove("hidden");
-    };
-
-    const playFriend = () => {
-      document.getElementById("modeSelect").classList.add("hidden");
-      document.getElementById("friendMode").classList.remove("hidden");
-    };
-
-    const createRoom = () => {
-      const id = Math.random().toString(36).substr(2, 5);
-      db.collection("rooms").doc(id).set({
-        players: [auth.currentUser.uid],
-        board: Array(9).fill(""),
-        turn: auth.currentUser.uid
-      });
-      currentRoom = id;
-      document.getElementById("roomIdDisplay").innerText = "Room ID: " + id;
-      waitForOpponent(id);
-    };
-
-    const joinRoom = () => {
-      const id = document.getElementById("roomIdInput").value;
-      const ref = db.collection("rooms").doc(id);
-      ref.get().then(doc => {
-        if (doc.exists) {
-          ref.update({
-            players: firebase.firestore.FieldValue.arrayUnion(auth.currentUser.uid)
-          });
-          currentRoom = id;
-          startGame(id);
-        } else showMessage("Room not found");
-      });
-    };
-
-    const waitForOpponent = (id) => {
-      const ref = db.collection("rooms").doc(id);
-      ref.onSnapshot(doc => {
-        if (doc.data().players.length === 2) {
-          startGame(id);
+    if (!queueDoc.exists || !queueDoc.data().waiting) {
+      await queueRef.set({ waiting: { uid: user.uid, username } });
+      showMessage("Searching for opponent...");
+      const unsub = queueRef.onSnapshot(async snap => {
+        const data = snap.data();
+        if (data.matched && data.matched.includes(user.uid)) {
+          unsub();
+          const roomId = data.roomId;
+          showMessage("Match found!");
+          launchGame(roomId);
         }
       });
-    };
+    } else {
+      const other = queueDoc.data().waiting;
+      const roomRef = await db.collection("rooms").add({
+        players: [other, { uid: user.uid, username }],
+        state: "full"
+      });
+      const roomId = roomRef.id;
+      await queueRef.set({ matched: [other.uid, user.uid], roomId });
+      launchGame(roomId);
+    }
+  }
 
-    const startGame = (id) => {
-      document.getElementById("friendMode").classList.add("hidden");
-      document.getElementById("game").classList.remove("hidden");
-      const boardEl = document.getElementById("board");
+  function launchGame(roomId) {
+    document.getElementById("dashboard").innerHTML = `<h2>Tic-Tac-Toe</h2><div class="game-status" id="gameStatus">Loading...</div><div class="game-board" id="gameBoard"></div><button onclick="location.reload()">Exit</button>`;
+    initGame(roomId);
+  }
+
+  function initGame(roomId) {
+    const boardEl = document.getElementById("gameBoard");
+    const statusEl = document.getElementById("gameStatus");
+    const board = Array(9).fill(null);
+    let turn = "X";
+    let currentPlayer = null;
+    let opponent = null;
+
+    const roomRef = db.collection("rooms").doc(roomId);
+    roomRef.onSnapshot(async doc => {
+      const data = doc.data();
+      const players = data.players;
+      const user = auth.currentUser;
+
+      if (!currentPlayer) {
+        if (players[0].uid === user.uid) {
+          currentPlayer = { ...players[0], symbol: "X" };
+          opponent = { ...players[1], symbol: "O" };
+        } else {
+          currentPlayer = { ...players[1], symbol: "O" };
+          opponent = { ...players[0], symbol: "X" };
+        }
+        statusEl.textContent = `${currentPlayer.username} vs ${opponent.username}`;
+      }
+
+      if (data.board) {
+        data.board.forEach((val, i) => board[i] = val);
+        turn = data.turn || "X";
+        renderBoard();
+        checkWinner();
+      }
+    });
+
+    function renderBoard() {
       boardEl.innerHTML = "";
-      for (let i = 0; i < 9; i++) {
+      board.forEach((val, idx) => {
         const cell = document.createElement("div");
         cell.className = "cell";
-        cell.dataset.index = i;
-        cell.onclick = () => makeMove(i);
+        cell.textContent = val || "";
+        cell.onclick = () => makeMove(idx);
         boardEl.appendChild(cell);
-      }
-
-      db.collection("rooms").doc(id).onSnapshot(doc => {
-        const data = doc.data();
-        const board = data.board;
-        isMyTurn = data.turn === auth.currentUser.uid;
-        document.getElementById("playerTurn").innerText = isMyTurn ? "Your Turn" : "Opponent's Turn";
-        board.forEach((val, i) => {
-          boardEl.children[i].innerText = val;
-        });
-        checkWin(board);
       });
-    };
+    }
 
-    const makeMove = (index) => {
-      const ref = db.collection("rooms").doc(currentRoom);
-      ref.get().then(doc => {
-        const data = doc.data();
-        if (data.board[index] === "" && data.turn === auth.currentUser.uid) {
-          const symbol = data.players.indexOf(auth.currentUser.uid) === 0 ? "X" : "O";
-          const newBoard = data.board;
-          newBoard[index] = symbol;
-          const nextTurn = data.players.find(uid => uid !== auth.currentUser.uid);
-          ref.update({ board: newBoard, turn: nextTurn });
-        }
-      });
-    };
+    function makeMove(index) {
+      if (board[index] || turn !== currentPlayer.symbol) return;
+      board[index] = currentPlayer.symbol;
+      turn = currentPlayer.symbol === "X" ? "O" : "X";
+      roomRef.update({ board, turn });
+    }
 
-    const checkWin = (b) => {
-      const winLines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-      for (const [a,b1,c] of winLines) {
-        if (b[a] && b[a] === b[b1] && b[a] === b[c]) {
-          showMessage(b[a] + " Wins!");
-          setTimeout(() => location.reload(), 2000);
+    function checkWinner() {
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      for (const [a,b,c] of wins) {
+        if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+          statusEl.textContent = `${board[a] === currentPlayer.symbol ? "You win!" : "You lose!"}`;
+          showMessage(statusEl.textContent);
+          setTimeout(() => location.reload(), 3000);
           return;
         }
       }
-      if (b.every(c => c)) {
-        showMessage("It's a Tie!");
-        setTimeout(() => location.reload(), 2000);
+      if (!board.includes(null)) {
+        statusEl.textContent = "It's a tie!";
+        showMessage("It's a tie!");
+        setTimeout(() => location.reload(), 3000);
       }
-    };
+    }
 
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        document.getElementById("auth").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-        loadUsername();
-      }
-    });
-  </script>
+    renderBoard();
+  }
+</script>
 </body>
 </html>
