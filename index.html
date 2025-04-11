@@ -1,315 +1,287 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Neon Tic-Tac-Toe</title>
+  <title>🔥 Neon Tic-Tac-Toe</title>
   <style>
+    * { box-sizing: border-box; }
     body {
-      background-color: #000;
-      color: #0ff;
+      margin: 0;
       font-family: 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      margin: 0;
+      height: 100vh;
     }
-
-    .container {
-      width: 90%;
-      max-width: 600px;
-      text-align: center;
-    }
-
-    input, button {
+    .neon-btn, input, button {
       padding: 10px 20px;
       margin: 10px;
-      background: transparent;
-      border: 2px solid #0ff;
+      font-size: 1rem;
+      background: black;
       color: #0ff;
-      font-size: 1em;
+      border: 2px solid #0ff;
       border-radius: 8px;
-      transition: 0.3s;
+      box-shadow: 0 0 10px #0ff;
+      cursor: pointer;
     }
-
-    button:hover, input:focus {
-      background-color: #0ff;
-      color: #000;
-      outline: none;
+    input {
+      background: #111;
+      color: #0ff;
+      border: 1px solid #0ff;
     }
-
-    .hidden {
-      display: none;
+    .hidden { display: none; }
+    .container {
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
     }
-
-    .game-board {
+    .message {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      padding: 10px 20px;
+      color: #0ff;
+      border: 2px solid #0ff;
+      border-radius: 8px;
+      box-shadow: 0 0 20px #0ff;
+      z-index: 100;
+      animation: fade 2s forwards;
+    }
+    @keyframes fade {
+      0% { opacity: 1; }
+      100% { opacity: 0; bottom: 10px; }
+    }
+    .board {
       display: grid;
-      grid-template-columns: repeat(3, 100px);
+      grid-template-columns: repeat(3, 1fr);
       gap: 5px;
-      justify-content: center;
       margin: 20px auto;
+      width: 300px;
     }
-
     .cell {
       width: 100px;
       height: 100px;
-      background-color: #111;
+      font-size: 3rem;
+      background: #111;
+      color: #0ff;
       border: 2px solid #0ff;
-      font-size: 2em;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      user-select: none;
-    }
-
-    #messageBox {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 255, 255, 0.2);
-      border: 1px solid #0ff;
-      padding: 10px 20px;
-      border-radius: 10px;
-      color: #0ff;
-      font-weight: bold;
-      display: none;
-      z-index: 1000;
     }
   </style>
 </head>
 <body>
-  <div id="messageBox"></div>
-  <div class="container" id="dashboard">
-    <!-- MAIN DASHBOARD -->
-    <div id="mainDashboard">
-      <h2>Welcome, <span id="usernameDisplay">Player</span> 🎮</h2>
-      <input type="text" id="usernameInput" placeholder="Set or change your username"/>
-      <button onclick="saveUsername()">Save Username</button>
-      <button onclick="goToGameMenu()">Play</button>
-      <button onclick="logout()">Logout</button>
+  <div id="app" class="container">
+    <div id="auth">
+      <h2 id="authTitle">Login</h2>
+      <input id="email" placeholder="Email"><br>
+      <input id="password" type="password" placeholder="Password"><br>
+      <button class="neon-btn" onclick="authAction()">Login</button>
+      <button class="neon-btn" onclick="toggleAuth()">Switch to Signup</button>
     </div>
 
-    <!-- GAME MENU -->
-    <div id="gameMenu" class="hidden">
+    <div id="dashboard" class="hidden">
+      <h2>Welcome, <span id="usernameDisplay">User</span></h2>
+      <input id="usernameInput" placeholder="Set username">
+      <button class="neon-btn" onclick="saveUsername()">Save Username</button><br>
+      <button class="neon-btn" onclick="gotoMode()">▶ Play</button>
+    </div>
+
+    <div id="modeSelect" class="hidden">
       <h2>Select Game Mode</h2>
-      <button onclick="showFriendOptions()">Play with Friend</button>
-      <button onclick="startMatchmaking()">Play with Random Player</button>
-      <button onclick="showSection('mainDashboard')">Back</button>
+      <button class="neon-btn" onclick="playFriend()">Play with Friend</button>
+      <button class="neon-btn" onclick="playRandom()">Play with Random Player</button>
     </div>
 
-    <!-- FRIEND OPTIONS -->
-    <div id="friendOptions" class="hidden">
-      <h2>Play With Friend</h2>
-      <button onclick="createRoom()">Create Room</button>
-      <button onclick="joinRoomPrompt()">Join Room</button>
-      <button onclick="showSection('gameMenu')">Back</button>
+    <div id="friendMode" class="hidden">
+      <h3>Friend Mode</h3>
+      <button class="neon-btn" onclick="createRoom()">Create Room</button><br>
+      <input id="roomIdInput" placeholder="Enter Room ID">
+      <button class="neon-btn" onclick="joinRoom()">Join Room</button>
+      <p id="roomIdDisplay"></p>
     </div>
 
-    <!-- GAME ROOM -->
-    <div id="gameRoom" class="hidden"></div>
+    <div id="game" class="hidden">
+      <h3 id="playerTurn"></h3>
+      <div class="board" id="board"></div>
+    </div>
   </div>
 
-  <!-- Firebase + JS -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script>
-    // Your Firebase config here
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+      authDomain: "earn-itt.firebaseapp.com",
+      projectId: "earn-itt",
+      storageBucket: "earn-itt.firebasestorage.app",
+      messagingSenderId: "785360520679",
+      appId: "1:785360520679:web:ac2e2710ece34591a52942",
+      measurementId: "G-P4Q2KYTBBM"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const dashboard = document.getElementById("dashboard");
+    let isLogin = true;
+    let currentUser = null;
+    let currentRoom = null;
+    let isMyTurn = false;
 
-    function showMessage(text) {
-      const msg = document.getElementById("messageBox");
-      msg.innerText = text;
-      msg.style.display = "block";
-      setTimeout(() => msg.style.display = "none", 3000);
-    }
+    const showMessage = msg => {
+      const m = document.createElement('div');
+      m.className = 'message';
+      m.innerText = msg;
+      document.body.appendChild(m);
+      setTimeout(() => m.remove(), 2000);
+    };
 
-    function showSection(id) {
-      ['mainDashboard', 'gameMenu', 'friendOptions', 'gameRoom'].forEach(sec => {
-        document.getElementById(sec).classList.add('hidden');
+    const toggleAuth = () => {
+      isLogin = !isLogin;
+      document.getElementById("authTitle").innerText = isLogin ? "Login" : "Sign Up";
+    };
+
+    const authAction = () => {
+      const email = emailInput.value;
+      const pass = password.value;
+      const action = isLogin ? auth.signInWithEmailAndPassword : auth.createUserWithEmailAndPassword;
+      action(email, pass).then(({ user }) => {
+        currentUser = user;
+        document.getElementById("auth").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        loadUsername();
+        showMessage("Logged in!");
+      }).catch(e => showMessage(e.message));
+    };
+
+    const saveUsername = () => {
+      const name = usernameInput.value;
+      db.collection("users").doc(currentUser.uid).set({ username: name });
+      document.getElementById("usernameDisplay").innerText = name;
+      showMessage("Username saved!");
+    };
+
+    const loadUsername = () => {
+      db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+        const name = doc.data()?.username || "User";
+        document.getElementById("usernameDisplay").innerText = name;
       });
-      document.getElementById(id).classList.remove('hidden');
-    }
+    };
 
-    function saveUsername() {
-      const username = document.getElementById("usernameInput").value.trim();
-      if (username) {
-        const user = auth.currentUser;
-        db.collection("users").doc(user.uid).set({ username }, { merge: true });
-        document.getElementById("usernameDisplay").innerText = username;
-        showMessage("Username saved!");
-      }
-    }
+    const gotoMode = () => {
+      document.getElementById("dashboard").classList.add("hidden");
+      document.getElementById("modeSelect").classList.remove("hidden");
+    };
 
-    function goToGameMenu() {
-      showSection('gameMenu');
-    }
+    const playFriend = () => {
+      document.getElementById("modeSelect").classList.add("hidden");
+      document.getElementById("friendMode").classList.remove("hidden");
+    };
 
-    function showFriendOptions() {
-      showSection('friendOptions');
-    }
+    const createRoom = () => {
+      const id = Math.random().toString(36).substr(2, 5);
+      db.collection("rooms").doc(id).set({
+        players: [auth.currentUser.uid],
+        board: Array(9).fill(""),
+        turn: auth.currentUser.uid
+      });
+      currentRoom = id;
+      document.getElementById("roomIdDisplay").innerText = "Room ID: " + id;
+      waitForOpponent(id);
+    };
 
-    function createRoom() {
-      const roomRef = db.collection("rooms").doc();
-      const user = auth.currentUser;
-      roomRef.set({ players: [user.uid] });
-      waitForFriend(roomRef.id);
-    }
-
-    function joinRoomPrompt() {
-      const roomId = prompt("Enter Room ID:");
-      if (roomId) {
-        joinRoom(roomId);
-      }
-    }
-
-    function joinRoom(roomId) {
-      const roomRef = db.collection("rooms").doc(roomId);
-      roomRef.get().then(doc => {
+    const joinRoom = () => {
+      const id = roomIdInput.value;
+      const ref = db.collection("rooms").doc(id);
+      ref.get().then(doc => {
         if (doc.exists) {
-          const data = doc.data();
-          if (data.players.length < 2) {
-            roomRef.update({ players: [...data.players, auth.currentUser.uid] });
-            launchGame(roomId);
-          } else {
-            showMessage("Room is full.");
-          }
-        } else {
-          showMessage("Room not found.");
-        }
-      });
-    }
-
-    function waitForFriend(roomId) {
-      const unsub = db.collection("rooms").doc(roomId).onSnapshot(doc => {
-        const data = doc.data();
-        if (data.players.length === 2) {
-          unsub();
-          launchGame(roomId);
-        }
-      });
-      showSection('gameRoom');
-      document.getElementById("gameRoom").innerHTML = `<h2>Waiting for friend...</h2><div>Room ID: ${roomId}</div><button onclick="location.reload()">Cancel</button>`;
-    }
-
-    function startMatchmaking() {
-      const user = auth.currentUser;
-      const queueRef = db.collection("matchmaking").doc(user.uid);
-      queueRef.set({ timestamp: Date.now() });
-
-      const interval = setInterval(() => {
-        db.collection("matchmaking").get().then(snapshot => {
-          const players = [];
-          snapshot.forEach(doc => players.push(doc.id));
-          if (players.length >= 2) {
-            clearInterval(interval);
-            const [p1, p2] = players;
-            const roomRef = db.collection("rooms").doc();
-            roomRef.set({ players: [p1, p2] });
-            db.collection("matchmaking").doc(p1).delete();
-            db.collection("matchmaking").doc(p2).delete();
-            if (user.uid === p1 || user.uid === p2) {
-              launchGame(roomRef.id);
-            }
-          }
-        });
-      }, 1000);
-
-      showMessage("Searching for opponent...");
-    }
-
-    function launchGame(roomId) {
-      showSection('gameRoom');
-      document.getElementById("gameRoom").innerHTML = `<h2>Tic-Tac-Toe</h2><div id="gameStatus">Loading...</div><div class="game-board" id="gameBoard"></div><button onclick="location.reload()">Exit</button>`;
-      initGame(roomId);
-    }
-
-    function initGame(roomId) {
-      const user = auth.currentUser;
-      const boardEl = document.getElementById("gameBoard");
-      const statusEl = document.getElementById("gameStatus");
-
-      const roomRef = db.collection("rooms").doc(roomId);
-
-      roomRef.get().then(doc => {
-        const data = doc.data();
-        const [playerX, playerO] = data.players;
-        const symbol = user.uid === playerX ? "X" : "O";
-
-        let board = Array(9).fill("");
-        let turn = "X";
-        roomRef.set({ board, turn }, { merge: true });
-
-        roomRef.onSnapshot(doc => {
-          const data = doc.data();
-          board = data.board;
-          turn = data.turn;
-
-          boardEl.innerHTML = "";
-          board.forEach((cell, i) => {
-            const div = document.createElement("div");
-            div.className = "cell";
-            div.innerText = cell;
-            if (!cell && symbol === turn) {
-              div.onclick = () => {
-                board[i] = symbol;
-                const nextTurn = symbol === "X" ? "O" : "X";
-                roomRef.set({ board, turn: nextTurn }, { merge: true });
-              };
-            }
-            boardEl.appendChild(div);
+          ref.update({
+            players: firebase.firestore.FieldValue.arrayUnion(auth.currentUser.uid)
           });
-
-          const winner = getWinner(board);
-          if (winner) {
-            statusEl.innerText = winner === "T" ? "It's a Tie!" : `${winner} Wins!`;
-          } else {
-            statusEl.innerText = `Turn: ${turn}`;
-          }
-        });
+          currentRoom = id;
+          startGame(id);
+        } else showMessage("Room not found");
       });
-    }
+    };
 
-    function getWinner(b) {
-      const wins = [
-        [0,1,2], [3,4,5], [6,7,8],
-        [0,3,6], [1,4,7], [2,5,8],
-        [0,4,8], [2,4,6]
-      ];
-      for (const [a,b,c] of wins) {
-        if (b[a] && b[a] === b[b] && b[a] === b[c]) return b[a];
+    const waitForOpponent = (id) => {
+      const ref = db.collection("rooms").doc(id);
+      ref.onSnapshot(doc => {
+        if (doc.data().players.length == 2) {
+          startGame(id);
+        }
+      });
+    };
+
+    const startGame = (id) => {
+      document.getElementById("friendMode").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+      const boardEl = document.getElementById("board");
+      boardEl.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.index = i;
+        cell.onclick = () => makeMove(i);
+        boardEl.appendChild(cell);
       }
-      return b.includes("") ? null : "T";
-    }
 
-    function logout() {
-      auth.signOut().then(() => location.reload());
-    }
+      db.collection("rooms").doc(id).onSnapshot(doc => {
+        const data = doc.data();
+        const board = data.board;
+        isMyTurn = data.turn === auth.currentUser.uid;
+        document.getElementById("playerTurn").innerText = isMyTurn ? "Your Turn" : "Opponent's Turn";
+        board.forEach((val, i) => {
+          boardEl.children[i].innerText = val;
+        });
+        checkWin(board);
+      });
+    };
+
+    const makeMove = (index) => {
+      const ref = db.collection("rooms").doc(currentRoom);
+      ref.get().then(doc => {
+        const data = doc.data();
+        if (data.board[index] === "" && data.turn === auth.currentUser.uid) {
+          const symbol = data.players.indexOf(auth.currentUser.uid) === 0 ? "X" : "O";
+          const newBoard = data.board;
+          newBoard[index] = symbol;
+          const nextTurn = data.players.find(uid => uid !== auth.currentUser.uid);
+          ref.update({ board: newBoard, turn: nextTurn });
+        }
+      });
+    };
+
+    const checkWin = (b) => {
+      const winLines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+      for (const [a,b1,c] of winLines) {
+        if (b[a] && b[a] === b[b1] && b[a] === b[c]) {
+          showMessage(b[a] + " Wins!");
+          setTimeout(() => location.reload(), 2000);
+          return;
+        }
+      }
+      if (b.every(c => c)) {
+        showMessage("It's a Tie!");
+        setTimeout(() => location.reload(), 2000);
+      }
+    };
 
     auth.onAuthStateChanged(user => {
-      if (!user) {
-        auth.signInAnonymously();
-      } else {
-        db.collection("users").doc(user.uid).get().then(doc => {
-          const name = doc.exists ? doc.data().username || "Player" : "Player";
-          document.getElementById("usernameDisplay").innerText = name;
-        });
+      if (user) {
+        currentUser = user;
+        document.getElementById("auth").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        loadUsername();
       }
     });
   </script>
