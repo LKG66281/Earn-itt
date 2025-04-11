@@ -291,7 +291,7 @@
             console.log('Firebase initialized successfully');
         } catch (error) {
             console.error('Firebase initialization error:', error);
-            showMessage('Failed to initialize app. Check console.', 'error');
+            alert('Failed to initialize Firebase. Check console and verify configuration.');
         }
 
         // DOM Elements
@@ -324,9 +324,23 @@
         const playersDisplay = document.getElementById('playersDisplay');
 
         // Verify DOM elements
+        if (!authContainer) console.error('authContainer not found');
+        if (!dashboard) console.error('dashboard not found');
         if (!authButton) console.error('authButton not found');
-        if (!playButton) console.error('playButton not found');
-        if (!createRoom) console.error('createRoom not found');
+        if (!logoutButton) console.error('logoutButton not found');
+
+        // Initialize container visibility
+        function initializeContainers() {
+            console.log('Initializing containers');
+            const containers = [authContainer, dashboard, gamePage, friendOptions, gameRoom, waitingArea];
+            containers.forEach(c => {
+                if (c) c.style.display = 'none';
+            });
+            if (authContainer) authContainer.style.display = 'block';
+        }
+
+        // Call initializeContainers immediately
+        initializeContainers();
 
         let isSignUp = true;
         let currentRoomId = null;
@@ -350,8 +364,9 @@
 
         // Show/Hide Containers
         function showContainer(container) {
-            console.log(`Showing container: ${container.id}`);
-            [authContainer, dashboard, gamePage, friendOptions, gameRoom, waitingArea].forEach(c => {
+            console.log(`Showing container: ${container?.id || 'unknown'}`);
+            const containers = [authContainer, dashboard, gamePage, friendOptions, gameRoom, waitingArea];
+            containers.forEach(c => {
                 if (c) c.style.display = 'none';
             });
             if (container) container.style.display = 'block';
@@ -362,8 +377,8 @@
             toggleAuth.addEventListener('click', () => {
                 console.log('Toggle auth clicked');
                 isSignUp = !isSignUp;
-                formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
-                authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
+                if (formTitle) formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
+                if (authButton) authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
                 toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
             });
         }
@@ -414,7 +429,7 @@
                         showMessage('Username saved!', 'success');
                         if (usernameInput) usernameInput.value = '';
                     } else {
-                        showMessage('No user logged in', 'error');
+                        showMessage('Please log in first', 'error');
                     }
                 } catch (error) {
                     console.error('Save username error:', error);
@@ -430,6 +445,7 @@
                 const user = auth.currentUser;
                 if (!user) {
                     showMessage('Please log in first', 'error');
+                    showContainer(authContainer);
                     return;
                 }
                 try {
@@ -450,6 +466,11 @@
         if (backToDashboard) {
             backToDashboard.addEventListener('click', () => {
                 console.log('Back to dashboard clicked');
+                if (!auth.currentUser) {
+                    showMessage('Please log in first', 'error');
+                    showContainer(authContainer);
+                    return;
+                }
                 showContainer(dashboard);
             });
         }
@@ -458,6 +479,11 @@
         if (playWithFriend) {
             playWithFriend.addEventListener('click', () => {
                 console.log('Play with friend clicked');
+                if (!auth.currentUser) {
+                    showMessage('Please log in first', 'error');
+                    showContainer(authContainer);
+                    return;
+                }
                 showContainer(friendOptions);
             });
         }
@@ -466,6 +492,11 @@
         if (backToGamePage) {
             backToGamePage.addEventListener('click', () => {
                 console.log('Back to game page clicked');
+                if (!auth.currentUser) {
+                    showMessage('Please log in first', 'error');
+                    showContainer(authContainer);
+                    return;
+                }
                 showContainer(gamePage);
             });
         }
@@ -476,7 +507,8 @@
                 console.log('Create room clicked');
                 const user = auth.currentUser;
                 if (!user) {
-                    showMessage('Please log in', 'error');
+                    showMessage('Please log in first', 'error');
+                    showContainer(authContainer);
                     return;
                 }
                 try {
@@ -510,17 +542,18 @@
         if (joinRoom) {
             joinRoom.addEventListener('click', async () => {
                 console.log('Join room clicked');
+                const user = auth.currentUser;
+                if (!user) {
+                    showMessage('Please log in first', 'error');
+                    showContainer(authContainer);
+                    return;
+                }
                 const roomId = prompt('Enter Room ID:');
                 if (!roomId) {
                     showMessage('Please enter a Room ID', 'error');
                     return;
                 }
                 try {
-                    const user = auth.currentUser;
-                    if (!user) {
-                        showMessage('Please log in', 'error');
-                        return;
-                    }
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const username = userDoc.data()?.username || 'Player';
                     const roomDoc = await getDoc(doc(db, 'rooms', roomId));
@@ -561,7 +594,8 @@
                 console.log('Play random clicked');
                 const user = auth.currentUser;
                 if (!user) {
-                    showMessage('Please log in', 'error');
+                    showMessage('Please log in first', 'error');
+                    showContainer(authContainer);
                     return;
                 }
                 try {
@@ -736,7 +770,11 @@
             if (gameStatus) gameStatus.textContent = 'Waiting for opponent...';
             if (roomIdDisplay) roomIdDisplay.textContent = '';
             if (playersDisplay) playersDisplay.textContent = '';
-            showContainer(dashboard);
+            if (auth.currentUser) {
+                showContainer(dashboard);
+            } else {
+                showContainer(authContainer);
+            }
         }
 
         // Leave Room
@@ -750,11 +788,10 @@
 
         // Auth State Listener
         onAuthStateChanged(auth, async user => {
-            console.log('Auth state changed:', user ? user.uid : 'No user');
+            console.log('Auth state changed:', user ? `User: ${user.uid}` : 'No user');
             if (user) {
-                if (authContainer) authContainer.style.display = 'none';
-                if (dashboard) dashboard.style.display = 'block';
-                if (userEmailSpan) userEmailSpan.textContent = user.email;
+                showContainer(dashboard);
+                if (userEmailSpan) userEmailSpan.textContent = user.email || 'User';
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     if (userDoc.exists() && userDoc.data().username && usernameInput) {
@@ -767,12 +804,9 @@
                     showMessage(`Error fetching username: ${error.message}`, 'error');
                 }
             } else {
-                if (authContainer) authContainer.style.display = 'block';
-                if (dashboard) dashboard.style.display = 'none';
-                if (gamePage) gamePage.style.display = 'none';
-                if (friendOptions) friendOptions.style.display = 'none';
-                if (gameRoom) gameRoom.style.display = 'none';
-                if (waitingArea) waitingArea.style.display = 'none';
+                showContainer(authContainer);
+                if (userEmailSpan) userEmailSpan.textContent = '';
+                if (usernameInput) usernameInput.placeholder = 'Set Username';
                 cleanupGame();
             }
         });
@@ -784,9 +818,11 @@
                 try {
                     await signOut(auth);
                     showMessage('Logged out successfully!', 'success');
+                    showContainer(authContainer);
+                    cleanupGame();
                 } catch (error) {
-                    console.error('Logout error:', error);
-                    showMessage(`Error: ${error.message}`, 'error');
+                    console.error('Logout error:', error.code, error.message);
+                    showMessage(`Logout failed: ${error.message}`, 'error');
                 }
             });
         }
