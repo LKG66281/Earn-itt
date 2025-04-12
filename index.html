@@ -48,7 +48,7 @@
             background: #2a2a2a;
             border: none;
             outline: none;
-            border-radius: 25px; /* Google-like rounded input */
+            border-radius: 25px;
             color: #fff;
             font-size: 16px;
             box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
@@ -276,16 +276,15 @@
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
         // Firebase Configuration - REPLACE WITH YOUR OWN CONFIG
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-  authDomain: "earn-itt.firebaseapp.com",
-  projectId: "earn-itt",
-  storageBucket: "earn-itt.firebasestorage.app",
-  messagingSenderId: "785360520679",
-  appId: "1:785360520679:web:ac2e2710ece34591a52942",
-  measurementId: "G-P4Q2KYTBBM"
-};
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-project-id.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.firebasestorage.app",
+            messagingSenderId: "your-messaging-sender-id",
+            appId: "your-app-id",
+            measurementId: "your-measurement-id"
+        };
 
         // Initialize Firebase
         let auth, db;
@@ -311,7 +310,7 @@ const firebaseConfig = {
         const toggleAuth = document.getElementById('toggleAuth');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const userDisplay = document.getElementById('userDisplay'); // Changed from userEmailSpan
+        const userDisplay = document.getElementById('userDisplay');
         const usernameInput = document.getElementById('username');
         const saveUsernameButton = document.getElementById('saveUsername');
         const playButton = document.getElementById('playButton');
@@ -321,7 +320,7 @@ const firebaseConfig = {
         const backToDashboard = document.getElementById('backToDashboard');
         const createRoom = document.getElementById('createRoom');
         const joinRoom = document.getElementById('joinRoom');
-        const roomIdInput = document.getElementById('roomIdInput'); // New input for Room ID
+        const roomIdInput = document.getElementById('roomIdInput');
         const backToGamePage = document.getElementById('backToGamePage');
         const roomIdDisplay = document.getElementById('roomIdDisplay');
         const gameStatus = document.getElementById('gameStatus');
@@ -520,10 +519,11 @@ const firebaseConfig = {
                     showContainer(authContainer);
                     return;
                 }
+                console.log('Creating room for user:', user.uid);
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const username = userDoc.data()?.username || 'Player';
-                    const roomRef = await addDoc(collection(db, 'rooms'), {
+                    const roomData = {
                         player1: user.uid,
                         player1Username: username,
                         player2: null,
@@ -532,7 +532,9 @@ const firebaseConfig = {
                         turn: 'X',
                         status: 'waiting',
                         createdAt: Date.now()
-                    });
+                    };
+                    console.log('Room data:', roomData);
+                    const roomRef = await addDoc(collection(db, 'rooms'), roomData);
                     currentRoomId = roomRef.id;
                     currentPlayer = 'X';
                     showContainer(gameRoom);
@@ -541,8 +543,8 @@ const firebaseConfig = {
                     listenToRoom(currentRoomId, username);
                     showMessage('Room created! Share the Room ID.', 'success');
                 } catch (error) {
-                    console.error('Create room error:', error);
-                    showMessage(`Error: ${error.message}`, 'error');
+                    console.error('Create room error:', error.code, error.message);
+                    showMessage(`Error creating room: ${error.message}`, 'error');
                 }
             });
         }
@@ -562,6 +564,7 @@ const firebaseConfig = {
                     showMessage('Please enter a Room ID', 'error');
                     return;
                 }
+                console.log('Joining room:', roomId, 'User:', user.uid);
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const username = userDoc.data()?.username || 'Player';
@@ -571,6 +574,7 @@ const firebaseConfig = {
                         return;
                     }
                     const roomData = roomDoc.data();
+                    console.log('Room data:', roomData);
                     if (roomData.player2) {
                         showMessage('Room is full', 'error');
                         return;
@@ -590,10 +594,10 @@ const firebaseConfig = {
                     if (roomIdDisplay) roomIdDisplay.textContent = `Room ID: ${roomId}`;
                     listenToRoom(roomId, username);
                     showMessage('Joined room successfully!', 'success');
-                    if (roomIdInput) roomIdInput.value = ''; // Clear input after joining
+                    if (roomIdInput) roomIdInput.value = '';
                 } catch (error) {
-                    console.error('Join room error:', error);
-                    showMessage(`Error: ${error.message}`, 'error');
+                    console.error('Join room error:', error.code, error.message);
+                    showMessage(`Error joining room: ${error.message}`, 'error');
                 }
             });
         }
@@ -608,6 +612,7 @@ const firebaseConfig = {
                     showContainer(authContainer);
                     return;
                 }
+                console.log('Starting matchmaking for user:', user.uid);
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const username = userDoc.data()?.username || 'Player';
@@ -623,7 +628,7 @@ const firebaseConfig = {
                         const opponentDoc = existingEntries.docs[0];
                         const opponent = opponentDoc.data();
                         console.log('Found opponent:', opponent.username);
-                        const roomRef = await addDoc(collection(db, 'rooms'), {
+                        const roomData = {
                             player1: user.uid,
                             player1Username: username,
                             player2: opponent.userId,
@@ -632,7 +637,9 @@ const firebaseConfig = {
                             turn: 'X',
                             status: 'active',
                             createdAt: Date.now()
-                        });
+                        };
+                        console.log('Creating room with data:', roomData);
+                        const roomRef = await addDoc(collection(db, 'rooms'), roomData);
                         currentRoomId = roomRef.id;
                         currentPlayer = 'X';
                         opponentUsername = opponent.username;
@@ -643,11 +650,13 @@ const firebaseConfig = {
                         showMessage('Opponent found! Game started.', 'success');
                     } else {
                         // Add self to matchmaking pool
-                        const matchmakingRef = await addDoc(collection(db, 'matchmaking'), {
+                        const matchmakingData = {
                             userId: user.uid,
                             username,
                             timestamp: Date.now()
-                        });
+                        };
+                        console.log('Adding to matchmaking:', matchmakingData);
+                        const matchmakingRef = await addDoc(collection(db, 'matchmaking'), matchmakingData);
                         console.log('Added to matchmaking pool:', matchmakingRef.id);
 
                         // Listen for an opponent
@@ -657,7 +666,7 @@ const firebaseConfig = {
                             if (entries.length > 0) {
                                 const opponent = entries[0].data();
                                 console.log('Matched with:', opponent.username);
-                                const roomRef = await addDoc(collection(db, 'rooms'), {
+                                const roomData = {
                                     player1: user.uid,
                                     player1Username: username,
                                     player2: opponent.userId,
@@ -666,7 +675,9 @@ const firebaseConfig = {
                                     turn: 'X',
                                     status: 'active',
                                     createdAt: Date.now()
-                                });
+                                };
+                                console.log('Creating room with data:', roomData);
+                                const roomRef = await addDoc(collection(db, 'rooms'), roomData);
                                 currentRoomId = roomRef.id;
                                 currentPlayer = 'X';
                                 opponentUsername = opponent.username;
@@ -691,7 +702,7 @@ const firebaseConfig = {
                         }, 30000);
                     }
                 } catch (error) {
-                    console.error('Play random error:', error);
+                    console.error('Play random error:', error.code, error.message);
                     showMessage(`Error: ${error.message}`, 'error');
                     showContainer(gamePage);
                 }
