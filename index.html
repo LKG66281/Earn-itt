@@ -575,7 +575,7 @@ const firebaseConfig = {
                         return;
                     }
                     const roomData = roomDoc.data();
-                    console.log('Room data before join:', roomData);
+                    console.log('Room data:', roomData);
                     if (roomData.player2) {
                         showMessage('Room is full', 'error');
                         return;
@@ -584,13 +584,11 @@ const firebaseConfig = {
                         showMessage('You cannot join your own room', 'error');
                         return;
                     }
-                    const updateData = {
+                    await updateDoc(doc(db, 'rooms', roomId), {
                         player2: user.uid,
                         player2Username: username,
                         status: 'active'
-                    };
-                    console.log('Updating room with:', updateData);
-                    await updateDoc(doc(db, 'rooms', roomId), updateData);
+                    });
                     currentRoomId = roomId;
                     currentPlayer = 'O';
                     showContainer(gameRoom);
@@ -725,7 +723,6 @@ const firebaseConfig = {
                 } catch (error) {
                     console.error('Play random error:', error.code, error.message);
                     showMessage('Matchmaking failed. Please try again.', 'error');
-                    // Cleanup matchmaking entry if created
                     if (matchmakingId) {
                         deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
                     }
