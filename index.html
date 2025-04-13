@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Montserrat', 'Arial', sans-serif; /* MPL-inspired modern font */
+            font-family: 'Montserrat', 'Arial', sans-serif;
         }
 
         body {
@@ -17,13 +17,12 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1C2526 0%, #2A2E6B 100%); /* WinZO dark with MPL gradient */
+            background: linear-gradient(135deg, #1C2526 0%, #2A2E6B 100%);
             background-size: 200% 200%;
-            animation: gradientWave 15s ease infinite; /* Dynamic background */
+            animation: gradientWave 15s ease infinite;
             overflow-x: hidden;
         }
 
-        /* MPL-inspired gradient wave animation */
         @keyframes gradientWave {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -31,20 +30,20 @@
         }
 
         .container {
-            background: rgba(30, 35, 55, 0.9); /* Semi-transparent, WinZO-inspired dark */
+            background: rgba(30, 35, 55, 0.9);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 88, 255, 0.3); /* MPL blue glow */
-            width: 420px; /* Slightly wider for comfort */
+            box-shadow: 0 8px 32px rgba(0, 88, 255, 0.3);
+            width: 420px;
             text-align: center;
             position: relative;
             z-index: 1;
-            backdrop-filter: blur(10px); /* Glassmorphism for premium feel */
-            border: 1px solid rgba(0, 255, 132, 0.2); /* WinZO green accent */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 132, 0.2);
         }
 
         h2 {
-            color: #FFD700; /* WinZO gold for headers */
+            color: #FFD700;
             text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
             margin-bottom: 25px;
             font-size: 24px;
@@ -58,29 +57,29 @@
         input {
             width: 100%;
             padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.1); /* MPL translucent input */
+            background: rgba(255, 255, 255, 0.1);
             border: none;
             outline: none;
             border-radius: 30px;
             color: #FFFFFF;
             font-size: 16px;
-            box-shadow: inset 0 0 5px rgba(0, 255, 132, 0.3); /* WinZO green glow */
+            box-shadow: inset 0 0 5px rgba(0, 255, 132, 0.3);
             transition: all 0.3s ease;
         }
 
         input::placeholder {
-            color: rgba(255, 255, 255, 0.5); /* Subtle placeholder */
+            color: rgba(255, 255, 255, 0.5);
         }
 
         input:focus {
-            box-shadow: 0 0 15px #0058FF; /* MPL blue focus */
+            box-shadow: 0 0 15px #0058FF;
             background: rgba(255, 255, 255, 0.15);
         }
 
         button {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(45deg, #0058FF, #7B00FF); /* MPL blue-to-purple */
+            background: linear-gradient(45deg, #0058FF, #7B00FF);
             border: none;
             border-radius: 10px;
             color: #FFFFFF;
@@ -108,16 +107,16 @@
 
         button:hover::before {
             width: 300px;
-            height: 300px; /* WinZO-inspired button shine */
+            height: 300px;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 88, 255, 0.5); /* MPL glow */
+            box-shadow: 0 8px 20px rgba(0, 88, 255, 0.5);
         }
 
-        .toggle-text {
-            color: #00FF84; /* WinZO green */
+        .toggle-text, .forgot-password {
+            color: #00FF84;
             cursor: pointer;
             margin-top: 15px;
             display: inline-block;
@@ -126,8 +125,8 @@
             transition: color 0.3s ease;
         }
 
-        .toggle-text:hover {
-            color: #FFD700; /* WinZO gold on hover */
+        .toggle-text:hover, .forgot-password:hover {
+            color: #FFD700;
             text-decoration: none;
         }
 
@@ -147,30 +146,30 @@
         }
 
         .message.success {
-            background: linear-gradient(45deg, #00FF84, #00C4B4); /* WinZO green-teal */
+            background: linear-gradient(45deg, #00FF84, #00C4B4);
             text-shadow: 0 0 5px rgba(0, 255, 132, 0.7);
         }
 
         .message.error {
-            background: linear-gradient(45deg, #FF3B30, #FF9500); /* Vibrant red-orange */
+            background: linear-gradient(45deg, #FF3B30, #FF9500);
             text-shadow: 0 0 5px rgba(255, 59, 48, 0.7);
         }
 
         .message[style*="opacity: 1"] {
-            transform: translateY(0); /* Slide-in effect */
+            transform: translateY(0);
         }
 
-        .dashboard, .game-page, .friend-options, .game-room, .waiting-area {
+        .dashboard, .game-page, .friend-options, .game-room, .waiting-area, .verify-email, .reset-password {
             display: none;
             color: #FFFFFF;
         }
 
-        .dashboard h2, .game-page h2, .friend-options h2, .game-room h2, .waiting-area h2 {
+        .dashboard h2, .game-page h2, .friend-options h2, .game-room h2, .waiting-area h2, .verify-email h2, .reset-password h2 {
             margin-bottom: 30px;
         }
 
         .play-btn {
-            background: linear-gradient(45deg, #FF3B30, #FF9500); /* Unique fiery gradient */
+            background: linear-gradient(45deg, #FF3B30, #FF9500);
             margin-top: 20px;
         }
 
@@ -189,8 +188,8 @@
         .cell {
             width: 100px;
             height: 100px;
-            background: rgba(255, 255, 255, 0.05); /* Translucent for depth */
-            border: 2px solid #7B00FF; /* MPL purple border */
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #7B00FF;
             border-radius: 10px;
             display: flex;
             justify-content: center;
@@ -203,22 +202,22 @@
         }
 
         .cell:hover {
-            background: rgba(123, 0, 255, 0.2); /* MPL purple hover */
+            background: rgba(123, 0, 255, 0.2);
             transform: scale(1.05);
         }
 
         .cell.x {
-            color: #FFD700; /* WinZO gold for X */
+            color: #FFD700;
             text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
         }
 
         .cell.o {
-            color: #00FF84; /* WinZO green for O */
+            color: #00FF84;
             text-shadow: 0 0 12px rgba(0, 255, 132, 0.8);
         }
 
         .room-id {
-            color: #00FF84; /* WinZO green */
+            color: #00FF84;
             text-shadow: 0 0 6px rgba(0, 255, 132, 0.7);
             margin-bottom: 20px;
             font-size: 18px;
@@ -227,12 +226,12 @@
         .status {
             color: #FFFFFF;
             margin-bottom: 20px;
-            text-shadow: 0 0 6px rgba(0, 88, 255, 0.5); /* MPL blue */
+            text-shadow: 0 0 6px rgba(0, 88, 255, 0.5);
             font-size: 18px;
         }
 
         .waiting-area p {
-            color: #FFD700; /* WinZO gold */
+            color: #FFD700;
             text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
             font-size: 22px;
             animation: pulse 1.5s infinite;
@@ -244,29 +243,28 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Profile Card Styles */
         .profile-card {
             position: absolute;
             top: 15px;
             left: 15px;
-            background: linear-gradient(135deg, #2A2E6B, #1E2337); /* MPL-to-WinZO gradient */
-            border: 2px solid #FFD700; /* WinZO gold border */
+            background: linear-gradient(135deg, #2A2E6B, #1E2337);
+            border: 2px solid #FFD700;
             border-radius: 15px;
             padding: 15px;
             width: 180px;
             text-align: left;
-            box-shadow: 0 4px 15px rgba(0, 88, 255, 0.3); /* MPL blue shadow */
+            box-shadow: 0 4px 15px rgba(0, 88, 255, 0.3);
             transition: all 0.3s ease;
-            backdrop-filter: blur(5px); /* Holographic effect */
+            backdrop-filter: blur(5px);
         }
 
         .profile-card:hover {
             box-shadow: 0 8px 25px rgba(0, 88, 255, 0.5);
-            transform: translateY(-3px); /* Lift on hover */
+            transform: translateY(-3px);
         }
 
         .profile-username {
-            color: #00FF84; /* WinZO green */
+            color: #00FF84;
             font-size: 18px;
             font-weight: 700;
             text-shadow: 0 0 6px rgba(0, 255, 132, 0.7);
@@ -280,7 +278,7 @@
         }
 
         .profile-stats span {
-            color: #FFD700; /* WinZO gold for numbers */
+            color: #FFD700;
             text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
         }
 
@@ -290,7 +288,7 @@
         }
 
         .profile-settings-icon {
-            color: #7B00FF; /* MPL purple */
+            color: #7B00FF;
             font-size: 18px;
             cursor: pointer;
             text-shadow: 0 0 5px rgba(123, 0, 255, 0.5);
@@ -298,9 +296,16 @@
         }
 
         .profile-settings-icon:hover {
-            color: #00FF84; /* WinZO green on hover */
+            color: #00FF84;
             text-shadow: 0 0 10px rgba(0, 255, 132, 0.8);
-            transform: rotate(90deg); /* Playful spin */
+            transform: rotate(90deg);
+        }
+
+        .verify-email p, .reset-password p {
+            color: #FFFFFF;
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(0, 88, 255, 0.5);
         }
     </style>
 </head>
@@ -316,6 +321,7 @@
         </div>
         <button id="authButton">Sign Up</button>
         <span class="toggle-text" id="toggleAuth">Already have an account? Login</span>
+        <span class="forgot-password" id="forgotPassword">Forgot Password?</span>
     </div>
 
     <!-- Dashboard -->
@@ -385,23 +391,42 @@
         <p>Searching for opponent...</p>
     </div>
 
+    <!-- Verify Email Prompt -->
+    <div class="container verify-email" id="verifyEmail">
+        <h2>Verify Your Email</h2>
+        <p>Please check your email to verify your account.</p>
+        <button id="resendVerification">Resend Verification Email</button>
+        <button id="logoutFromVerify">Logout</button>
+    </div>
+
+    <!-- Reset Password -->
+    <div class="container reset-password" id="resetPassword">
+        <h2>Reset Password</h2>
+        <p>Enter your email to receive a password reset link.</p>
+        <div class="input-box">
+            <input type="email" id="resetEmail" placeholder="Email" required>
+        </div>
+        <button id="sendResetEmail">Send Reset Link</button>
+        <button id="backToLogin">Back to Login</button>
+    </div>
+
     <script type="module">
         // Firebase SDK Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
         // Firebase Configuration - REPLACE WITH YOUR OWN CONFIG
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-        apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-        authDomain: "earn-itt.firebaseapp.com",
-        projectId: "earn-itt",
-        storageBucket: "earn-itt.firebasestorage.app",
-        messagingSenderId: "785360520679",
-        appId: "1:785360520679:web:ac2e2710ece34591a52942",
-        measurementId: "G-P4Q2KYTBBM"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+  authDomain: "earn-itt.firebaseapp.com",
+  projectId: "earn-itt",
+  storageBucket: "earn-itt.firebasestorage.app",
+  messagingSenderId: "785360520679",
+  appId: "1:785360520679:web:ac2e2710ece34591a52942",
+  measurementId: "G-P4Q2KYTBBM"
+};
 
         // Initialize Firebase
         let auth, db;
@@ -422,9 +447,12 @@
         const friendOptions = document.getElementById('friendOptions');
         const gameRoom = document.getElementById('gameRoom');
         const waitingArea = document.getElementById('waitingArea');
+        const verifyEmail = document.getElementById('verifyEmail');
+        const resetPassword = document.getElementById('resetPassword');
         const formTitle = document.getElementById('formTitle');
         const authButton = document.getElementById('authButton');
         const toggleAuth = document.getElementById('toggleAuth');
+        const forgotPassword = document.getElementById('forgotPassword');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const userDisplay = document.getElementById('userDisplay');
@@ -450,26 +478,30 @@
         const profileLosses = document.getElementById('profileLosses');
         const profileTies = document.getElementById('profileTies');
         const profileSettings = document.getElementById('profileSettings');
+        const resendVerification = document.getElementById('resendVerification');
+        const logoutFromVerify = document.getElementById('logoutFromVerify');
+        const resetEmail = document.getElementById('resetEmail');
+        const sendResetEmail = document.getElementById('sendResetEmail');
+        const backToLogin = document.getElementById('backToLogin');
 
         // Verify DOM elements
         if (!authContainer) console.error('authContainer not found');
         if (!dashboard) console.error('dashboard not found');
+        if (!verifyEmail) console.error('verifyEmail not found');
+        if (!resetPassword) console.error('resetPassword not found');
         if (!authButton) console.error('authButton not found');
-        if (!logoutButton) console.error('logoutButton not found');
-        if (!roomIdInput) console.error('roomIdInput not found');
-        if (!profileCard) console.error('profileCard not found');
+        if (!forgotPassword) console.error('forgotPassword not found');
 
         // Initialize container visibility
         function initializeContainers() {
             console.log('Initializing containers');
-            const containers = [authContainer, dashboard, gamePage, friendOptions, gameRoom, waitingArea];
+            const containers = [authContainer, dashboard, gamePage, friendOptions, gameRoom, waitingArea, verifyEmail, resetPassword];
             containers.forEach(c => {
                 if (c) c.style.display = 'none';
             });
             if (authContainer) authContainer.style.display = 'block';
         }
 
-        // Call initializeContainers immediately
         initializeContainers();
 
         let isSignUp = true;
@@ -495,7 +527,7 @@
         // Show/Hide Containers
         function showContainer(container) {
             console.log(`Showing container: ${container?.id || 'unknown'}`);
-            const containers = [authContainer, dashboard, gamePage, friendOptions, gameRoom, waitingArea];
+            const containers = [authContainer, dashboard, gamePage, friendOptions, gameRoom, waitingArea, verifyEmail, resetPassword];
             containers.forEach(c => {
                 if (c) c.style.display = 'none';
             });
@@ -510,6 +542,9 @@
                 if (formTitle) formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
                 if (authButton) authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
                 toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
+                if (forgotPassword) forgotPassword.style.display = isSignUp ? 'none' : 'inline-block';
+                if (emailInput) emailInput.value = '';
+                if (passwordInput) passwordInput.value = '';
             });
         }
 
@@ -525,8 +560,10 @@
                 }
                 try {
                     if (isSignUp) {
-                        await createUserWithEmailAndPassword(auth, email, password);
-                        showMessage('Sign Up Successful!', 'success');
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                        await sendEmailVerification(userCredential.user);
+                        showMessage('Sign Up Successful! Please verify your email.', 'success');
+                        showContainer(verifyEmail);
                     } else {
                         await signInWithEmailAndPassword(auth, email, password);
                         showMessage('Login Successful!', 'success');
@@ -535,6 +572,84 @@
                     if (passwordInput) passwordInput.value = '';
                 } catch (error) {
                     console.error('Auth error:', error.code, error.message);
+                    showMessage(`Error: ${error.message}`, 'error');
+                }
+            });
+        }
+
+        // Forgot Password
+        if (forgotPassword) {
+            forgotPassword.addEventListener('click', () => {
+                console.log('Forgot password clicked');
+                showContainer(resetPassword);
+            });
+        }
+
+        // Send Password Reset Email
+        if (sendResetEmail) {
+            sendResetEmail.addEventListener('click', async () => {
+                console.log('Send reset email clicked');
+                const email = resetEmail?.value;
+                if (!email) {
+                    showMessage('Please enter an email', 'error');
+                    return;
+                }
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    showMessage('Password reset email sent! Check your inbox.', 'success');
+                    showContainer(authContainer);
+                    if (resetEmail) resetEmail.value = '';
+                } catch (error) {
+                    console.error('Reset password error:', error.code, error.message);
+                    showMessage(`Error: ${error.message}`, 'error');
+                }
+            });
+        }
+
+        // Back to Login from Reset Password
+        if (backToLogin) {
+            backToLogin.addEventListener('click', () => {
+                console.log('Back to login clicked');
+                showContainer(authContainer);
+                if (resetEmail) resetEmail.value = '';
+                if (formTitle) formTitle.textContent = 'Login';
+                if (authButton) authButton.textContent = 'Login';
+                if (toggleAuth) toggleAuth.textContent = 'Need an account? Sign Up';
+                if (forgotPassword) forgotPassword.style.display = 'inline-block';
+                isSignUp = false;
+            });
+        }
+
+        // Resend Verification Email
+        if (resendVerification) {
+            resendVerification.addEventListener('click', async () => {
+                console.log('Resend verification clicked');
+                const user = auth.currentUser;
+                if (user) {
+                    try {
+                        await sendEmailVerification(user);
+                        showMessage('Verification email resent! Check your inbox.', 'success');
+                    } catch (error) {
+                        console.error('Resend verification error:', error.code, error.message);
+                        showMessage(`Error: ${error.message}`, 'error');
+                    }
+                } else {
+                    showMessage('Please log in again.', 'error');
+                    showContainer(authContainer);
+                }
+            });
+        }
+
+        // Logout from Verify Email
+        if (logoutFromVerify) {
+            logoutFromVerify.addEventListener('click', async () => {
+                console.log('Logout from verify clicked');
+                try {
+                    await signOut(auth);
+                    showMessage('Logged out successfully!', 'success');
+                    showContainer(authContainer);
+                } catch (error) {
+                    console.error('Logout error:', error.code, error.message);
                     showMessage(`Error: ${error.message}`, 'error');
                 }
             });
@@ -744,14 +859,12 @@
                     const username = userDoc.data()?.username || 'Player';
                     showContainer(waitingArea);
 
-                    // Clean up any existing matchmaking entries for this user
                     const userEntries = await getDocs(query(collection(db, 'matchmaking'), where('userId', '==', user.uid)));
                     for (const entry of userEntries.docs) {
                         console.log('Deleting stale entry:', entry.id);
                         await deleteDoc(doc(db, 'matchmaking', entry.id));
                     }
 
-                    // Add self to matchmaking pool
                     const matchmakingData = {
                         userId: user.uid,
                         username,
@@ -763,7 +876,6 @@
                     matchmakingId = matchmakingRef.id;
                     console.log('Added to matchmaking pool:', matchmakingId);
 
-                    // Listen for own matchmaking entry
                     let isPaired = false;
                     const unsubscribeMatch = onSnapshot(doc(db, 'matchmaking', matchmakingId), async snapshot => {
                         if (!snapshot.exists()) {
@@ -798,7 +910,6 @@
                         showContainer(gamePage);
                     });
 
-                    // Check for existing unpaired players
                     const now = Date.now();
                     const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
                     const existingEntries = await getDocs(q);
@@ -811,7 +922,6 @@
                     console.log('Filtered opponent entries:', opponentDocs.length);
 
                     if (opponentDocs.length > 0 && !isPaired) {
-                        // Pair with the first valid opponent
                         const opponentDoc = opponentDocs[0];
                         const opponent = opponentDoc.data();
                         console.log('Found opponent:', opponent.username);
@@ -832,7 +942,6 @@
                         currentPlayer = 'X';
                         opponentUsername = opponent.username;
 
-                        // Update opponent's matchmaking entry
                         await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
                             status: 'paired',
                             roomId: roomRef.id,
@@ -847,14 +956,12 @@
                         listenToRoom(roomRef.id, username);
                         showMessage('Opponent found! Game started.', 'success');
                     } else {
-                        // Clean up stale entries
                         for (const doc of existingEntries.docs) {
                             if ((now - doc.data().timestamp) >= 20000) {
                                 console.log('Deleting stale entry:', doc.id);
                                 await deleteDoc(doc(db, 'matchmaking', doc.id));
                             }
                         }
-                        // Timeout after 20 seconds
                         setTimeout(() => {
                             if (!isPaired) {
                                 console.log('Matchmaking timeout, isPaired:', isPaired);
@@ -882,14 +989,14 @@
         function checkWinner(board) {
             console.log('Checking winner for board:', board);
             const winPatterns = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-                [0, 4, 8], [2, 4, 6]             // Diagonals
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
             ];
             for (const pattern of winPatterns) {
                 const [a, b, c] = pattern;
                 if (board[a] && board[a] === board[b] && board[b] === board[c]) {
-                    return board[a]; // Returns 'X' or 'O'
+                    return board[a];
                 }
             }
             if (board.every(cell => cell !== '')) {
@@ -912,7 +1019,6 @@
                 const data = snapshot.data();
                 console.log('Room data:', data, 'Current player:', currentPlayer);
                 if (data.status === 'active' && data.player1 && data.player2) {
-                    // Check for winner
                     let winner = data.winner || checkWinner(data.board);
                     if (winner && !data.winner) {
                         await updateDoc(doc(db, 'rooms', roomId), { winner, status: 'finished' });
@@ -1007,7 +1113,6 @@
                 }
                 console.log('Updating stats to:', stats);
                 await updateDoc(userDocRef, { stats });
-                // Update profile card
                 if (profileWins) profileWins.textContent = stats.wins;
                 if (profileLosses) profileLosses.textContent = stats.losses;
                 if (profileTies) profileTies.textContent = stats.ties;
@@ -1067,14 +1172,17 @@
             profileSettings.addEventListener('click', () => {
                 console.log('Profile settings clicked');
                 showMessage('Settings not implemented yet.', 'error');
-                // Future: Open settings modal to edit username, etc.
             });
         }
 
-        // Auth State Listener - Display Username and Stats
+        // Auth State Listener
         onAuthStateChanged(auth, async user => {
-            console.log('Auth state changed:', user ? `User: ${user.uid}` : 'No user');
+            console.log('Auth state changed:', user ? `User: ${user.uid}, Verified: ${user.emailVerified}` : 'No user');
             if (user) {
+                if (!user.emailVerified) {
+                    showContainer(verifyEmail);
+                    return;
+                }
                 showContainer(dashboard);
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -1083,7 +1191,7 @@
                     if (userDisplay) userDisplay.textContent = username;
                     if (profileUsername) profileUsername.textContent = username;
                     if (profileWins) profileWins.textContent = stats.wins;
-                    if (profileLosses) profileWins.textContent = stats.losses;
+                    if (profileLosses) profileLosses.textContent = stats.losses;
                     if (profileTies) profileTies.textContent = stats.ties;
                     if (usernameInput) {
                         usernameInput.placeholder = userDoc.exists() && userDoc.data().username ? 
