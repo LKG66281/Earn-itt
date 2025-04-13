@@ -621,7 +621,7 @@ const firebaseConfig = {
                     const username = userDoc.data()?.username || 'Player';
                     showContainer(waitingArea);
 
-                    // Add self to matchmaking pool with status
+                    // Add self to matchmaking pool
                     const matchmakingData = {
                         userId: user.uid,
                         username,
@@ -630,11 +630,12 @@ const firebaseConfig = {
                     };
                     console.log('Adding to matchmaking:', matchmakingData);
                     const matchmakingRef = await addDoc(collection(db, 'matchmaking'), matchmakingData);
-                    console.log('Added to matchmaking pool:', matchmakingRef.id);
+                    const matchmakingId = matchmakingRef.id;
+                    console.log('Added to matchmaking pool:', matchmakingId);
 
                     // Listen for own matchmaking entry
                     let isPaired = false;
-                    const unsubscribeMatch = onSnapshot(doc(db, 'matchmaking', matchmakingRef.id), async snapshot => {
+                    const unsubscribeMatch = onSnapshot(doc(db, 'matchmaking', matchmakingId), async snapshot => {
                         if (!snapshot.exists()) {
                             if (!isPaired) {
                                 console.log('Matchmaking entry deleted unexpectedly');
@@ -650,27 +651,32 @@ const firebaseConfig = {
                             currentRoomId = data.roomId;
                             currentPlayer = data.playerSymbol || 'O';
                             opponentUsername = data.opponentUsername;
-                            await deleteDoc(doc(db, 'matchmaking', matchmakingRef.id));
+                            await deleteDoc(doc(db, 'matchmaking', matchmakingId));
                             unsubscribeMatch();
                             showContainer(gameRoom);
                             if (roomIdDisplay) roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
                             listenToRoom(currentRoomId, username);
                             showMessage('Opponent found! Game started.', 'success');
                         }
+                    }, error => {
+                        console.error('Matchmaking listener error:', error);
+                        showMessage('Matchmaking failed. Please try again.', 'error');
+                        deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
+                        unsubscribeMatch();
+                        showContainer(gamePage);
                     });
 
                     // Check for existing unpaired players
-                    const q = query(
-                        collection(db, 'matchmaking'),
-                        where('userId', '!=', user.uid),
-                        where('status', '==', 'waiting')
-                    );
+                    const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
                     const existingEntries = await getDocs(q);
                     console.log('Existing matchmaking entries:', existingEntries.size);
 
-                    if (existingEntries.size > 0 && !isPaired) {
+                    const opponentDocs = existingEntries.docs.filter(doc => doc.data().userId !== user.uid);
+                    console.log('Filtered opponent entries:', opponentDocs.length);
+
+                    if (opponentDocs.length > 0 && !isPaired) {
                         // Pair with the first available opponent
-                        const opponentDoc = existingEntries.docs[0];
+                        const opponentDoc = opponentDocs[0];
                         const opponent = opponentDoc.data();
                         console.log('Found opponent:', opponent.username);
                         isPaired = true;
@@ -698,7 +704,7 @@ const firebaseConfig = {
                             opponentUsername: username
                         });
 
-                        await deleteDoc(doc(db, 'matchmaking', matchmakingRef.id));
+                        await deleteDoc(doc(db, 'matchmaking', matchmakingId));
                         unsubscribeMatch();
                         showContainer(gameRoom);
                         if (roomIdDisplay) roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
@@ -708,8 +714,9 @@ const firebaseConfig = {
                         // Timeout after 20 seconds
                         setTimeout(() => {
                             if (!isPaired) {
+                                console.log('Matchmaking timeout');
                                 unsubscribeMatch();
-                                deleteDoc(doc(db, 'matchmaking', matchmakingRef.id)).catch(err => console.error('Cleanup error:', err));
+                                deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
                                 showContainer(gamePage);
                                 showMessage('No opponent found. Try again later.', 'error');
                             }
@@ -717,7 +724,11 @@ const firebaseConfig = {
                     }
                 } catch (error) {
                     console.error('Play random error:', error.code, error.message);
-                    showMessage(`Error: ${error.message}`, 'error');
+                    showMessage('Matchmaking failed. Please try again.', 'error');
+                    // Cleanup matchmaking entry if created
+                    if (matchmakingId) {
+                        deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
+                    }
                     showContainer(gamePage);
                 }
             });
