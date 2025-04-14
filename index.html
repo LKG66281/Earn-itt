@@ -1214,18 +1214,18 @@ const firebaseConfig = {
                     if (gameStatus) {
                         gameStatus.textContent = data.turn === currentPlayer ? 'Your turn' : `Opponent's turn (${data.turn})`;
                     }
-                    player1Name.textContent = data.player1Username;
-                    player2Name.textContent = data.player2Username;
-                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}" alt="Avatar">` : data.player1Username[0]?.toUpperCase() || 'P';
-                    player2Avatar.innerHTML = data.player2Avatar ? `<img src="${data.player2Avatar}" alt="Avatar">` : data.player2Username[0]?.toUpperCase() || 'P';
+                    player1Name.textContent = data.player1Username || 'Player 1';
+                    player2Name.textContent = data.player2Username || 'Player 2';
+                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}" alt="Avatar">` : (data.player1Username ? data.player1Username[0].toUpperCase() : 'P');
+                    player2Avatar.innerHTML = data.player2Avatar ? `<img src="${data.player2Avatar}" alt="Avatar">` : (data.player2Username ? data.player2Username[0].toUpperCase() : 'P');
                     opponentUsername = currentPlayer === 'X' ? data.player2Username : data.player1Username;
                     renderBoard(data.board);
                     if (winner) {
                         await handleGameEnd(winner, username);
                     }
                 } else {
-                    player1Name.textContent = data.player1Username;
-                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}" alt="Avatar">` : data.player1Username[0]?.toUpperCase() || 'P';
+                    player1Name.textContent = data.player1Username || 'Player 1';
+                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}" alt="Avatar">` : (data.player1Username ? data.player1Username[0].toUpperCase() : 'P');
                     player2Name.textContent = 'Waiting...';
                     player2Avatar.innerHTML = '';
                 }
@@ -1336,6 +1336,8 @@ const firebaseConfig = {
             if (user) {
                 if (!user.emailVerified) {
                     showContainer(verifyEmail);
+                    miniPicture.innerHTML = '';
+                    profileImage.innerHTML = '';
                     return;
                 }
                 showContainer(dashboard);
@@ -1344,18 +1346,18 @@ const firebaseConfig = {
                     const data = userDoc.data() || {};
                     const username = data.username || 'Player';
                     currentAvatar = data.avatar || '';
-                    miniPicture.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar">` : username[0]?.toUpperCase() || 'P';
-                    profileImage.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar">` : username[0]?.toUpperCase() || 'P';
+                    miniPicture.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar">` : (username[0]?.toUpperCase() || 'P');
+                    profileImage.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar">` : (username[0]?.toUpperCase() || 'P');
                     usernameInput.placeholder = `Current: ${username}`;
                 } catch (error) {
-                    showMessage(`Error: ${error.message}`, 'error');
-                    miniPicture.textContent = 'P';
-                    profileImage.textContent = 'P';
+                    showMessage(`Error fetching profile: ${error.message}`, 'error');
+                    miniPicture.innerHTML = 'P';
+                    profileImage.innerHTML = 'P';
                 }
             } else {
                 showContainer(authContainer);
-                miniPicture.textContent = '';
-                profileImage.textContent = '';
+                miniPicture.innerHTML = '';
+                profileImage.innerHTML = '';
                 currentAvatar = null;
                 avatarFile = null;
                 cleanupGame();
