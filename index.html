@@ -3,103 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earn Itt - Phone OTP Auth</title>
+    <title>Tic-Tac-Toe Game</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
         body {
-            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        h2 {
-            margin-bottom: 20px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #008080, #004d4d);
             color: #333;
         }
-        input {
+        .container {
+            background: rgba(255, 255, 240, 0.9);
+            padding: 20px;
+            border-radius: 15px;
             width: 100%;
-            padding: 10px;
+            max-width: 420px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin: 20px;
+        }
+        h2 {
+            color: #008080;
+            margin-bottom: 20px;
+        }
+        .input-box {
+            width: 100%;
+            padding: 12px;
             margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            border: 2px solid #008080;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .input-box:focus {
+            outline: none;
+            border-color: #FF6F61;
+            box-shadow: 0 0 8px rgba(255, 111, 97, 0.5);
         }
         button {
             width: 100%;
-            padding: 10px;
-            background-color: #1877f2;
-            color: white;
+            padding: 12px;
+            margin: 15px 0;
+            background: linear-gradient(to right, #008080, #006666);
+            color: #FFFFF0;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radius: 8px;
             font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
         }
         button:hover {
-            background-color: #165db7;
+            background: linear-gradient(to right, #FF6F61, #e65b50);
+            transform: translateY(-2px);
+        }
+        .toggle-link {
+            color: #FF6F61;
+            cursor: pointer;
+            text-decoration: underline;
+            margin: 10px 0;
+            display: inline-block;
         }
         #recaptcha-container {
-            margin: 10px 0;
+            margin: 15px 0;
         }
-        .error {
-            color: red;
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #FFFFF0;
             font-size: 14px;
-            margin-top: 10px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        .dashboard {
-            display: none;
+        .message.success {
+            background: #008080;
         }
-        #auth-container, .otp-container {
-            display: none;
+        .message.error {
+            background: #FF6F61;
         }
-        #auth-container.active, .otp-container.active, .dashboard.active {
+        #dashboard {
+            max-width: 1200px;
+            display: grid;
+            gap: 30px;
+            padding: 40px;
+        }
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            border: 2px solid #008080;
+            border-radius: 10px;
+            background: rgba(255, 255, 240, 0.7);
+        }
+        #miniPicture {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #008080;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #FFFFF0;
+            background: #FF6F61;
+        }
+        .section-card {
+            padding: 20px;
+            border: 2px solid #008080;
+            border-radius: 10px;
+            background: rgba(255, 255, 240, 0.7);
+            transition: transform 0.2s;
+        }
+        .section-card:hover {
+            transform: scale(1.02);
+        }
+        #gameBoard {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: #FFFFF0;
+            border: 2px solid #008080;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .cell:hover {
+            transform: scale(1.05);
+        }
+        .cell.x {
+            color: #FF6F61;
+        }
+        .cell.o {
+            color: #008080;
+        }
+        .match-card {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #FFFFF0;
+        }
+        .match-card.win {
+            border: 2px solid #008080;
+        }
+        .match-card.loss {
+            border: 2px solid #FF6F61;
+        }
+        .match-card.tie {
+            border: 2px solid #666;
+        }
+        #profileImage {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #008080;
+            margin: 20px auto;
             display: block;
+        }
+        .pencil {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #008080;
+            color: #FFFFF0;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .pencil:hover {
+            background: #FF6F61;
+        }
+        #authContainer, #verifyMobileContainer, #dashboard, #profilePage, #gamePage, #gameRoom, #historyPage {
+            display: none;
+        }
+        #authContainer.active, #verifyMobileContainer.active, #dashboard.active, #profilePage.active, #gamePage.active, #gameRoom.active, #historyPage.active {
+            display: block;
+        }
+        @media (max-width: 400px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            #dashboard {
+                padding: 20px;
+                gap: 20px;
+            }
+            #gameBoard {
+                grid-template-columns: repeat(3, 80px);
+            }
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 36px;
+            }
+            #profileImage {
+                width: 100px;
+                height: 100px;
+            }
+            #miniPicture {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+            button {
+                padding: 10px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Phone Number Input -->
-        <div id="auth-container" class="active">
-            <h2>Sign Up / Login</h2>
-            <input type="tel" id="phone-number" placeholder="+1234567890" required>
-            <div id="recaptcha-container"></div>
-            <button onclick="sendOTP()">Send OTP</button>
-            <div id="error-message" class="error"></div>
-        </div>
-
-        <!-- OTP Verification -->
-        <div id="otp-container" class="otp-container">
-            <h2>Enter OTP</h2>
-            <input type="text" id="otp-input" placeholder="Enter 6-digit OTP" required>
-            <button onclick="verifyOTP()">Verify OTP</button>
-            <div id="otp-error-message" class="error"></div>
-        </div>
-
-        <!-- Dashboard -->
-        <div id="dashboard" class="dashboard">
-            <h2>Welcome!</h2>
-            <p id="user-phone"></p>
-            <button onclick="signOut()">Sign Out</button>
+    <div class="container" id="authContainer" class="active">
+        <h2 id="authTitle">Sign Up</h2>
+        <input type="email" id="email" class="input-box" placeholder="Email" required>
+        <input type="password" id="password" class="input-box" placeholder="Password" required>
+        <button id="authButton" onclick="handleAuth()">Sign Up</button>
+        <span class="toggle-link" id="toggleAuth" onclick="toggleAuthMode()">Login instead</span>
+        <span class="toggle-link" id="forgotPassword" onclick="showResetPassword()">Forgot Password?</span>
+        <div id="resetPassword" style="display: none;">
+            <input type="email" id="resetEmail" class="input-box" placeholder="Enter email for reset">
+            <button onclick="sendPasswordReset()">Send Reset Email</button>
+            <span class="toggle-link" onclick="backToLogin()">Back to Login</span>
         </div>
     </div>
+    <div class="container" id="verifyMobileContainer">
+        <h2>Verify Mobile Number</h2>
+        <input type="tel" id="mobileNumber" class="input-box" placeholder="+1234567890" required>
+        <div id="recaptcha-container"></div>
+        <button onclick="sendMobileOTP()">Send OTP</button>
+        <input type="text" id="otpInput" class="input-box" placeholder="Enter 6-digit OTP" style="display: none;">
+        <button id="verifyOTPButton" onclick="verifyMobileOTP()" style="display: none;">Verify OTP</button>
+    </div>
+    <div class="container" id="dashboard">
+        <div class="profile-section">
+            <div id="miniPicture"></div>
+            <div>
+                <h3 id="dashboardUsername"></h3>
+                <p id="mobileStatus"></p>
+            </div>
+        </div>
+        <div class="section-card">
+            <h3>Play</h3>
+            <button onclick="goToGamePage()">Start Match</button>
+        </div>
+        <div class="section-card">
+            <h3>Logout</h3>
+            <button id="logoutButton" onclick="signOut()">Logout</button>
+        </div>
+    </div>
+    <div class="container" id="profilePage">
+        <h2>Profile</h2>
+        <div style="position: relative;">
+            <img id="profileImage" src="" alt="Profile Picture">
+            <span class="pencil" onclick="document.getElementById('hiddenAvatarUpload').click()">✏</span>
+        </div>
+        <input type="file" id="hiddenAvatarUpload" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+        <h3 id="usernameDisplay"></h3>
+        <span class="pencil" onclick="editUsername()">✏</span>
+        <p id="mobileDisplay"></p>
+        <span class="pencil" onclick="editMobile()">✏</span>
+        <button id="saveProfile" onclick="saveProfile()">Save Changes</button>
+        <button id="viewHistory" onclick="showHistory()">View Game History</button>
+        <button onclick="document.getElementById('dashboard').classList.add('active'); document.getElementById('profilePage').classList.remove('active');">Back to Dashboard</button>
+    </div>
+    <div class="container" id="gamePage">
+        <h2>Game</h2>
+        <button id="createRoom" onclick="createRoom()">Create Room</button>
+        <input type="text" id="roomIdInput" class="input-box" placeholder="Enter Room ID">
+        <button id="joinRoom" onclick="joinRoom()">Join Room</button>
+        <button onclick="document.getElementById('dashboard').classList.add('active'); document.getElementById('gamePage').classList.remove('active');">Back to Dashboard</button>
+    </div>
+    <div class="container" id="gameRoom">
+        <h2>Game Room</h2>
+        <p id="roomIdDisplay"></p>
+        <p id="gameStatus"></p>
+        <div id="playerInfo">
+            <div>
+                <img id="player1Avatar" src="" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #008080;">
+                <span id="player1Name"></span>
+            </div>
+            <div>
+                <img id="player2Avatar" src="" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #008080;">
+                <span id="player2Name"></span>
+            </div>
+        </div>
+        <div id="gameBoard"></div>
+        <button id="leaveRoom" onclick="leaveRoom()">Leave Room</button>
+    </div>
+    <div class="container" id="historyPage">
+        <h2>Game History</h2>
+        <div id="matchList"></div>
+        <p id="stats"></p>
+        <button onclick="document.getElementById('profilePage').classList.add('active'); document.getElementById('historyPage').classList.remove('active');">Back to Profile</button>
+    </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <!-- Firebase SDK v10.13.2 -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, getDocs, query, where, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
+        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js';
+        import { RecaptchaVerifier, signInWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
 
-    <script>
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
             authDomain: "earn-itt.firebaseapp.com",
@@ -110,101 +338,512 @@
             measurementId: "G-P4Q2KYTBBM"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        let isSignUp = true;
+        let currentUser = null;
+        let confirmationResult = null;
+        let avatarFile = null;
+        let editedUsername = null;
+        let editedMobile = null;
+        let currentRoomId = null;
+        let userSymbol = null;
 
         // UI Elements
-        const authContainer = document.getElementById('auth-container');
-        const otpContainer = document.getElementById('otp-container');
+        const authContainer = document.getElementById('authContainer');
+        const verifyMobileContainer = document.getElementById('verifyMobileContainer');
         const dashboard = document.getElementById('dashboard');
-        const phoneInput = document.getElementById('phone-number');
-        const otpInput = document.getElementById('otp-input');
-        const errorMessage = document.getElementById('error-message');
-        const otpErrorMessage = document.getElementById('otp-error-message');
-        const userPhone = document.getElementById('user-phone');
+        const profilePage = document.getElementById('profilePage');
+        const gamePage = document.getElementById('gamePage');
+        const gameRoom = document.getElementById('gameRoom');
+        const historyPage = document.getElementById('historyPage');
+        const authTitle = document.getElementById('authTitle');
+        const authButton = document.getElementById('authButton');
+        const toggleAuth = document.getElementById('toggleAuth');
+        const forgotPassword = document.getElementById('forgotPassword');
+        const resetPassword = document.getElementById('resetPassword');
+        const resetEmail = document.getElementById('resetEmail');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const mobileNumber = document.getElementById('mobileNumber');
+        const otpInput = document.getElementById('otpInput');
+        const verifyOTPButton = document.getElementById('verifyOTPButton');
+        const miniPicture = document.getElementById('miniPicture');
+        const dashboardUsername = document.getElementById('dashboardUsername');
+        const mobileStatus = document.getElementById('mobileStatus');
+        const profileImage = document.getElementById('profileImage');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const mobileDisplay = document.getElementById('mobileDisplay');
+        const roomIdInput = document.getElementById('roomIdInput');
+        const roomIdDisplay = document.getElementById('roomIdDisplay');
+        const gameStatus = document.getElementById('gameStatus');
+        const player1Avatar = document.getElementById('player1Avatar');
+        const player2Avatar = document.getElementById('player2Avatar');
+        const player1Name = document.getElementById('player1Name');
+        const player2Name = document.getElementById('player2Name');
+        const gameBoard = document.getElementById('gameBoard');
+        const matchList = document.getElementById('matchList');
+        const stats = document.getElementById('stats');
 
-        let confirmationResult;
-
-        // Initialize reCAPTCHA
-        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-            'size': 'normal',
-            'callback': () => {
-                // reCAPTCHA solved, allow OTP send
-            },
-            'expired-callback': () => {
-                errorMessage.textContent = 'reCAPTCHA expired. Please try again.';
-            }
-        });
-        recaptchaVerifier.render();
-
-        // Send OTP
-        function sendOTP() {
-            const phoneNumber = phoneInput.value.trim();
-            if (!phoneNumber.match(/^\+\d{10,15}$/)) {
-                errorMessage.textContent = 'Please enter a valid phone number (e.g., +1234567890)';
-                return;
-            }
-
-            errorMessage.textContent = '';
-            auth.signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
-                .then((result) => {
-                    confirmationResult = result;
-                    authContainer.classList.remove('active');
-                    otpContainer.classList.add('active');
-                })
-                .catch((error) => {
-                    errorMessage.textContent = 'Error sending OTP: ' + error.message;
-                    recaptchaVerifier.render(); // Reset reCAPTCHA
-                });
+        // Show Message
+        function showMessage(message, type = 'success') {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+            msgDiv.textContent = message;
+            document.body.appendChild(msgDiv);
+            msgDiv.style.opacity = '1';
+            setTimeout(() => {
+                msgDiv.style.opacity = '0';
+                setTimeout(() => msgDiv.remove(), 300);
+            }, 3000);
         }
 
-        // Verify OTP
-        function verifyOTP() {
+        // Authentication
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            authTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
+            authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
+            toggleAuth.textContent = isSignUp ? 'Login instead' : 'Sign Up instead';
+            forgotPassword.style.display = isSignUp ? 'none' : 'inline-block';
+        }
+
+        function showResetPassword() {
+            resetPassword.style.display = 'block';
+            authContainer.querySelector('form').style.display = 'none';
+            toggleAuth.style.display = 'none';
+            forgotPassword.style.display = 'none';
+        }
+
+        function backToLogin() {
+            resetPassword.style.display = 'none';
+            authContainer.querySelector('form').style.display = 'block';
+            toggleAuth.style.display = 'inline-block';
+            forgotPassword.style.display = isSignUp ? 'none' : 'inline-block';
+        }
+
+        async function handleAuth() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            if (!email || !password) {
+                showMessage('Please enter email and password', 'error');
+                return;
+            }
+            try {
+                if (isSignUp) {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await sendEmailVerification(userCredential.user);
+                    await setDoc(doc(db, 'users', userCredential.user.uid), {
+                        username: 'Player',
+                        avatar: '',
+                        mobile: '',
+                        mobileVerified: false
+                    });
+                    showMessage('Sign Up Successful! Please verify your email.');
+                } else {
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    if (!userCredential.user.emailVerified) {
+                        showMessage('Please verify your email before logging in', 'error');
+                        await signOut(auth);
+                        return;
+                    }
+                    showMessage('Login Successful!');
+                }
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function sendPasswordReset() {
+            const email = resetEmail.value.trim();
+            if (!email) {
+                showMessage('Please enter an email', 'error');
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showMessage('Password reset email sent!');
+                backToLogin();
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Mobile Verification
+        function initRecaptcha() {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                size: 'normal',
+                callback: () => {},
+                'expired-callback': () => showMessage('reCAPTCHA expired. Please try again.', 'error')
+            });
+            recaptchaVerifier.render();
+        }
+
+        async function sendMobileOTP() {
+            const mobile = mobileNumber.value.trim();
+            if (!mobile.match(/^\+\d{10,15}$/)) {
+                showMessage('Please enter a valid mobile number (e.g., +1234567890)', 'error');
+                return;
+            }
+            const q = query(collection(db, 'users'), where('mobile', '==', mobile));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                showMessage('This mobile number is already registered', 'error');
+                return;
+            }
+            try {
+                confirmationResult = await signInWithPhoneNumber(auth, mobile, window.recaptchaVerifier);
+                mobileNumber.style.display = 'none';
+                document.querySelector('#verifyMobileContainer button').style.display = 'none';
+                otpInput.style.display = 'block';
+                verifyOTPButton.style.display = 'block';
+                showMessage('OTP sent to your mobile!');
+            } catch (error) {
+                showMessage(`Error sending OTP: ${error.message}`, 'error');
+                recaptchaVerifier.render();
+            }
+        }
+
+        async function verifyMobileOTP() {
             const otp = otpInput.value.trim();
             if (otp.length !== 6 || !/^\d+$/.test(otp)) {
-                otpErrorMessage.textContent = 'Please enter a valid 6-digit OTP';
+                showMessage('Please enter a valid 6-digit OTP', 'error');
                 return;
             }
-
-            otpErrorMessage.textContent = '';
-            confirmationResult.confirm(otp)
-                .then((result) => {
-                    // User signed in
-                    otpContainer.classList.remove('active');
-                    dashboard.classList.add('active');
-                    userPhone.textContent = 'Phone: ' + result.user.phoneNumber;
-                })
-                .catch((error) => {
-                    otpErrorMessage.textContent = 'Invalid OTP: ' + error.message;
+            try {
+                await confirmationResult.confirm(otp);
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    mobile: mobileNumber.value.trim(),
+                    mobileVerified: true
                 });
+                showMessage('Mobile number verified! Ready for payments.');
+                verifyMobileContainer.classList.remove('active');
+                dashboard.classList.add('active');
+            } catch (error) {
+                showMessage(`Invalid OTP: ${error.message}`, 'error');
+            }
         }
 
-        // Sign Out
-        function signOut() {
-            auth.signOut().then(() => {
-                dashboard.classList.remove('active');
-                authContainer.classList.add('active');
-                phoneInput.value = '';
-                otpInput.value = '';
-                recaptchaVerifier.render();
-            }).catch((error) => {
-                alert('Error signing out: ' + error.message);
+        // Profile
+        async function loadProfile() {
+            const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+            const data = userDoc.data();
+            usernameDisplay.textContent = data.username || 'Player';
+            mobileDisplay.textContent = data.mobile ? `Mobile: ${data.mobile}` : 'Mobile: Not set';
+            dashboardUsername.textContent = data.username || 'Player';
+            mobileStatus.textContent = data.mobileVerified ? 'Mobile Verified' : 'Mobile Not Verified';
+            const avatarUrl = data.avatar || '';
+            profileImage.src = avatarUrl;
+            miniPicture.innerHTML = avatarUrl ? `<img src="${avatarUrl}" style="width: 100%; height: 100%; border-radius: 50%;">` : (data.username ? data.username[0].toUpperCase() : 'P');
+            player1Avatar.src = avatarUrl;
+            player2Avatar.src = avatarUrl;
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.size > 2 * 1024 * 1024) {
+                showMessage('Image must be less than 2MB', 'error');
+                return;
+            }
+            avatarFile = file;
+            const reader = new FileReader();
+            reader.onload = () => (profileImage.src = reader.result);
+            reader.readAsDataURL(file);
+        }
+
+        function editUsername() {
+            const currentUsername = usernameDisplay.textContent;
+            usernameDisplay.innerHTML = `<input class="input-box username-edit" value="${currentUsername}">`;
+            const input = usernameDisplay.querySelector('input');
+            input.focus();
+            input.addEventListener('blur', () => {
+                editedUsername = input.value.trim() || 'Player';
+                usernameDisplay.textContent = editedUsername;
+            });
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') input.blur();
             });
         }
 
-        // Auth State Listener
-        auth.onAuthStateChanged((user) => {
+        async function editMobile() {
+            mobileDisplay.innerHTML = `<input type="tel" class="input-box mobile-edit" placeholder="+1234567890">`;
+            const input = mobileDisplay.querySelector('input');
+            input.focus();
+            input.addEventListener('blur', async () => {
+                const newMobile = input.value.trim();
+                if (newMobile && !newMobile.match(/^\+\d{10,15}$/)) {
+                    showMessage('Please enter a valid mobile number', 'error');
+                    mobileDisplay.textContent = mobileDisplay.dataset.original;
+                    return;
+                }
+                if (newMobile) {
+                    const q = query(collection(db, 'users'), where('mobile', '==', newMobile));
+                    const querySnapshot = await getDocs(q);
+                    if (!querySnapshot.empty) {
+                        showMessage('This mobile number is already registered', 'error');
+                        mobileDisplay.textContent = mobileDisplay.dataset.original;
+                        return;
+                    }
+                    editedMobile = newMobile;
+                    mobileDisplay.textContent = `Mobile: ${newMobile}`;
+                    initRecaptcha();
+                    mobileNumber.value = newMobile;
+                    verifyMobileContainer.classList.add('active');
+                    profilePage.classList.remove('active');
+                    mobileNumber.style.display = 'block';
+                    document.querySelector('#verifyMobileContainer button').style.display = 'block';
+                    otpInput.style.display = 'none';
+                    verifyOTPButton.style.display = 'none';
+                } else {
+                    mobileDisplay.textContent = mobileDisplay.dataset.original;
+                }
+            });
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') input.blur();
+            });
+        }
+
+        async function saveProfile() {
+            try {
+                let avatarUrl = profileImage.src;
+                if (avatarFile) {
+                    const storageRef = ref(storage, `avatars/${currentUser.uid}`);
+                    await uploadBytes(storageRef, avatarFile);
+                    avatarUrl = await getDownloadURL(storageRef);
+                }
+                const newUsername = editedUsername || usernameDisplay.textContent;
+                if (!newUsername) {
+                    showMessage('Username cannot be empty', 'error');
+                    return;
+                }
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    username: newUsername,
+                    avatar: avatarUrl
+                });
+                avatarFile = null;
+                editedUsername = null;
+                showMessage('Profile updated successfully!');
+                loadProfile();
+            } catch (error) {
+                showMessage(`Error saving profile: ${error.message}`, 'error');
+            }
+        }
+
+        // Game
+        async function createRoom() {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const userData = userDoc.data();
+                const roomRef = doc(collection(db, 'rooms'));
+                await setDoc(roomRef, {
+                    player1: currentUser.uid,
+                    player1Username: userData.username || 'Player',
+                    player1Avatar: userData.avatar || '',
+                    player2: null,
+                    player2Username: null,
+                    player2Avatar: null,
+                    board: ['', '', '', '', '', '', '', '', ''],
+                    turn: 'X',
+                    status: 'waiting',
+                    winner: null,
+                    createdAt: new Date()
+                });
+                currentRoomId = roomRef.id;
+                roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
+                gamePage.classList.remove('active');
+                gameRoom.classList.add('active');
+                listenToRoom();
+            } catch (error) {
+                showMessage(`Error creating room: ${error.message}`, 'error');
+            }
+        }
+
+        async function joinRoom() {
+            const roomId = roomIdInput.value.trim();
+            if (!roomId) {
+                showMessage('Please enter a Room ID', 'error');
+                return;
+            }
+            try {
+                const roomRef = doc(db, 'rooms', roomId);
+                const roomSnap = await getDoc(roomRef);
+                if (!roomSnap.exists()) {
+                    showMessage('Room does not exist', 'error');
+                    return;
+                }
+                const roomData = roomSnap.data();
+                if (roomData.player2) {
+                    showMessage('Room is already full', 'error');
+                    return;
+                }
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const userData = userDoc.data();
+                await updateDoc(roomRef, {
+                    player2: currentUser.uid,
+                    player2Username: userData.username || 'Player',
+                    player2Avatar: userData.avatar || '',
+                    status: 'active'
+                });
+                currentRoomId = roomId;
+                roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
+                gamePage.classList.remove('active');
+                gameRoom.classList.add('active');
+                listenToRoom();
+            } catch (error) {
+                showMessage(`Error joining room: ${error.message}`, 'error');
+            }
+        }
+
+        function listenToRoom() {
+            const roomRef = doc(db, 'rooms', currentRoomId);
+            onSnapshot(roomRef, (doc) => {
+                const data = doc.data();
+                if (!data) {
+                    showMessage('Room closed', 'error');
+                    leaveRoom();
+                    return;
+                }
+                player1Name.textContent = data.player1Username || 'Player 1';
+                player2Name.textContent = data.player2Username || 'Waiting...';
+                player1Avatar.src = data.player1Avatar || '';
+                player2Avatar.src = data.player2Avatar || '';
+                userSymbol = data.player1 === currentUser.uid ? 'X' : 'O';
+                gameStatus.textContent = data.status === 'waiting' ? 'Waiting for opponent...' : (data.turn === userSymbol ? 'Your turn' : 'Opponent’s turn');
+                renderBoard(data.board, data.status, data.winner);
+            });
+        }
+
+        function renderBoard(board, status, winner) {
+            gameBoard.innerHTML = '';
+            board.forEach((value, index) => {
+                const cell = document.createElement('div');
+                cell.className = `cell ${value.toLowerCase()}`;
+                cell.textContent = value;
+                if (status === 'active' && !winner && !value && userSymbol === gameBoard.dataset.turn) {
+                    cell.onclick = () => makeMove(index);
+                }
+                gameBoard.appendChild(cell);
+            });
+            if (winner) {
+                gameStatus.textContent = winner === 'tie' ? 'Game Tied!' : `${winner} Wins!`;
+            }
+            gameBoard.dataset.turn = board.some(cell => cell) ? (board.filter(cell => cell === 'X').length <= board.filter(cell => cell === 'O').length ? 'X' : 'O') : 'X';
+        }
+
+        async function makeMove(index) {
+            const roomRef = doc(db, 'rooms', currentRoomId);
+            const roomSnap = await getDoc(roomRef);
+            const data = roomSnap.data();
+            if (data.status !== 'active' || data.winner || data.board[index] || data.turn !== userSymbol) return;
+            const newBoard = [...data.board];
+            newBoard[index] = userSymbol;
+            const winner = checkWinner(newBoard);
+            await updateDoc(roomRef, {
+                board: newBoard,
+                turn: userSymbol === 'X' ? 'O' : 'X',
+                winner: winner,
+                status: winner ? 'finished' : 'active'
+            });
+            if (winner) {
+                const result = winner === 'tie' ? 'tie' : (winner === userSymbol ? 'win' : 'loss');
+                const opponent = userSymbol === 'X' ? data.player2Username : data.player1Username;
+                await addDoc(collection(db, 'users', currentUser.uid, 'gameHistory'), {
+                    result,
+                    opponent: opponent || 'Unknown',
+                    timestamp: new Date()
+                });
+                showMessage(result === 'tie' ? 'Game Tied!' : result === 'win' ? 'You Won!' : 'You Lost!');
+            }
+        }
+
+        function checkWinner(board) {
+            const wins = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            for (const [a, b, c] of wins) {
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return board.every(cell => cell) ? 'tie' : null;
+        }
+
+        function leaveRoom() {
+            currentRoomId = null;
+            userSymbol = null;
+            gameRoom.classList.remove('active');
+            dashboard.classList.add('active');
+        }
+
+        // Game History
+        async function showHistory() {
+            profilePage.classList.remove('active');
+            historyPage.classList.add('active');
+            matchList.innerHTML = '';
+            let wins = 0, losses = 0, ties = 0;
+            const querySnapshot = await getDocs(collection(db, 'users', currentUser.uid, 'gameHistory'));
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const matchCard = document.createElement('div');
+                matchCard.className = `match-card ${data.result}`;
+                matchCard.textContent = `Result: ${data.result.charAt(0).toUpperCase() + data.result.slice(1)} | Opponent: ${data.opponent} | Time: ${new Date(data.timestamp.seconds * 1000).toLocaleString()}`;
+                matchList.appendChild(matchCard);
+                if (data.result === 'win') wins++;
+                else if (data.result === 'loss') losses++;
+                else ties++;
+            });
+            stats.textContent = `Wins: ${wins} | Losses: ${losses} | Ties: ${ties}`;
+            if (querySnapshot.empty) matchList.textContent = 'No matches yet';
+        }
+
+        // Navigation
+        function goToGamePage() {
+            dashboard.classList.remove('active');
+            gamePage.classList.add('active');
+        }
+
+        // Auth State
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                authContainer.classList.remove('active');
-                otpContainer.classList.remove('active');
-                dashboard.classList.add('active');
-                userPhone.textContent = 'Phone: ' + user.phoneNumber;
+                currentUser = user;
+                if (!user.emailVerified) {
+                    authContainer.classList.add('active');
+                    showMessage('Please verify your email', 'error');
+                    return;
+                }
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userData = userDoc.data();
+                if (!userData.mobileVerified && isSignUp) {
+                    authContainer.classList.remove('active');
+                    verifyMobileContainer.classList.add('active');
+                    initRecaptcha();
+                } else {
+                    authContainer.classList.remove('active');
+                    verifyMobileContainer.classList.remove('active');
+                    dashboard.classList.add('active');
+                    loadProfile();
+                }
             } else {
+                currentUser = null;
                 dashboard.classList.remove('active');
+                profilePage.classList.remove('active');
+                gamePage.classList.remove('active');
+                gameRoom.classList.remove('active');
+                historyPage.classList.remove('active');
+                verifyMobileContainer.classList.remove('active');
                 authContainer.classList.add('active');
             }
         });
+
+        // Sign Out
+        async function signOut() {
+            await auth.signOut();
+            showMessage('Logged out successfully!');
+        }
     </script>
 </body>
 </html>
