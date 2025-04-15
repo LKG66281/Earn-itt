@@ -9,12 +9,14 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Montserrat', Arial, sans-serif;
         }
 
         body {
-            background: #F5F7FA;
-            color: #333333;
+            background: linear-gradient(135deg, #1C2526 0%, #2A2E6B 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            color: #FFFFFF;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,67 +24,86 @@
             padding: 10px;
         }
 
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .container {
-            background: #FFFFFF;
+            background: rgba(30, 35, 55, 0.9);
+            backdrop-filter: blur(10px);
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         h2 {
-            color: #4A90E2;
-            font-size: 24px;
+            color: #FFD700;
+            font-size: 28px;
             margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
         .input-box {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #CCCCCC;
-            border-radius: 5px;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
             font-size: 16px;
             outline: none;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
         }
 
         input:focus {
-            border-color: #4A90E2;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px #00FF84;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background: #4A90E2;
+            padding: 14px;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #0058FF 0%, #7B00FF 100%);
             color: #FFFFFF;
             font-size: 16px;
             cursor: pointer;
-            margin-bottom: 10px;
-            transition: background 0.3s;
+            margin: 15px 0;
+            transition: all 0.3s;
         }
 
         button:hover {
-            background: #357ABD;
+            background: #00FF84;
+            box-shadow: 0 0 15px #00FF84;
+            transform: translateY(-2px);
         }
 
         .toggle-text, .forgot-password {
-            color: #4A90E2;
+            color: #FFD700;
             cursor: pointer;
             font-size: 14px;
             display: inline-block;
             margin-top: 10px;
+            transition: color 0.3s;
         }
 
         .toggle-text:hover, .forgot-password:hover {
-            color: #FF6F61;
+            color: #00FF84;
         }
 
         .message {
@@ -90,51 +111,64 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 15px 20px;
-            border-radius: 5px;
+            padding: 15px 25px;
+            border-radius: 10px;
             color: #FFFFFF;
             font-size: 16px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             opacity: 0;
             transition: opacity 0.3s;
             z-index: 1000;
         }
 
         .message.success {
-            background: #4A90E2;
+            background: #00FF84;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
 
         .message.error {
-            background: #FF6F61;
+            background: #FF4D4D;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
 
         .dashboard {
-            max-width: 800px;
+            max-width: 1200px;
+            padding: 40px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 30px;
         }
 
         .profile-section {
-            background: #F9FAFB;
-            border-radius: 10px;
-            padding: 15px;
+            width: 100%;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #FFD700;
+            border-radius: 15px;
+            padding: 20px;
             display: flex;
             align-items: center;
             gap: 20px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
         }
 
         .mini-picture {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            background: #4A90E2;
-            color: #FFFFFF;
+            background: #7B00FF;
+            color: #FFD700;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 36px;
             cursor: pointer;
+            border: 2px solid #FFD700;
+            transition: transform 0.3s;
+        }
+
+        .mini-picture:hover {
+            transform: scale(1.1);
         }
 
         .mini-picture img {
@@ -145,36 +179,86 @@
         }
 
         .balance {
-            font-size: 18px;
-            color: #333333;
+            font-size: 24px;
+            color: #7B00FF;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(123, 0, 255, 0.3);
+        }
+
+        .wallet-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, #00FF84, #FFD700);
+            color: #1C2526;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px #00FF84;
+            transition: transform 0.3s;
+        }
+
+        .wallet-button:hover {
+            transform: scale(1.1);
         }
 
         .dashboard-sections {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
         }
 
         .section-card {
-            background: #F9FAFB;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #0058FF;
+            transition: all 0.3s;
+        }
+
+        .section-card:hover {
+            border-color: #00FF84;
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(0, 255, 132, 0.5);
+        }
+
+        .section-card h3 {
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+
+        .section-card p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .section-card button {
+            margin-top: 15px;
         }
 
         .profile-image {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            background: #4A90E2;
-            color: #FFFFFF;
+            background: #7B00FF;
+            color: #FFD700;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 40px;
+            font-size: 48px;
             cursor: pointer;
+            border: 3px solid #7B00FF;
             margin: 0 auto 20px;
             position: relative;
+            transition: transform 0.3s;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.05);
         }
 
         .profile-image img {
@@ -186,72 +270,85 @@
 
         .pencil {
             position: absolute;
-            bottom: 5px;
-            right: 5px;
-            font-size: 18px;
-            color: #FF6F61;
+            bottom: 10px;
+            right: 10px;
+            font-size: 20px;
+            color: #00FF84;
             cursor: pointer;
+            transition: color 0.3s;
         }
 
         .pencil:hover {
-            color: #4A90E2;
+            color: #FFD700;
         }
 
-        .username-display, .mobile-display {
-            font-size: 16px;
-            color: #333333;
-            margin-bottom: 15px;
+        .username-display {
+            font-size: 20px;
+            color: #FFD700;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
         }
 
-        .username-pencil, .mobile-pencil {
-            font-size: 14px;
-            color: #4A90E2;
+        .username-pencil {
+            font-size: 16px;
+            color: #FFD700;
             cursor: pointer;
+            transition: color 0.3s;
         }
 
-        .username-pencil:hover, .mobile-pencil:hover {
-            color: #FF6F61;
+        .username-pencil:hover {
+            color: #00FF84;
         }
 
-        .username-edit, .mobile-edit {
+        .username-edit {
             width: auto;
             display: inline-block;
-            border: 1px solid #CCCCCC;
-            padding: 5px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
             font-size: 16px;
+            color: #FFFFFF;
+            border-radius: 5px;
         }
 
         .game-board {
             display: grid;
-            grid-template-columns: repeat(3, 80px);
-            gap: 5px;
+            grid-template-columns: repeat(3, 110px);
+            gap: 10px;
             margin: 20px auto;
             width: fit-content;
         }
 
         .cell {
-            width: 80px;
-            height: 80px;
-            background: #F9FAFB;
-            border: 1px solid #CCCCCC;
-            border-radius: 5px;
+            width: 110px;
+            height: 110px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #7B00FF;
+            border-radius: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 36px;
+            font-size: 48px;
             cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .cell:hover {
+            transform: scale(1.05);
         }
 
         .cell.x {
-            color: #4A90E2;
+            color: #FFD700;
+            text-shadow: 0 0 10px #FFD700;
         }
 
         .cell.o {
-            color: #FF6F61;
+            color: #00FF84;
+            text-shadow: 0 0 10px #00FF84;
         }
 
         .player-info {
@@ -264,19 +361,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            gap: 10px;
         }
 
         .player-avatar {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: #4A90E2;
-            color: #FFFFFF;
+            background: #7B00FF;
+            color: #FFD700;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
+            font-size: 24px;
+            border: 2px solid #FFD700;
         }
 
         .player-avatar img {
@@ -287,39 +385,54 @@
         }
 
         .player-name {
-            font-size: 14px;
-            color: #333333;
+            font-size: 16px;
+            color: #FFFFFF;
         }
 
         .room-id, .status {
-            font-size: 16px;
-            color: #333333;
+            font-size: 18px;
+            color: #FFD700;
             margin-bottom: 15px;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
         }
 
         .match-list {
             max-height: 300px;
             overflow-y: auto;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .match-card {
-            background: #F9FAFB;
-            padding: 10px;
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
             margin-bottom: 10px;
             font-size: 14px;
-            color: #333333;
+            color: #FFFFFF;
+            border: 1px solid transparent;
+        }
+
+        .match-card.win {
+            border-color: #FFD700;
+        }
+
+        .match-card.loss {
+            border-color: #FF4D4D;
+        }
+
+        .match-card.tie {
+            border-color: #00FF84;
         }
 
         .stats {
-            font-size: 16px;
-            color: #4A90E2;
-            margin-bottom: 15px;
+            font-size: 18px;
+            color: #00FF84;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(0, 255, 132, 0.5);
         }
 
         .adjuster-modal {
-            max-width: 350px;
+            max-width: 400px;
             position: fixed;
             top: 50%;
             left: 50%;
@@ -327,12 +440,12 @@
         }
 
         .adjuster-container {
-            width: 150px;
-            height: 150px;
-            margin: 15px auto;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
             border-radius: 50%;
             overflow: hidden;
-            border: 1px solid #4A90E2;
+            border: 2px solid #7B00FF;
         }
 
         .adjuster-image {
@@ -343,44 +456,106 @@
         .adjuster-controls {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .verify-mobile {
-            max-width: 400px;
+        .adjuster-controls label {
+            color: #FFD700;
+            font-size: 14px;
+        }
+
+        .adjuster-controls input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .adjuster-controls input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #00FF84;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00FF84;
         }
 
         @media (max-width: 400px) {
             .container {
                 padding: 15px;
+                max-width: 100%;
             }
 
-            .game-board {
-                grid-template-columns: repeat(3, 60px);
+            .dashboard {
+                padding: 20px;
+                gap: 20px;
             }
 
-            .cell {
+            .profile-section {
+                height: 100px;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .mini-picture {
                 width: 60px;
                 height: 60px;
                 font-size: 28px;
             }
 
-            .profile-image {
-                width: 80px;
-                height: 80px;
-                font-size: 32px;
+            .balance {
+                font-size: 20px;
+                padding: 8px 15px;
             }
 
-            .mini-picture {
+            .wallet-button {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .dashboard-sections {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .section-card {
+                padding: 15px;
+            }
+
+            .profile-image {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+
+            .game-board {
+                grid-template-columns: repeat(3, 80px);
+                gap: 8px;
+            }
+
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 36px;
+            }
+
+            .player-avatar {
                 width: 50px;
                 height: 50px;
                 font-size: 20px;
             }
 
-            .player-avatar {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
+            .adjuster-modal {
+                max-width: 350px;
+            }
+
+            .adjuster-container {
+                width: 150px;
+                height: 150px;
             }
         }
     </style>
@@ -408,21 +583,6 @@
         <button id="logoutFromVerify">Logout</button>
     </div>
 
-    <!-- Verify Mobile -->
-    <div class="container verify-mobile" id="verifyMobile">
-        <h2>Verify Mobile Number</h2>
-        <p>Enter your mobile number to enable payments.</p>
-        <div class="input-box">
-            <input type="tel" id="mobileNumber" placeholder="+1234567890" required>
-        </div>
-        <button id="sendOTP">Send OTP</button>
-        <div class="input-box" id="otpInput" style="display: none;">
-            <input type="text" id="otp" placeholder="Enter OTP" required>
-        </div>
-        <button id="verifyOTP" style="display: none;">Verify OTP</button>
-        <button id="skipMobile">Skip for Now</button>
-    </div>
-
     <!-- Reset Password -->
     <div class="container" id="resetPassword">
         <h2>Reset Password</h2>
@@ -437,7 +597,8 @@
     <div class="container dashboard" id="dashboard">
         <div class="profile-section">
             <div class="mini-picture" id="miniPicture"></div>
-            <div class="balance">₹ 0</div>
+            <div class="balance" id="balance">₹ 0</div>
+            <button class="wallet-button" id="walletButton">W</button>
         </div>
         <div class="dashboard-sections">
             <div class="section-card">
@@ -449,7 +610,7 @@
                 <button id="playButton">Start Match</button>
             </div>
             <div class="section-card">
-                <h3>Friend</h3>
+                <h3>Play with Friend</h3>
                 <button id="playWithFriend">Invite Friend</button>
             </div>
         </div>
@@ -499,7 +660,7 @@
     <!-- Waiting Area -->
     <div class="container" id="waitingArea">
         <h2>Matchmaking</h2>
-        <p>Searching...</p>
+        <p>Searching for opponent...</p>
     </div>
 
     <!-- Profile Page -->
@@ -510,10 +671,9 @@
         </div>
         <input type="file" id="hiddenAvatarUpload" accept="image/*" style="display: none;">
         <div class="username-display" id="usernameDisplay"></div>
-        <div class="mobile-display" id="mobileDisplay"></div>
         <button id="saveProfile">Save Changes</button>
         <p>No transactions yet.</p>
-        <button id="viewHistory">Game History</button>
+        <button id="viewHistory">View Game History</button>
         <button id="backToDashboardFromProfile">Back</button>
     </div>
 
@@ -550,14 +710,16 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
 
         // Firebase Config - REPLACE WITH YOUR OWN
-        const firebaseConfig = {
-            apiKey: "your-api-key",
-            authDomain: "your-project-id.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project-id.appspot.com",
-            messagingSenderId: "your-messaging-sender-id",
-            appId: "your-app-id"
-        };
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+  authDomain: "earn-itt.firebaseapp.com",
+  projectId: "earn-itt",
+  storageBucket: "earn-itt.firebasestorage.app",
+  messagingSenderId: "785360520679",
+  appId: "1:785360520679:web:ac2e2710ece34591a52942",
+  measurementId: "G-P4Q2KYTBBM"
+};
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -567,7 +729,6 @@
         // DOM Elements
         const authContainer = document.getElementById('authContainer');
         const verifyEmail = document.getElementById('verifyEmail');
-        const verifyMobile = document.getElementById('verifyMobile');
         const resetPassword = document.getElementById('resetPassword');
         const dashboard = document.getElementById('dashboard');
         const gamePage = document.getElementById('gamePage');
@@ -584,16 +745,12 @@
         const passwordInput = document.getElementById('password');
         const resendVerification = document.getElementById('resendVerification');
         const logoutFromVerify = document.getElementById('logoutFromVerify');
-        const mobileNumber = document.getElementById('mobileNumber');
-        const sendOTP = document.getElementById('sendOTP');
-        const otpInput = document.getElementById('otpInput');
-        const otp = document.getElementById('otp');
-        const verifyOTP = document.getElementById('verifyOTP');
-        const skipMobile = document.getElementById('skipMobile');
         const resetEmail = document.getElementById('resetEmail');
         const sendResetEmail = document.getElementById('sendResetEmail');
         const backToLogin = document.getElementById('backToLogin');
         const miniPicture = document.getElementById('miniPicture');
+        const balance = document.getElementById('balance');
+        const walletButton = document.getElementById('walletButton');
         const playButton = document.getElementById('playButton');
         const playWithFriend = document.getElementById('playWithFriend');
         const logoutButton = document.getElementById('logoutButton');
@@ -612,7 +769,6 @@
         const profileImage = document.getElementById('profileImage');
         const hiddenAvatarUpload = document.getElementById('hiddenAvatarUpload');
         const usernameDisplay = document.getElementById('usernameDisplay');
-        const mobileDisplay = document.getElementById('mobileDisplay');
         const saveProfile = document.getElementById('saveProfile');
         const viewHistory = document.getElementById('viewHistory');
         const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
@@ -632,20 +788,15 @@
         let unsubscribeRoom = null;
         let currentAvatar = null;
         let currentUsername = null;
-        let currentMobile = null;
-        let isMobileVerified = false;
         let avatarFile = null;
         let isEditingUsername = false;
-        let isEditingMobile = false;
         let originalUsername = null;
-        let originalMobile = null;
         let adjustX = 0;
         let adjustY = 0;
         let adjustZoom = 1;
-        let sentOTP = null;
 
         function initializeContainers() {
-            const containers = [authContainer, verifyEmail, verifyMobile, resetPassword, dashboard, gamePage, gameRoom, waitingArea, profilePage, historyPage, adjusterModal];
+            const containers = [authContainer, verifyEmail, resetPassword, dashboard, gamePage, gameRoom, waitingArea, profilePage, historyPage, adjusterModal];
             containers.forEach(c => c.style.display = 'none');
             authContainer.style.display = 'block';
         }
@@ -664,25 +815,9 @@
         }
 
         function showContainer(container) {
-            const containers = [authContainer, verifyEmail, verifyMobile, resetPassword, dashboard, gamePage, gameRoom, waitingArea, profilePage, historyPage, adjusterModal];
+            const containers = [authContainer, verifyEmail, resetPassword, dashboard, gamePage, gameRoom, waitingArea, profilePage, historyPage, adjusterModal];
             containers.forEach(c => c.style.display = 'none');
             container.style.display = 'block';
-        }
-
-        // Simulate OTP (Replace with Firebase Function + Twilio in production)
-        function generateOTP() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
-        async function sendOTPToMobile(number) {
-            sentOTP = generateOTP();
-            console.log(`OTP for ${number}: ${sentOTP}`); // Simulate SMS
-            showMessage(`OTP sent to ${number}`, 'success');
-            return sentOTP;
-        }
-
-        async function verifyOTPCode(inputOTP) {
-            return inputOTP === sentOTP;
         }
 
         // Auth
@@ -700,7 +835,7 @@
             const email = emailInput.value;
             const password = passwordInput.value;
             if (!email || !password) {
-                showMessage('Enter email and password', 'error');
+                showMessage('Please enter email and password', 'error');
                 return;
             }
             try {
@@ -708,16 +843,19 @@
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     await setDoc(doc(db, 'users', userCredential.user.uid), {
                         username: 'Player',
-                        avatar: '',
-                        mobileNumber: '',
-                        isMobileVerified: false
+                        avatar: ''
                     });
                     await sendEmailVerification(userCredential.user);
-                    showMessage('Sign Up successful! Verify your email.', 'success');
+                    showMessage('Sign Up successful! Please verify your email.', 'success');
                     showContainer(verifyEmail);
                 } else {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showMessage('Login successful!', 'success');
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    if (!userCredential.user.emailVerified) {
+                        showMessage('Please verify your email first', 'error');
+                        showContainer(verifyEmail);
+                    } else {
+                        showMessage('Login successful!', 'success');
+                    }
                 }
             } catch (error) {
                 showMessage(error.message, 'error');
@@ -731,12 +869,12 @@
         sendResetEmail.addEventListener('click', async () => {
             const email = resetEmail.value;
             if (!email) {
-                showMessage('Enter an email', 'error');
+                showMessage('Please enter an email', 'error');
                 return;
             }
             try {
                 await sendPasswordResetEmail(auth, email);
-                showMessage('Reset link sent!', 'success');
+                showMessage('Password reset link sent!', 'success');
                 showContainer(authContainer);
             } catch (error) {
                 showMessage(error.message, 'error');
@@ -770,53 +908,6 @@
             showContainer(authContainer);
         });
 
-        // Mobile Verification
-        sendOTP.addEventListener('click', async () => {
-            const number = mobileNumber.value.trim();
-            if (!/^\+\d{10,15}$/.test(number)) {
-                showMessage('Enter a valid mobile number (e.g., +1234567890)', 'error');
-                return;
-            }
-            const mobileDoc = await getDoc(doc(db, 'mobileNumbers', number));
-            if (mobileDoc.exists()) {
-                showMessage('Mobile number already used', 'error');
-                return;
-            }
-            await sendOTPToMobile(number);
-            otpInput.style.display = 'block';
-            verifyOTP.style.display = 'block';
-            sendOTP.style.display = 'none';
-        });
-
-        verifyOTP.addEventListener('click', async () => {
-            const inputOTP = otp.value.trim();
-            if (!inputOTP) {
-                showMessage('Enter OTP', 'error');
-                return;
-            }
-            const isValid = await verifyOTPCode(inputOTP);
-            if (isValid) {
-                const user = auth.currentUser;
-                const number = mobileNumber.value.trim();
-                await setDoc(doc(db, 'users', user.uid), { mobileNumber: number, isMobileVerified: true }, { merge: true });
-                await setDoc(doc(db, 'mobileNumbers', number), { userId: user.uid });
-                showMessage('Mobile verified! Payments enabled.', 'success');
-                showContainer(dashboard);
-                mobileNumber.value = '';
-                otp.value = '';
-                otpInput.style.display = 'none';
-                verifyOTP.style.display = 'none';
-                sendOTP.style.display = 'block';
-            } else {
-                showMessage('Invalid OTP', 'error');
-            }
-        });
-
-        skipMobile.addEventListener('click', () => {
-            showContainer(dashboard);
-            showMessage('Mobile verification skipped. Payments disabled.', 'error');
-        });
-
         // Profile
         function renderUsername() {
             if (isEditingUsername) {
@@ -846,65 +937,6 @@
             }
         }
 
-        function renderMobile() {
-            if (isEditingMobile) {
-                mobileDisplay.innerHTML = `<input class="mobile-edit" id="mobileEdit" value="${currentMobile || ''}" placeholder="+1234567890">`;
-                const mobileEdit = document.getElementById('mobileEdit');
-                mobileEdit.focus();
-                mobileEdit.addEventListener('blur', async () => {
-                    const newMobile = mobileEdit.value.trim();
-                    if (newMobile && !/^\+\d{10,15}$/.test(newMobile)) {
-                        showMessage('Invalid mobile number', 'error');
-                        currentMobile = originalMobile;
-                    } else if (newMobile && newMobile !== originalMobile) {
-                        const mobileDoc = await getDoc(doc(db, 'mobileNumbers', newMobile));
-                        if (mobileDoc.exists()) {
-                            showMessage('Mobile number already used', 'error');
-                            currentMobile = originalMobile;
-                        } else {
-                            await sendOTPToMobile(newMobile);
-                            showContainer(verifyMobile);
-                            mobileNumber.value = newMobile;
-                            otpInput.style.display = 'block';
-                            verifyOTP.style.display = 'block';
-                            sendOTP.style.display = 'none';
-                            verifyOTP.onclick = async () => {
-                                const inputOTP = otp.value.trim();
-                                if (await verifyOTPCode(inputOTP)) {
-                                    currentMobile = newMobile;
-                                    showMessage('Mobile verified', 'success');
-                                    showContainer(profilePage);
-                                } else {
-                                    showMessage('Invalid OTP', 'error');
-                                    currentMobile = originalMobile;
-                                }
-                                otpInput.style.display = 'none';
-                                verifyOTP.style.display = 'none';
-                                sendOTP.style.display = 'block';
-                                mobileNumber.value = '';
-                                otp.value = '';
-                                isEditingMobile = false;
-                                renderMobile();
-                            };
-                            return;
-                        }
-                    } else {
-                        currentMobile = originalMobile;
-                    }
-                    isEditingMobile = false;
-                    renderMobile();
-                });
-            } else {
-                mobileDisplay.innerHTML = `${currentMobile || 'No mobile number'} <span class="mobile-pencil">✏</span>`;
-                const pencil = mobileDisplay.querySelector('.mobile-pencil');
-                pencil.addEventListener('click', () => {
-                    originalMobile = currentMobile;
-                    isEditingMobile = true;
-                    renderMobile();
-                });
-            }
-        }
-
         profileImage.addEventListener('click', () => {
             hiddenAvatarUpload.click();
         });
@@ -930,7 +962,7 @@
         });
 
         function updateAdjusterImage() {
-            const containerSize = 150;
+            const containerSize = 200;
             const scale = adjustZoom;
             const imgWidth = adjusterImage.naturalWidth * scale;
             const imgHeight = adjusterImage.naturalHeight * scale;
@@ -980,7 +1012,7 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const size = 150;
+                    const size = 200;
                     canvas.width = size;
                     canvas.height = size;
                     const scale = adjustZoom;
@@ -1011,40 +1043,26 @@
             const username = currentUsername?.trim();
             if (!username) {
                 showMessage('Username cannot be empty', 'error');
+                currentUsername = originalUsername;
+                renderUsername();
                 return;
             }
             try {
                 let avatarUrl = currentAvatar;
-                let mobileNumber = currentMobile;
-                let isVerified = isMobileVerified;
                 if (avatarFile) {
                     const storageRef = ref(storage, `avatars/${user.uid}`);
                     await uploadBytes(storageRef, avatarFile);
                     avatarUrl = await getDownloadURL(storageRef);
                     avatarFile = null;
                 }
-                if (mobileNumber && mobileNumber !== originalMobile && !isEditingMobile) {
-                    const mobileDoc = await getDoc(doc(db, 'mobileNumbers', mobileNumber));
-                    if (mobileDoc.exists()) {
-                        showMessage('Mobile number already used', 'error');
-                        return;
-                    }
-                    isVerified = true;
-                    await setDoc(doc(db, 'mobileNumbers', mobileNumber), { userId: user.uid });
-                    if (originalMobile) {
-                        await deleteDoc(doc(db, 'mobileNumbers', originalMobile));
-                    }
-                }
                 await setDoc(doc(db, 'users', user.uid), {
                     username,
-                    avatar: avatarUrl || '',
-                    mobileNumber: mobileNumber || '',
-                    isMobileVerified: isVerified
+                    avatar: avatarUrl || ''
                 }, { merge: true });
                 currentAvatar = avatarUrl;
                 miniPicture.innerHTML = avatarUrl ? `<img src="${avatarUrl}">` : (username[0]?.toUpperCase() || 'P');
                 profileImage.innerHTML = avatarUrl ? `<img src="${avatarUrl}"><span class="pencil">✏</span>` : `${username[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
-                showMessage('Profile updated!', 'success');
+                showMessage('Profile updated successfully!', 'success');
                 showContainer(dashboard);
             } catch (error) {
                 showMessage(error.message, 'error');
@@ -1052,6 +1070,10 @@
         });
 
         // Game Logic
+        walletButton.addEventListener('click', () => {
+            showMessage('Wallet feature coming soon!', 'success');
+        });
+
         playButton.addEventListener('click', startRandomMatch);
 
         playWithFriend.addEventListener('click', () => {
@@ -1097,7 +1119,7 @@
             }
             const roomId = roomIdInput.value.trim();
             if (!roomId) {
-                showMessage('Enter a Room ID', 'error');
+                showMessage('Please enter a Room ID', 'error');
                 return;
             }
             const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -1113,7 +1135,7 @@
                 return;
             }
             if (roomData.player1 === user.uid) {
-                showMessage('Cannot join your own room', 'error');
+                showMessage('You cannot join your own room', 'error');
                 return;
             }
             await updateDoc(doc(db, 'rooms', roomId), {
@@ -1132,6 +1154,7 @@
 
         backToDashboard.addEventListener('click', () => {
             showContainer(dashboard);
+            roomIdInput.value = '';
         });
 
         async function startRandomMatch() {
@@ -1287,7 +1310,7 @@
                 timestamp: Date.now()
             };
             await addDoc(collection(db, 'users', user.uid, 'gameHistory'), historyData);
-            showMessage(result === currentPlayer ? 'You won!' : result === 'tie' ? 'Tie!' : 'You lost!', result === currentPlayer ? 'success' : 'error');
+            showMessage(result === currentPlayer ? 'You won!' : result === 'tie' ? 'It’s a tie!' : 'You lost!', result === currentPlayer ? 'success' : 'error');
             setTimeout(() => {
                 cleanupGame();
                 showContainer(dashboard);
@@ -1325,6 +1348,7 @@
         viewHistory.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (!user) {
+                showMessage('Please log in', 'error');
                 showContainer(authContainer);
                 return;
             }
@@ -1339,11 +1363,14 @@
                 else if (data.result === 'tie') ties++;
                 const date = new Date(data.timestamp).toLocaleString();
                 const card = document.createElement('div');
-                card.className = 'match-card';
-                card.innerHTML = `Result: ${data.result}<br>Opponent: ${data.opponent || 'Unknown'}<br>Time: ${date}`;
+                card.className = `match-card ${data.result}`;
+                card.innerHTML = `Result: ${data.result.charAt(0).toUpperCase() + data.result.slice(1)}<br>Opponent: ${data.opponent || 'Unknown'}<br>Time: ${date}`;
                 matchList.appendChild(card);
             });
             stats.textContent = `Wins: ${wins} | Losses: ${losses} | Ties: ${ties}`;
+            if (snapshot.empty) {
+                matchList.innerHTML = '<p>No matches yet.</p>';
+            }
             showContainer(historyPage);
         });
 
@@ -1375,2824 +1402,14 @@
                 const data = userDoc.data() || {};
                 currentUsername = data.username || 'Player';
                 currentAvatar = data.avatar || '';
-                currentMobile = data.mobileNumber || '';
-                isMobileVerified = data.isMobileVerified || false;
                 miniPicture.innerHTML = currentAvatar ? `<img src="${currentAvatar}">` : (currentUsername[0]?.toUpperCase() || 'P');
                 profileImage.innerHTML = currentAvatar ? `<img src="${currentAvatar}"><span class="pencil">✏</span>` : `${currentUsername[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
                 renderUsername();
-                renderMobile();
-                if (isSignUp) {
-                    showContainer(verifyMobile);
-                    isSignUp = false;
-                } else {
-                    showContainer(dashboard);
-                }
+                showContainer(dashboard);
             } else {
                 showContainer(authContainer);
                 currentAvatar = null;
                 currentUsername = null;
-                currentMobile = null;
-                isMobileVerified = false;
-                cleanupGame();
-            }
-        });
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-
-        body {
-            background: #F5F7FA;
-            color: #333333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 10px;
-        }
-
-        .container {
-            background: #FFFFFF;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        h2 {
-            color: #4A90E2;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .input-box {
-            margin-bottom: 15px;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #CCCCCC;
-            border-radius: 5px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            border-color: #4A90E2;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #4A90E2;
-            border: none;
-            border-radius: 5px;
-            color: #FFFFFF;
-            font-size: 16px;
-            cursor: pointer;
-            margin-bottom: 10px;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #357ABD;
-        }
-
-        .toggle-text, .forgot-password {
-            color: #4A90E2;
-            cursor: pointer;
-            font-size: 14px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .toggle-text:hover, .forgot-password:hover {
-            color: #FF6F61;
-        }
-
-        .message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 15px 20px;
-            border-radius: 5px;
-            color: #FFFFFF;
-            font-size: 16px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 1000;
-        }
-
-        .message.success {
-            background: #4A90E2;
-        }
-
-        .message.error {
-            background: #FF6F61;
-        }
-
-        .dashboard {
-            max-width: 800px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .profile-section {
-            background: #F9FAFB;
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .mini-picture {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #4A90E2;
-            color: #FFFFFF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .mini-picture img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .balance {
-            font-size: 18px;
-            color: #333333;
-        }
-
-        .dashboard-sections {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .section-card {
-            background: #F9FAFB;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .profile-image {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: #4A90E2;
-            color: #FFFFFF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 40px;
-            cursor: pointer;
-            margin: 0 auto 20px;
-            position: relative;
-        }
-
-        .profile-image img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .pencil {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            font-size: 18px;
-            color: #FF6F61;
-            cursor: pointer;
-        }
-
-        .pencil:hover {
-            color: #4A90E2;
-        }
-
-        .username-display, .mobile-display {
-            font-size: 16px;
-            color: #333333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .username-pencil, .mobile-pencil {
-            font-size: 14px;
-            color: #4A90E2;
-            cursor: pointer;
-        }
-
-        .username-pencil:hover, .mobile-pencil:hover {
-            color: #FF6F61;
-        }
-
-        .username-edit, .mobile-edit {
-            width: auto;
-            display: inline-block;
-            border: 1px solid #CCCCCC;
-            padding: 5px;
-            font-size: 16px;
-        }
-
-        .game-board {
-            display: grid;
-            grid-template-columns: repeat(3, 80px);
-            gap: 5px;
-            margin: 20px auto;
-            width: fit-content;
-        }
-
-        .cell {
-            width: 80px;
-            height: 80px;
-            background: #F9FAFB;
-            border: 1px solid #CCCCCC;
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 36px;
-            cursor: pointer;
-        }
-
-        .cell.x {
-            color: #4A90E2;
-        }
-
-        .cell.o {
-            color: #FF6F61;
-        }
-
-        .player-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .player {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .player-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #4A90E2;
-            color: #FFFFFF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-        }
-
-        .player-avatar img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .player-name {
-            font-size: 14px;
-            color: #333333;
-        }
-
-        .room-id, .status {
-            font-size: 16px;
-            color: #333333;
-            margin-bottom: 15px;
-        }
-
-        .match-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-        }
-
-        .match-card {
-            background: #F9FAFB;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: #333333;
-        }
-
-        .stats {
-            font-size: 16px;
-            color: #4A90E2;
-            margin-bottom: 15px;
-        }
-
-        .adjuster-modal {
-            max-width: 350px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .adjuster-container {
-            width: 150px;
-            height: 150px;
-            margin: 15px auto;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 1px solid #4A90E2;
-        }
-
-        .adjuster-image {
-            max-width: none;
-            position: absolute;
-        }
-
-        .adjuster-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .verify-mobile {
-            max-width: 400px;
-        }
-
-        @media (max-width: 400px) {
-            .container {
-                padding: 15px;
-            }
-
-            .game-board {
-                grid-template-columns: repeat(3, 60px);
-            }
-
-            .cell {
-                width: 60px;
-                height: 60px;
-                font-size: 28px;
-            }
-
-            .profile-image {
-                width: 80px;
-                height: 80px;
-                font-size: 32px;
-            }
-
-            .mini-picture {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-
-            .player-avatar {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Auth Container -->
-    <div class="container" id="authContainer">
-        <h2 id="formTitle">Sign Up</h2>
-        <div class="input-box">
-            <input type="email" id="email" placeholder="Email" required>
-        </div>
-        <div class="input-box">
-            <input type="password" id="password" placeholder="Password" required>
-        </div>
-        <button id="authButton">Sign Up</button>
-        <span class="toggle-text" id="toggleAuth">Already have an account? Login</span>
-        <span class="forgot-password" id="forgotPassword">Forgot Password?</span>
-    </div>
-
-    <!-- Verify Email -->
-    <div class="container" id="verifyEmail">
-        <h2>Email Verification</h2>
-        <p>Please verify your email to continue.</p>
-        <button id="resendVerification">Resend Verification</button>
-        <button id="logoutFromVerify">Logout</button>
-    </div>
-
-    <!-- Verify Mobile -->
-    <div class="container verify-mobile" id="verifyMobile">
-        <h2>Verify Mobile Number</h2>
-        <p>Enter your mobile number to enable payments.</p>
-        <div class="input-box">
-            <input type="tel" id="mobileNumber" placeholder="+1234567890" required>
-        </div>
-        <button id="sendOTP">Send OTP</button>
-        <div class="input-box" id="otpInput" style="display: none;">
-            <input type="text" id="otp" placeholder="Enter OTP" required>
-        </div>
-        <button id="verifyOTP" style="display: none;">Verify OTP</button>
-        <button id="skipMobile">Skip for Now</button>
-    </div>
-
-    <!-- Reset Password -->
-    <div class="container" id="resetPassword">
-        <h2>Reset Password</h2>
-        <div class="input-box">
-            <input type="email" id="resetEmail" placeholder="Email" required>
-        </div>
-        <button id="sendResetEmail">Send Reset Link</button>
-        <button id="backToLogin">Back</button>
-    </div>
-
-    <!-- Dashboard -->
-    <div class="container dashboard" id="dashboard">
-        <div class="profile-section">
-            <div class="mini-picture" id="miniPicture"></div>
-            <div class="balance">₹ 0</div>
-        </div>
-        <div class="dashboard-sections">
-            <div class="section-card">
-                <h3>Tasks</h3>
-                <p>Coming soon!</p>
-            </div>
-            <div class="section-card">
-                <h3>Play</h3>
-                <button id="playButton">Start Match</button>
-            </div>
-            <div class="section-card">
-                <h3>Friend</h3>
-                <button id="playWithFriend">Invite Friend</button>
-            </div>
-        </div>
-        <button id="logoutButton">Logout</button>
-    </div>
-
-    <!-- Game Page -->
-    <div class="container" id="gamePage">
-        <h2>Game Mode</h2>
-        <button id="createRoom">Create Room</button>
-        <div class="input-box">
-            <input type="text" id="roomIdInput" placeholder="Enter Room ID">
-        </div>
-        <button id="joinRoom">Join Room</button>
-        <button id="backToDashboard">Back</button>
-    </div>
-
-    <!-- Game Room -->
-    <div class="container" id="gameRoom">
-        <h2>Tic-Tac-Toe</h2>
-        <p class="room-id" id="roomIdDisplay"></p>
-        <div class="player-info">
-            <div class="player">
-                <div class="player-avatar" id="player1Avatar"></div>
-                <span class="player-name" id="player1Name"></span>
-            </div>
-            <div class="player">
-                <div class="player-avatar" id="player2Avatar"></div>
-                <span class="player-name" id="player2Name"></span>
-            </div>
-        </div>
-        <p class="status" id="gameStatus"></p>
-        <div class="game-board" id="gameBoard">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
-        </div>
-        <button id="leaveRoom">Leave Room</button>
-    </div>
-
-    <!-- Waiting Area -->
-    <div class="container" id="waitingArea">
-        <h2>Matchmaking</h2>
-        <p>Searching...</p>
-    </div>
-
-    <!-- Profile Page -->
-    <div class="container" id="profilePage">
-        <h2>Edit Profile</h2>
-        <div class="profile-image" id="profileImage">
-            <span class="pencil">✏</span>
-        </div>
-        <input type="file" id="hiddenAvatarUpload" accept="image/*" style="display: none;">
-        <div class="username-display" id="usernameDisplay"></div>
-        <div class="mobile-display" id="mobileDisplay"></div>
-        <button id="saveProfile">Save Changes</button>
-        <p>No transactions yet.</p>
-        <button id="viewHistory">Game History</button>
-        <button id="backToDashboardFromProfile">Back</button>
-    </div>
-
-    <!-- Game History -->
-    <div class="container" id="historyPage">
-        <h2>Game History</h2>
-        <div class="match-list" id="matchList"></div>
-        <div class="stats" id="stats"></div>
-        <button id="backToProfile">Back</button>
-    </div>
-
-    <!-- Picture Adjuster -->
-    <div class="container adjuster-modal" id="adjusterModal">
-        <h2>Adjust Picture</h2>
-        <div class="adjuster-container">
-            <img class="adjuster-image" id="adjusterImage">
-        </div>
-        <div class="adjuster-controls">
-            <label>Horizontal</label>
-            <input type="range" id="xPos" min="-100" max="100" value="0">
-            <label>Vertical</label>
-            <input type="range" id="yPos" min="-100" max="100" value="0">
-            <label>Zoom</label>
-            <input type="range" id="zoom" min="1" max="3" step="0.1" value="1">
-        </div>
-        <button id="confirmAdjust">Confirm</button>
-        <button id="cancelAdjust">Cancel</button>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, collection, addDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
-
-        // Firebase Config - REPLACE WITH YOUR OWN
-        const firebaseConfig = {
-            apiKey: "your-api-key",
-            authDomain: "your-project-id.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project-id.appspot.com",
-            messagingSenderId: "your-messaging-sender-id",
-            appId: "your-app-id"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        // DOM Elements
-        const authContainer = document.getElementById('authContainer');
-        const verifyEmail = document.getElementById('verifyEmail');
-        const verifyMobile = document.getElementById('verifyMobile');
-        const resetPassword = document.getElementById('resetPassword');
-        const dashboard = document.getElementById('dashboard');
-        const gamePage = document.getElementById('gamePage');
-        const gameRoom = document.getElementById('gameRoom');
-        const waitingArea = document.getElementById('waitingArea');
-        const profilePage = document.getElementById('profilePage');
-        const historyPage = document.getElementById('historyPage');
-        const adjusterModal = document.getElementById('adjusterModal');
-        const formTitle = document.getElementById('formTitle');
-        const authButton = document.getElementById('authButton');
-        const toggleAuth = document.getElementById('toggleAuth');
-        const forgotPassword = document.getElementById('forgotPassword');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const resendVerification = document.getElementById('resendVerification');
-        const logoutFromVerify = document.getElementById('logoutFromVerify');
-        const mobileNumber = document.getElementById('mobileNumber');
-        const sendOTP = document.getElementById('sendOTP');
-        const otpInput = document.getElementById('otpInput');
-        const otp = document.getElementById('otp');
-        const verifyOTP = document.getElementById('verifyOTP');
-        const skipMobile = document.getElementById('skipMobile');
-        const resetEmail = document.getElementById('resetEmail');
-        const sendResetEmail = document.getElementById('sendResetEmail');
-        const backToLogin = document.getElementById('backToLogin');
-        const miniPicture = document.getElementById('miniPicture');
-        const playButton = document.getElementById('playButton');
-        const playWithFriend = document.getElementById('playWithFriend');
-        const logoutButton = document.getElementById('logoutButton');
-        const createRoom = document.getElementById('createRoom');
-        const joinRoom = document.getElementById('joinRoom');
-        const roomIdInput = document.getElementById('roomIdInput');
-        const backToDashboard = document.getElementById('backToDashboard');
-        const roomIdDisplay = document.getElementById('roomIdDisplay');
-        const gameStatus = document.getElementById('gameStatus');
-        const gameBoard = document.getElementById('gameBoard');
-        const leaveRoom = document.getElementById('leaveRoom');
-        const player1Avatar = document.getElementById('player1Avatar');
-        const player2Avatar = document.getElementById('player2Avatar');
-        const player1Name = document.getElementById('player1Name');
-        const player2Name = document.getElementById('player2Name');
-        const profileImage = document.getElementById('profileImage');
-        const hiddenAvatarUpload = document.getElementById('hiddenAvatarUpload');
-        const usernameDisplay = document.getElementById('usernameDisplay');
-        const mobileDisplay = document.getElementById('mobileDisplay');
-        const saveProfile = document.getElementById('saveProfile');
-        const viewHistory = document.getElementById('viewHistory');
-        const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
-        const matchList = document.getElementById('matchList');
-        const stats = document.getElementById('stats');
-        const backToProfile = document.getElementById('backToProfile');
-        const adjusterImage = document.getElementById('adjusterImage');
-        const xPos = document.getElementById('xPos');
-        const yPos = document.getElementById('yPos');
-        const zoom = document.getElementById('zoom');
-        const confirmAdjust = document.getElementById('confirmAdjust');
-        const cancelAdjust = document.getElementById('cancelAdjust');
-
-        let isSignUp = true;
-        let currentRoomId = null;
-        let currentPlayer = null;
-        let unsubscribeRoom = null;
-        let currentAvatar = null;
-        let currentUsername = null;
-        let currentMobile = null;
-        let isMobileVerified = false;
-        let avatarFile = null;
-        let isEditingUsername = false;
-        let isEditingMobile = false;
-        let originalUsername = null;
-        let originalMobile = null;
-        let adjustX = 0;
-        let adjustY = 0;
-        let adjustZoom = 1;
-        let sentOTP = null;
-
-        function initializeContainers() {
-            const containers = [authContainer, verifyEmail, verifyMobile, resetPassword, dashboard, gamePage, gameRoom, waitingArea, profilePage, historyPage, adjusterModal];
-            containers.forEach(c => c.style.display = 'none');
-            authContainer.style.display = 'block';
-        }
-        initializeContainers();
-
-        function showMessage(message, type) {
-            const msg = document.createElement('div');
-            msg.className = `message ${type}`;
-            msg.textContent = message;
-            document.body.appendChild(msg);
-            msg.style.opacity = '1';
-            setTimeout(() => {
-                msg.style.opacity = '0';
-                setTimeout(() => msg.remove(), 300);
-            }, 3000);
-        }
-
-        function showContainer(container) {
-            const containers = [authContainer, verifyEmail, verifyMobile, resetPassword, dashboard, gamePage, gameRoom, waitingArea, profilePage, historyPage, adjusterModal];
-            containers.forEach(c => c.style.display = 'none');
-            container.style.display = 'block';
-        }
-
-        // Simulate OTP (Replace with Firebase Function + Twilio in production)
-        function generateOTP() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
-        async function sendOTPToMobile(number) {
-            sentOTP = generateOTP();
-            console.log(`OTP for ${number}: ${sentOTP}`); // Simulate SMS
-            showMessage(`OTP sent to ${number}`, 'success');
-            return sentOTP;
-        }
-
-        async function verifyOTPCode(inputOTP) {
-            return inputOTP === sentOTP;
-        }
-
-        // Auth
-        toggleAuth.addEventListener('click', () => {
-            isSignUp = !isSignUp;
-            formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
-            authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
-            toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
-            forgotPassword.style.display = isSignUp ? 'none' : 'inline-block';
-            emailInput.value = '';
-            passwordInput.value = '';
-        });
-
-        authButton.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            if (!email || !password) {
-                showMessage('Enter email and password', 'error');
-                return;
-            }
-            try {
-                if (isSignUp) {
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    await setDoc(doc(db, 'users', userCredential.user.uid), {
-                        username: 'Player',
-                        avatar: '',
-                        mobileNumber: '',
-                        isMobileVerified: false
-                    });
-                    await sendEmailVerification(userCredential.user);
-                    showMessage('Sign Up successful! Verify your email.', 'success');
-                    showContainer(verifyEmail);
-                } else {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showMessage('Login successful!', 'success');
-                }
-            } catch (error) {
-                showMessage(error.message, 'error');
-            }
-        });
-
-        forgotPassword.addEventListener('click', () => {
-            showContainer(resetPassword);
-        });
-
-        sendResetEmail.addEventListener('click', async () => {
-            const email = resetEmail.value;
-            if (!email) {
-                showMessage('Enter an email', 'error');
-                return;
-            }
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showMessage('Reset link sent!', 'success');
-                showContainer(authContainer);
-            } catch (error) {
-                showMessage(error.message, 'error');
-            }
-        });
-
-        backToLogin.addEventListener('click', () => {
-            showContainer(authContainer);
-            resetEmail.value = '';
-            isSignUp = false;
-            formTitle.textContent = 'Login';
-            authButton.textContent = 'Login';
-            toggleAuth.textContent = 'Need an account? Sign Up';
-            forgotPassword.style.display = 'inline-block';
-        });
-
-        resendVerification.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (user) {
-                await sendEmailVerification(user);
-                showMessage('Verification email sent!', 'success');
-            } else {
-                showMessage('Please log in again', 'error');
-                showContainer(authContainer);
-            }
-        });
-
-        logoutFromVerify.addEventListener('click', async () => {
-            await signOut(auth);
-            showMessage('Logged out', 'success');
-            showContainer(authContainer);
-        });
-
-        // Mobile Verification
-        sendOTP.addEventListener('click', async () => {
-            const number = mobileNumber.value.trim();
-            if (!/^\+\d{10,15}$/.test(number)) {
-                showMessage('Enter a valid mobile number (e.g., +1234567890)', 'error');
-                return;
-            }
-            const mobileDoc = await getDoc(doc(db, 'mobileNumbers', number));
-            if (mobileDoc.exists()) {
-                showMessage('Mobile number already used', 'error');
-                return;
-            }
-            await sendOTPToMobile(number);
-            otpInput.style.display = 'block';
-            verifyOTP.style.display = 'block';
-            sendOTP.style.display = 'none';
-        });
-
-        verifyOTP.addEventListener('click', async () => {
-            const inputOTP = otp.value.trim();
-            if (!inputOTP) {
-                showMessage('Enter OTP', 'error');
-                return;
-            }
-            const isValid = await verifyOTPCode(inputOTP);
-            if (isValid) {
-                const user = auth.currentUser;
-                const number = mobileNumber.value.trim();
-                await setDoc(doc(db, 'users', user.uid), { mobileNumber: number, isMobileVerified: true }, { merge: true });
-                await setDoc(doc(db, 'mobileNumbers', number), { userId: user.uid });
-                showMessage('Mobile verified! Payments enabled.', 'success');
-                showContainer(dashboard);
-                mobileNumber.value = '';
-                otp.value = '';
-                otpInput.style.display = 'none';
-                verifyOTP.style.display = 'none';
-                sendOTP.style.display = 'block';
-            } else {
-                showMessage('Invalid OTP', 'error');
-            }
-        });
-
-        skipMobile.addEventListener('click', () => {
-            showContainer(dashboard);
-            showMessage('Mobile verification skipped. Payments disabled.', 'error');
-        });
-
-        // Profile
-        function renderUsername() {
-            if (isEditingUsername) {
-                usernameDisplay.innerHTML = `<input class="username-edit" id="usernameEdit" value="${currentUsername || 'Player'}">`;
-                const usernameEdit = document.getElementById('usernameEdit');
-                usernameEdit.focus();
-                usernameEdit.addEventListener('blur', () => {
-                    currentUsername = usernameEdit.value.trim() || originalUsername;
-                    isEditingUsername = false;
-                    renderUsername();
-                });
-                usernameEdit.addEventListener('keypress', e => {
-                    if (e.key === 'Enter') {
-                        currentUsername = usernameEdit.value.trim() || originalUsername;
-                        isEditingUsername = false;
-                        renderUsername();
-                    }
-                });
-            } else {
-                usernameDisplay.innerHTML = `${currentUsername || 'Player'} <span class="username-pencil">✏</span>`;
-                const pencil = usernameDisplay.querySelector('.username-pencil');
-                pencil.addEventListener('click', () => {
-                    originalUsername = currentUsername;
-                    isEditingUsername = true;
-                    renderUsername();
-                });
-            }
-        }
-
-        function renderMobile() {
-            if (isEditingMobile) {
-                mobileDisplay.innerHTML = `<input class="mobile-edit" id="mobileEdit" value="${currentMobile || ''}" placeholder="+1234567890">`;
-                const mobileEdit = document.getElementById('mobileEdit');
-                mobileEdit.focus();
-                mobileEdit.addEventListener('blur', async () => {
-                    const newMobile = mobileEdit.value.trim();
-                    if (newMobile && !/^\+\d{10,15}$/.test(newMobile)) {
-                        showMessage('Invalid mobile number', 'error');
-                        currentMobile = originalMobile;
-                    } else if (newMobile && newMobile !== originalMobile) {
-                        const mobileDoc = await getDoc(doc(db, 'mobileNumbers', newMobile));
-                        if (mobileDoc.exists()) {
-                            showMessage('Mobile number already used', 'error');
-                            currentMobile = originalMobile;
-                        } else {
-                            await sendOTPToMobile(newMobile);
-                            showContainer(verifyMobile);
-                            mobileNumber.value = newMobile;
-                            otpInput.style.display = 'block';
-                            verifyOTP.style.display = 'block';
-                            sendOTP.style.display = 'none';
-                            verifyOTP.onclick = async () => {
-                                const inputOTP = otp.value.trim();
-                                if (await verifyOTPCode(inputOTP)) {
-                                    currentMobile = newMobile;
-                                    showMessage('Mobile verified', 'success');
-                                    showContainer(profilePage);
-                                } else {
-                                    showMessage('Invalid OTP', 'error');
-                                    currentMobile = originalMobile;
-                                }
-                                otpInput.style.display = 'none';
-                                verifyOTP.style.display = 'none';
-                                sendOTP.style.display = 'block';
-                                mobileNumber.value = '';
-                                otp.value = '';
-                                isEditingMobile = false;
-                                renderMobile();
-                            };
-                            return;
-                        }
-                    } else {
-                        currentMobile = originalMobile;
-                    }
-                    isEditingMobile = false;
-                    renderMobile();
-                });
-            } else {
-                mobileDisplay.innerHTML = `${currentMobile || 'No mobile number'} <span class="mobile-pencil">✏</span>`;
-                const pencil = mobileDisplay.querySelector('.mobile-pencil');
-                pencil.addEventListener('click', () => {
-                    originalMobile = currentMobile;
-                    isEditingMobile = true;
-                    renderMobile();
-                });
-            }
-        }
-
-        profileImage.addEventListener('click', () => {
-            hiddenAvatarUpload.click();
-        });
-
-        hiddenAvatarUpload.addEventListener('change', () => {
-            if (hiddenAvatarUpload.files.length > 0) {
-                const file = hiddenAvatarUpload.files[0];
-                if (file.size > 2 * 1024 * 1024) {
-                    showMessage('Image must be under 2MB', 'error');
-                    return;
-                }
-                avatarFile = file;
-                adjusterImage.src = URL.createObjectURL(file);
-                adjustX = 0;
-                adjustY = 0;
-                adjustZoom = 1;
-                xPos.value = 0;
-                yPos.value = 0;
-                zoom.value = 1;
-                updateAdjusterImage();
-                showContainer(adjusterModal);
-            }
-        });
-
-        function updateAdjusterImage() {
-            const containerSize = 150;
-            const scale = adjustZoom;
-            const imgWidth = adjusterImage.naturalWidth * scale;
-            const imgHeight = adjusterImage.naturalHeight * scale;
-            const offsetX = (adjustX / 100) * (imgWidth - containerSize);
-            const offsetY = (adjustY / 100) * (imgHeight - containerSize);
-            adjusterImage.style.transform = `translate(${-offsetX}px, ${-offsetY}px) scale(${scale})`;
-        }
-
-        xPos.addEventListener('input', () => {
-            adjustX = parseInt(xPos.value);
-            updateAdjusterImage();
-        });
-
-        yPos.addEventListener('input', () => {
-            adjustY = parseInt(yPos.value);
-            updateAdjusterImage();
-        });
-
-        zoom.addEventListener('input', () => {
-            adjustZoom = parseFloat(zoom.value);
-            updateAdjusterImage();
-        });
-
-        confirmAdjust.addEventListener('click', () => {
-            if (avatarFile) {
-                cropImage(avatarFile).then(croppedFile => {
-                    avatarFile = croppedFile;
-                    profileImage.innerHTML = `<img src="${URL.createObjectURL(croppedFile)}"><span class="pencil">✏</span>`;
-                    showContainer(profilePage);
-                }).catch(() => {
-                    showMessage('Error adjusting image', 'error');
-                    showContainer(profilePage);
-                });
-            }
-        });
-
-        cancelAdjust.addEventListener('click', () => {
-            avatarFile = null;
-            hiddenAvatarUpload.value = '';
-            showContainer(profilePage);
-        });
-
-        async function cropImage(file) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const size = 150;
-                    canvas.width = size;
-                    canvas.height = size;
-                    const scale = adjustZoom;
-                    const imgWidth = img.width * scale;
-                    const imgHeight = img.height * scale;
-                    const offsetX = (adjustX / 100) * (imgWidth - size);
-                    const offsetY = (adjustY / 100) * (imgHeight - size);
-                    ctx.drawImage(img, -offsetX, -offsetY, imgWidth, imgHeight);
-                    canvas.toBlob(blob => {
-                        if (blob) {
-                            resolve(new File([blob], file.name, { type: file.type }));
-                        } else {
-                            reject(new Error('Failed to crop'));
-                        }
-                    }, file.type);
-                };
-                img.onerror = () => reject(new Error('Failed to load image'));
-            });
-        }
-
-        saveProfile.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            const username = currentUsername?.trim();
-            if (!username) {
-                showMessage('Username cannot be empty', 'error');
-                return;
-            }
-            try {
-                let avatarUrl = currentAvatar;
-                let mobileNumber = currentMobile;
-                let isVerified = isMobileVerified;
-                if (avatarFile) {
-                    const storageRef = ref(storage, `avatars/${user.uid}`);
-                    await uploadBytes(storageRef, avatarFile);
-                    avatarUrl = await getDownloadURL(storageRef);
-                    avatarFile = null;
-                }
-                if (mobileNumber && mobileNumber !== originalMobile && !isEditingMobile) {
-                    const mobileDoc = await getDoc(doc(db, 'mobileNumbers', mobileNumber));
-                    if (mobileDoc.exists()) {
-                        showMessage('Mobile number already used', 'error');
-                        return;
-                    }
-                    isVerified = true;
-                    await setDoc(doc(db, 'mobileNumbers', mobileNumber), { userId: user.uid });
-                    if (originalMobile) {
-                        await deleteDoc(doc(db, 'mobileNumbers', originalMobile));
-                    }
-                }
-                await setDoc(doc(db, 'users', user.uid), {
-                    username,
-                    avatar: avatarUrl || '',
-                    mobileNumber: mobileNumber || '',
-                    isMobileVerified: isVerified
-                }, { merge: true });
-                currentAvatar = avatarUrl;
-                miniPicture.innerHTML = avatarUrl ? `<img src="${avatarUrl}">` : (username[0]?.toUpperCase() || 'P');
-                profileImage.innerHTML = avatarUrl ? `<img src="${avatarUrl}"><span class="pencil">✏</span>` : `${username[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
-                showMessage('Profile updated!', 'success');
-                showContainer(dashboard);
-            } catch (error) {
-                showMessage(error.message, 'error');
-            }
-        });
-
-        // Game Logic
-        playButton.addEventListener('click', startRandomMatch);
-
-        playWithFriend.addEventListener('click', () => {
-            showContainer(gamePage);
-        });
-
-        createRoom.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const userData = userDoc.data() || {};
-            const roomData = {
-                player1: user.uid,
-                player1Username: userData.username || 'Player',
-                player1Avatar: userData.avatar || '',
-                player2: null,
-                player2Username: null,
-                player2Avatar: null,
-                board: ['', '', '', '', '', '', '', '', ''],
-                turn: 'X',
-                status: 'waiting',
-                createdAt: Date.now()
-            };
-            const roomRef = await addDoc(collection(db, 'rooms'), roomData);
-            currentRoomId = roomRef.id;
-            currentPlayer = 'X';
-            showContainer(gameRoom);
-            roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
-            gameStatus.textContent = 'Waiting for opponent...';
-            listenToRoom(currentRoomId);
-        });
-
-        joinRoom.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            const roomId = roomIdInput.value.trim();
-            if (!roomId) {
-                showMessage('Enter a Room ID', 'error');
-                return;
-            }
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const userData = userDoc.data() || {};
-            const roomDoc = await getDoc(doc(db, 'rooms', roomId));
-            if (!roomDoc.exists()) {
-                showMessage('Room not found', 'error');
-                return;
-            }
-            const roomData = roomDoc.data();
-            if (roomData.player2) {
-                showMessage('Room is full', 'error');
-                return;
-            }
-            if (roomData.player1 === user.uid) {
-                showMessage('Cannot join your own room', 'error');
-                return;
-            }
-            await updateDoc(doc(db, 'rooms', roomId), {
-                player2: user.uid,
-                player2Username: userData.username || 'Player',
-                player2Avatar: userData.avatar || '',
-                status: 'active'
-            });
-            currentRoomId = roomId;
-            currentPlayer = 'O';
-            showContainer(gameRoom);
-            roomIdDisplay.textContent = `Room ID: ${roomId}`;
-            listenToRoom(roomId);
-            showMessage('Joined room!', 'success');
-        });
-
-        backToDashboard.addEventListener('click', () => {
-            showContainer(dashboard);
-        });
-
-        async function startRandomMatch() {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            showContainer(waitingArea);
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const userData = userDoc.data() || {};
-            const username = userData.username || 'Player';
-            const avatar = userData.avatar || '';
-            const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
-            const existing = await getDocs(q);
-            const opponentDocs = existing.docs.filter(doc => doc.data().userId !== user.uid);
-            if (opponentDocs.length > 0) {
-                const opponent = opponentDocs[0].data();
-                const roomData = {
-                    player1: user.uid,
-                    player1Username: username,
-                    player1Avatar: avatar,
-                    player2: opponent.userId,
-                    player2Username: opponent.username,
-                    player2Avatar: opponent.avatar,
-                    board: ['', '', '', '', '', '', '', '', ''],
-                    turn: 'X',
-                    status: 'active',
-                    createdAt: Date.now()
-                };
-                const roomRef = await addDoc(collection(db, 'rooms'), roomData);
-                await updateDoc(doc(db, 'matchmaking', opponentDocs[0].id), {
-                    status: 'paired',
-                    roomId: roomRef.id
-                });
-                currentRoomId = roomRef.id;
-                currentPlayer = 'X';
-                showContainer(gameRoom);
-                listenToRoom(roomRef.id);
-            } else {
-                const matchmakingData = {
-                    userId: user.uid,
-                    username,
-                    avatar,
-                    status: 'waiting',
-                    timestamp: Date.now()
-                };
-                const matchmakingRef = await addDoc(collection(db, 'matchmaking'), matchmakingData);
-                const unsubscribe = onSnapshot(doc(db, 'matchmaking', matchmakingRef.id), snapshot => {
-                    if (!snapshot.exists()) return;
-                    const data = snapshot.data();
-                    if (data.status === 'paired' && data.roomId) {
-                        currentRoomId = data.roomId;
-                        currentPlayer = 'O';
-                        unsubscribe();
-                        showContainer(gameRoom);
-                        listenToRoom(currentRoomId);
-                    }
-                });
-                setTimeout(async () => {
-                    unsubscribe();
-                    await deleteDoc(doc(db, 'matchmaking', matchmakingRef.id));
-                    showContainer(dashboard);
-                    showMessage('No opponent found', 'error');
-                }, 20000);
-            }
-        }
-
-        function listenToRoom(roomId) {
-            if (unsubscribeRoom) unsubscribeRoom();
-            unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), async snapshot => {
-                if (!snapshot.exists()) {
-                    showMessage('Room closed', 'error');
-                    cleanupGame();
-                    return;
-                }
-                const data = snapshot.data();
-                if (data.status === 'active' && data.player1 && data.player2) {
-                    let winner = data.winner || checkWinner(data.board);
-                    if (winner && !data.winner) {
-                        await updateDoc(doc(db, 'rooms', roomId), { winner, status: 'finished' });
-                    }
-                    gameStatus.textContent = data.turn === currentPlayer ? 'Your turn' : 'Opponent’s turn';
-                    player1Name.textContent = data.player1Username || 'Player 1';
-                    player2Name.textContent = data.player2Username || 'Player 2';
-                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}">` : (data.player1Username ? data.player1Username[0].toUpperCase() : 'P');
-                    player2Avatar.innerHTML = data.player2Avatar ? `<img src="${data.player2Avatar}">` : (data.player2Username ? data.player2Username[0].toUpperCase() : 'P');
-                    renderBoard(data.board);
-                    if (winner) {
-                        await handleGameEnd(winner);
-                    }
-                } else {
-                    player1Name.textContent = data.player1Username || 'Player 1';
-                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}">` : (data.player1Username ? data.player1Username[0].toUpperCase() : 'P');
-                    player2Name.textContent = 'Waiting...';
-                    player2Avatar.innerHTML = '';
-                    gameStatus.textContent = 'Waiting for opponent...';
-                }
-            });
-        }
-
-        function renderBoard(board) {
-            const cells = gameBoard.querySelectorAll('.cell');
-            cells.forEach((cell, index) => {
-                cell.textContent = board[index];
-                cell.className = 'cell';
-                if (board[index] === 'X') cell.classList.add('x');
-                if (board[index] === 'O') cell.classList.add('o');
-            });
-        }
-
-        function checkWinner(board) {
-            const wins = [
-                [0,1,2], [3,4,5], [6,7,8],
-                [0,3,6], [1,4,7], [2,5,8],
-                [0,4,8], [2,4,6]
-            ];
-            for (const [a, b, c] of wins) {
-                if (board[a] && board[a] === board[b] && board[b] === board[c]) {
-                    return board[a];
-                }
-            }
-            return board.every(cell => cell !== '') ? 'tie' : null;
-        }
-
-        gameBoard.addEventListener('click', async e => {
-            const cell = e.target;
-            if (!cell.classList.contains('cell') || !currentRoomId) return;
-            const index = cell.dataset.index;
-            const roomDoc = await getDoc(doc(db, 'rooms', currentRoomId));
-            const data = roomDoc.data();
-            if (!data || data.board[index] !== '' || data.winner || data.status !== 'active') return;
-            if ((currentPlayer === 'X' && data.turn !== 'X') || (currentPlayer === 'O' && data.turn !== 'O')) {
-                showMessage('Not your turn', 'error');
-                return;
-            }
-            const newBoard = [...data.board];
-            newBoard[index] = currentPlayer;
-            const newTurn = currentPlayer === 'X' ? 'O' : 'X';
-            await updateDoc(doc(db, 'rooms', currentRoomId), {
-                board: newBoard,
-                turn: newTurn
-            });
-        });
-
-        async function handleGameEnd(result) {
-            const user = auth.currentUser;
-            if (!user || !currentRoomId) return;
-            const historyData = {
-                result: result === currentPlayer ? 'win' : result === 'tie' ? 'tie' : 'loss',
-                opponent: currentPlayer === 'X' ? player2Name.textContent : player1Name.textContent,
-                timestamp: Date.now()
-            };
-            await addDoc(collection(db, 'users', user.uid, 'gameHistory'), historyData);
-            showMessage(result === currentPlayer ? 'You won!' : result === 'tie' ? 'Tie!' : 'You lost!', result === currentPlayer ? 'success' : 'error');
-            setTimeout(() => {
-                cleanupGame();
-                showContainer(dashboard);
-            }, 2000);
-        }
-
-        function cleanupGame() {
-            if (currentRoomId) {
-                updateDoc(doc(db, 'rooms', currentRoomId), { status: 'closed' }).catch(() => {});
-                currentRoomId = null;
-            }
-            if (unsubscribeRoom) {
-                unsubscribeRoom();
-                unsubscribeRoom = null;
-            }
-            currentPlayer = null;
-            gameBoard.querySelectorAll('.cell').forEach(cell => {
-                cell.textContent = '';
-                cell.className = 'cell';
-            });
-            gameStatus.textContent = '';
-            roomIdDisplay.textContent = '';
-            player1Avatar.innerHTML = '';
-            player2Avatar.innerHTML = '';
-            player1Name.textContent = '';
-            player2Name.textContent = '';
-        }
-
-        leaveRoom.addEventListener('click', () => {
-            showMessage('Left room', 'success');
-            cleanupGame();
-            showContainer(dashboard);
-        });
-
-        viewHistory.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showContainer(authContainer);
-                return;
-            }
-            const q = query(collection(db, 'users', user.uid, 'gameHistory'));
-            const snapshot = await getDocs(q);
-            matchList.innerHTML = '';
-            let wins = 0, losses = 0, ties = 0;
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.result === 'win') wins++;
-                else if (data.result === 'loss') losses++;
-                else if (data.result === 'tie') ties++;
-                const date = new Date(data.timestamp).toLocaleString();
-                const card = document.createElement('div');
-                card.className = 'match-card';
-                card.innerHTML = `Result: ${data.result}<br>Opponent: ${data.opponent || 'Unknown'}<br>Time: ${date}`;
-                matchList.appendChild(card);
-            });
-            stats.textContent = `Wins: ${wins} | Losses: ${losses} | Ties: ${ties}`;
-            showContainer(historyPage);
-        });
-
-        backToProfile.addEventListener('click', () => {
-            showContainer(profilePage);
-        });
-
-        backToDashboardFromProfile.addEventListener('click', () => {
-            showContainer(dashboard);
-        });
-
-        miniPicture.addEventListener('click', () => {
-            showContainer(profilePage);
-        });
-
-        logoutButton.addEventListener('click', async () => {
-            await signOut(auth);
-            showMessage('Logged out', 'success');
-            showContainer(authContainer);
-        });
-
-        onAuthStateChanged(auth, async user => {
-            if (user) {
-                if (!user.emailVerified) {
-                    showContainer(verifyEmail);
-                    return;
-                }
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const data = userDoc.data() || {};
-                currentUsername = data.username || 'Player';
-                currentAvatar = data.avatar || '';
-                currentMobile = data.mobileNumber || '';
-                isMobileVerified = data.isMobileVerified || false;
-                miniPicture.innerHTML = currentAvatar ? `<img src="${currentAvatar}">` : (currentUsername[0]?.toUpperCase() || 'P');
-                profileImage.innerHTML = currentAvatar ? `<img src="${currentAvatar}"><span class="pencil">✏</span>` : `${currentUsername[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
-                renderUsername();
-                renderMobile();
-                if (isSignUp) {
-                    showContainer(verifyMobile);
-                    isSignUp = false;
-                } else {
-                    showContainer(dashboard);
-                }
-            } else {
-                showContainer(authContainer);
-                currentAvatar = null;
-                currentUsername = null;
-                currentMobile = null;
-                isMobileVerified = false;
-                cleanupGame();
-            }
-        });
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-
-        body {
-            background: #F5F7FA;
-            color: #333333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 10px;
-        }
-
-        .container {
-            background: #FFFFFF;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        h2 {
-            color: #4A90E2;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .input-box {
-            margin-bottom: 15px;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #CCCCCC;
-            border-radius: 5px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            border-color: #4A90E2;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #4A90E2;
-            border: none;
-            border-radius: 5px;
-            color: #FFFFFF;
-            font-size: 16px;
-            cursor: pointer;
-            margin-bottom: 10px;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #357ABD;
-        }
-
-        .toggle-text, .forgot-password {
-            color: #4A90E2;
-            cursor: pointer;
-            font-size: 14px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .toggle-text:hover, .forgot-password:hover {
-            color: #FF6F61;
-        }
-
-        .message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 15px 20px;
-            border-radius: 5px;
-            color: #FFFFFF;
-            font-size: 16px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 1000;
-        }
-
-        .message.success {
-            background: #4A90E2;
-        }
-
-        .message.error {
-            background: #FF6F61;
-        }
-
-        .dashboard {
-            max-width: 800px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .profile-section {
-            background: #F9FAFB;
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .mini-picture {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #4A90E2;
-            color: #FFFFFF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .mini-picture img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .balance {
-            font-size: 18px;
-            color: #333333;
-        }
-
-        .dashboard-sections {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .section-card {
-            background: #F9FAFB;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .profile-image {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: #4A90E2;
-            color: #FFFFFF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 40px;
-            cursor: pointer;
-            margin: 0 auto 20px;
-            position: relative;
-        }
-
-        .profile-image img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .pencil {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            font-size: 18px;
-            color: #FF6F61;
-            cursor: pointer;
-        }
-
-        .pencil:hover {
-            color: #4A90E2;
-        }
-
-        .username-display, .mobile-display {
-            font-size: 16px;
-            color: #333333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .username-pencil, .mobile-pencil {
-            font-size: 14px;
-            color: #4A90E2;
-            cursor: pointer;
-        }
-
-        .username-pencil:hover, .mobile-pencil:hover {
-            color: #FF6F61;
-        }
-
-        .username-edit, .mobile-edit {
-            width: auto;
-            display: inline-block;
-            border: 1px solid #CCCCCC;
-            padding: 5px;
-            font-size: 16px;
-        }
-
-        .game-board {
-            display: grid;
-            grid-template-columns: repeat(3, 80px);
-            gap: 5px;
-            margin: 20px auto;
-            width: fit-content;
-        }
-
-        .cell {
-            width: 80px;
-            height: 80px;
-            background: #F9FAFB;
-            border: 1px solid #CCCCCC;
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 36px;
-            cursor: pointer;
-        }
-
-        .cell.x {
-            color: #4A90E2;
-        }
-
-        .cell.o {
-            color: #FF6F61;
-        }
-
-        .player-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .player {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .player-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #4A90E2;
-            color: #FFFFFF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-        }
-
-        .player-avatar img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .player-name {
-            font-size: 14px;
-            color: #333333;
-        }
-
-        .room-id, .status {
-            font-size: 16px;
-            color: #333333;
-            margin-bottom: 15px;
-        }
-
-        .match-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-        }
-
-        .match-card {
-            background: #F9FAFB;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: #333333;
-        }
-
-        .stats {
-            font-size: 16px;
-            color: #4A90E2;
-            margin-bottom: 15px;
-        }
-
-        .adjuster-modal {
-            max-width: 350px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .adjuster-container {
-            width: 150px;
-            height: 150px;
-            margin: 15px auto;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 1px solid #4A90E2;
-        }
-
-        .adjuster-image {
-            max-width: none;
-            position: absolute;
-        }
-
-        .adjuster-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .verify-mobile {
-            max-width: 400px;
-        }
-
-        @media (max-width: 400px) {
-            .container {
-                padding: 15px;
-            }
-
-            .game-board {
-                grid-template-columns: repeat(3, 60px);
-            }
-
-            .cell {
-                width: 60px;
-                height: 60px;
-                font-size: 28px;
-            }
-
-            .profile-image {
-                width: 80px;
-                height: 80px;
-                font-size: 32px;
-            }
-
-            .mini-picture {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-
-            .player-avatar {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Auth Container -->
-    <div class="container" id="authContainer">
-        <h2 id="formTitle">Sign Up</h2>
-        <div class="input-box">
-            <input type="email" id="email" placeholder="Email" required>
-        </div>
-        <div class="input-box">
-            <input type="password" id="password" placeholder="Password" required>
-        </div>
-        <button id="authButton">Sign Up</button>
-        <span class="toggle-text" id="toggleAuth">Already have an account? Login</span>
-        <span class="forgot-password" id="forgotPassword">Forgot Password?</span>
-    </div>
-
-    <!-- Verify Email -->
-    <div class="container" id="verifyEmail">
-        <h2>Email Verification</h2>
-        <p>Please verify your email to continue.</p>
-        <button id="resendVerification">Resend Verification</button>
-        <button id="logoutFromVerify">Logout</button>
-    </div>
-
-    <!-- Verify Mobile -->
-    <div class="container verify-mobile" id="verifyMobile">
-        <h2>Verify Mobile Number</h2>
-        <p>Enter your mobile number to enable payments.</p>
-        <div class="input-box">
-            <input type="tel" id="mobileNumber" placeholder="+1234567890" required>
-        </div>
-        <button id="sendOTP">Send OTP</button>
-        <div class="input-box" id="otpInput" style="display: none;">
-            <input type="text" id="otp" placeholder="Enter OTP" required>
-        </div>
-        <button id="verifyOTP" style="display: none;">Verify OTP</button>
-        <button id="skipMobile">Skip for Now</button>
-    </div>
-
-    <!-- Reset Password -->
-    <div class="container" id="resetPassword">
-        <h2>Reset Password</h2>
-        <div class="input-box">
-            <input type="email" id="resetEmail" placeholder="Email" required>
-        </div>
-        <button id="sendResetEmail">Send Reset Link</button>
-        <button id="backToLogin">Back</button>
-    </div>
-
-    <!-- Dashboard -->
-    <div class="container dashboard" id="dashboard">
-        <div class="profile-section">
-            <div class="mini-picture" id="miniPicture"></div>
-            <div class="balance">₹ 0</div>
-        </div>
-        <div class="dashboard-sections">
-            <div class="section-card">
-                <h3>Tasks</h3>
-                <p>Coming soon!</p>
-            </div>
-            <div class="section-card">
-                <h3>Play</h3>
-                <button id="playButton">Start Match</button>
-            </div>
-            <div class="section-card">
-                <h3>Friend</h3>
-                <button id="playWithFriend">Invite Friend</button>
-            </div>
-        </div>
-        <button id="logoutButton">Logout</button>
-    </div>
-
-    <!-- Game Page -->
-    <div class="container" id="gamePage">
-        <h2>Game Mode</h2>
-        <button id="createRoom">Create Room</button>
-        <div class="input-box">
-            <input type="text" id="roomIdInput" placeholder="Enter Room ID">
-        </div>
-        <button id="joinRoom">Join Room</button>
-        <button id="backToDashboard">Back</button>
-    </div>
-
-    <!-- Game Room -->
-    <div class="container" id="gameRoom">
-        <h2>Tic-Tac-Toe</h2>
-        <p class="room-id" id="roomIdDisplay"></p>
-        <div class="player-info">
-            <div class="player">
-                <div class="player-avatar" id="player1Avatar"></div>
-                <span class="player-name" id="player1Name"></span>
-            </div>
-            <div class="player">
-                <div class="player-avatar" id="player2Avatar"></div>
-                <span class="player-name" id="player2Name"></span>
-            </div>
-        </div>
-        <p class="status" id="gameStatus"></p>
-        <div class="game-board" id="gameBoard">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
-        </div>
-        <button id="leaveRoom">Leave Room</button>
-    </div>
-
-    <!-- Waiting Area -->
-    <div class="container" id="waitingArea">
-        <h2>Matchmaking</h2>
-        <p>Searching...</p>
-    </div>
-
-    <!-- Profile Page -->
-    <div class="container" id="profilePage">
-        <h2>Edit Profile</h2>
-        <div class="profile-image" id="profileImage">
-            <span class="pencil">✏</span>
-        </div>
-        <input type="file" id="hiddenAvatarUpload" accept="image/*" style="display: none;">
-        <div class="username-display" id="usernameDisplay"></div>
-        <div class="mobile-display" id="mobileDisplay"></div>
-        <button id="saveProfile">Save Changes</button>
-        <p>No transactions yet.</p>
-        <button id="viewHistory">Game History</button>
-        <button id="backToDashboardFromProfile">Back</button>
-    </div>
-
-    <!-- Game History -->
-    <div class="container" id="historyPage">
-        <h2>Game History</h2>
-        <div class="match-list" id="matchList"></div>
-        <div class="stats" id="stats"></div>
-        <button id="backToProfile">Back</button>
-    </div>
-
-    <!-- Picture Adjuster -->
-    <div class="container adjuster-modal" id="adjusterModal">
-        <h2>Adjust Picture</h2>
-        <div class="adjuster-container">
-            <img class="adjuster-image" id="adjusterImage">
-        </div>
-        <div class="adjuster-controls">
-            <label>Horizontal</label>
-            <input type="range" id="xPos" min="-100" max="100" value="0">
-            <label>Vertical</label>
-            <input type="range" id="yPos" min="-100" max="100" value="0">
-            <label>Zoom</label>
-            <input type="range" id="zoom" min="1" max="3" step="0.1" value="1">
-        </div>
-        <button id="confirmAdjust">Confirm</button>
-        <button id="cancelAdjust">Cancel</button>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, collection, addDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
-
-        // Firebase Config - REPLACE WITH YOUR OWN
-        const firebaseConfig = {
-            apiKey: "your-api-key",
-            authDomain: "your-project-id.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project-id.appspot.com",
-            messagingSenderId: "your-messaging-sender-id",
-            appId: "your-app-id"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        // DOM Elements
-        const authContainer = document.getElementById('authContainer');
-        const verifyEmail = document.getElementById('verifyEmail');
-        const verifyMobile = document.getElementById('verifyMobile');
-        const resetPassword = document.getElementById('resetPassword');
-        const dashboard = document.getElementById('dashboard');
-        const gamePage = document.getElementById('gamePage');
-        const gameRoom = document.getElementById('gameRoom');
-        const waitingArea = document.getElementById('waitingArea');
-        const profilePage = document.getElementById('profilePage');
-        const historyPage = document.getElementById('historyPage');
-        const adjusterModal = document.getElementById('adjusterModal');
-        const formTitle = document.getElementById('formTitle');
-        const authButton = document.getElementById('authButton');
-        const toggleAuth = document.getElementById('toggleAuth');
-        const forgotPassword = document.getElementById('forgotPassword');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const resendVerification = document.getElementById('resendVerification');
-        const logoutFromVerify = document.getElementById('logoutFromVerify');
-        const mobileNumber = document.getElementById('mobileNumber');
-        const sendOTP = document.getElementById('sendOTP');
-        const otpInput = document.getElementById('otpInput');
-        const otp = document.getElementById('otp');
-        const verifyOTP = document.getElementById('verifyOTP');
-        const skipMobile = document.getElementById('skipMobile');
-        const resetEmail = document.getElementById('resetEmail');
-        const sendResetEmail = document.getElementById('sendResetEmail');
-        const backToLogin = document.getElementById('backToLogin');
-        const miniPicture = document.getElementById('miniPicture');
-        const playButton = document.getElementById('playButton');
-        const playWithFriend = document.getElementById('playWithFriend');
-        const logoutButton = document.getElementById('logoutButton');
-        const createRoom = document.getElementById('createRoom');
-        const joinRoom = document.getElementById('joinRoom');
-        const roomIdInput = document.getElementById('roomIdInput');
-        const backToDashboard = document.getElementById('backToDashboard');
-        const roomIdDisplay = document.getElementById('roomIdDisplay');
-        const gameStatus = document.getElementById('gameStatus');
-        const gameBoard = document.getElementById('gameBoard');
-        const leaveRoom = document.getElementById('leaveRoom');
-        const player1Avatar = document.getElementById('player1Avatar');
-        const player2Avatar = document.getElementById('player2Avatar');
-        const player1Name = document.getElementById('player1Name');
-        const player2Name = document.getElementById('player2Name');
-        const profileImage = document.getElementById('profileImage');
-        const hiddenAvatarUpload = document.getElementById('hiddenAvatarUpload');
-        const usernameDisplay = document.getElementById('usernameDisplay');
-        const mobileDisplay = document.getElementById('mobileDisplay');
-        const saveProfile = document.getElementById('saveProfile');
-        const viewHistory = document.getElementById('viewHistory');
-        const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
-        const matchList = document.getElementById('matchList');
-        const stats = document.getElementById('stats');
-        const backToProfile = document.getElementById('backToProfile');
-        const adjusterImage = document.getElementById('adjusterImage');
-        const xPos = document.getElementById('xPos');
-        const yPos = document.getElementById('yPos');
-        const zoom = document.getElementById('zoom');
-        const confirmAdjust = document.getElementById('confirmAdjust');
-        const cancelAdjust = document.getElementById('cancelAdjust');
-
-        let isSignUp = true;
-        let currentRoomId = null;
-        let currentPlayer = null;
-        let unsubscribeRoom = null;
-        let currentAvatar = null;
-        let currentUsername = null;
-        let currentMobile = null;
-        let isMobileVerified = false;
-        let avatarFile = null;
-        let isEditingUsername = false;
-        let isEditingMobile = false;
-        let originalUsername = null;
-        let originalMobile = null;
-        let adjustX = 0;
-        let adjustY = 0;
-        let adjustZoom = 1;
-        let sentOTP = null;
-
-        function initializeContainers() {
-            const containers = [authContainer, verifyEmail, verifyMobile, resetPassword, dashboard, gamePage, gameRoom, waitingArea, profilePage, historyPage, adjusterModal];
-            containers.forEach(c => c.style.display = 'none');
-            authContainer.style.display = 'block';
-        }
-        initializeContainers();
-
-        function showMessage(message, type) {
-            const msg = document.createElement('div');
-            msg.className = `message ${type}`;
-            msg.textContent = message;
-            document.body.appendChild(msg);
-            msg.style.opacity = '1';
-            setTimeout(() => {
-                msg.style.opacity = '0';
-                setTimeout(() => msg.remove(), 300);
-            }, 3000);
-        }
-
-        function showContainer(container) {
-            const containers = [authContainer, verifyEmail, verifyMobile, resetPassword, dashboard, gamePage, gameRoom, waitingArea, profilePage, historyPage, adjusterModal];
-            containers.forEach(c => c.style.display = 'none');
-            container.style.display = 'block';
-        }
-
-        // Simulate OTP (Replace with Firebase Function + Twilio in production)
-        function generateOTP() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
-        async function sendOTPToMobile(number) {
-            sentOTP = generateOTP();
-            console.log(`OTP for ${number}: ${sentOTP}`); // Simulate SMS
-            showMessage(`OTP sent to ${number}`, 'success');
-            return sentOTP;
-        }
-
-        async function verifyOTPCode(inputOTP) {
-            return inputOTP === sentOTP;
-        }
-
-        // Auth
-        toggleAuth.addEventListener('click', () => {
-            isSignUp = !isSignUp;
-            formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
-            authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
-            toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
-            forgotPassword.style.display = isSignUp ? 'none' : 'inline-block';
-            emailInput.value = '';
-            passwordInput.value = '';
-        });
-
-        authButton.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            if (!email || !password) {
-                showMessage('Enter email and password', 'error');
-                return;
-            }
-            try {
-                if (isSignUp) {
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    await setDoc(doc(db, 'users', userCredential.user.uid), {
-                        username: 'Player',
-                        avatar: '',
-                        mobileNumber: '',
-                        isMobileVerified: false
-                    });
-                    await sendEmailVerification(userCredential.user);
-                    showMessage('Sign Up successful! Verify your email.', 'success');
-                    showContainer(verifyEmail);
-                } else {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showMessage('Login successful!', 'success');
-                }
-            } catch (error) {
-                showMessage(error.message, 'error');
-            }
-        });
-
-        forgotPassword.addEventListener('click', () => {
-            showContainer(resetPassword);
-        });
-
-        sendResetEmail.addEventListener('click', async () => {
-            const email = resetEmail.value;
-            if (!email) {
-                showMessage('Enter an email', 'error');
-                return;
-            }
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showMessage('Reset link sent!', 'success');
-                showContainer(authContainer);
-            } catch (error) {
-                showMessage(error.message, 'error');
-            }
-        });
-
-        backToLogin.addEventListener('click', () => {
-            showContainer(authContainer);
-            resetEmail.value = '';
-            isSignUp = false;
-            formTitle.textContent = 'Login';
-            authButton.textContent = 'Login';
-            toggleAuth.textContent = 'Need an account? Sign Up';
-            forgotPassword.style.display = 'inline-block';
-        });
-
-        resendVerification.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (user) {
-                await sendEmailVerification(user);
-                showMessage('Verification email sent!', 'success');
-            } else {
-                showMessage('Please log in again', 'error');
-                showContainer(authContainer);
-            }
-        });
-
-        logoutFromVerify.addEventListener('click', async () => {
-            await signOut(auth);
-            showMessage('Logged out', 'success');
-            showContainer(authContainer);
-        });
-
-        // Mobile Verification
-        sendOTP.addEventListener('click', async () => {
-            const number = mobileNumber.value.trim();
-            if (!/^\+\d{10,15}$/.test(number)) {
-                showMessage('Enter a valid mobile number (e.g., +1234567890)', 'error');
-                return;
-            }
-            const mobileDoc = await getDoc(doc(db, 'mobileNumbers', number));
-            if (mobileDoc.exists()) {
-                showMessage('Mobile number already used', 'error');
-                return;
-            }
-            await sendOTPToMobile(number);
-            otpInput.style.display = 'block';
-            verifyOTP.style.display = 'block';
-            sendOTP.style.display = 'none';
-        });
-
-        verifyOTP.addEventListener('click', async () => {
-            const inputOTP = otp.value.trim();
-            if (!inputOTP) {
-                showMessage('Enter OTP', 'error');
-                return;
-            }
-            const isValid = await verifyOTPCode(inputOTP);
-            if (isValid) {
-                const user = auth.currentUser;
-                const number = mobileNumber.value.trim();
-                await setDoc(doc(db, 'users', user.uid), { mobileNumber: number, isMobileVerified: true }, { merge: true });
-                await setDoc(doc(db, 'mobileNumbers', number), { userId: user.uid });
-                showMessage('Mobile verified! Payments enabled.', 'success');
-                showContainer(dashboard);
-                mobileNumber.value = '';
-                otp.value = '';
-                otpInput.style.display = 'none';
-                verifyOTP.style.display = 'none';
-                sendOTP.style.display = 'block';
-            } else {
-                showMessage('Invalid OTP', 'error');
-            }
-        });
-
-        skipMobile.addEventListener('click', () => {
-            showContainer(dashboard);
-            showMessage('Mobile verification skipped. Payments disabled.', 'error');
-        });
-
-        // Profile
-        function renderUsername() {
-            if (isEditingUsername) {
-                usernameDisplay.innerHTML = `<input class="username-edit" id="usernameEdit" value="${currentUsername || 'Player'}">`;
-                const usernameEdit = document.getElementById('usernameEdit');
-                usernameEdit.focus();
-                usernameEdit.addEventListener('blur', () => {
-                    currentUsername = usernameEdit.value.trim() || originalUsername;
-                    isEditingUsername = false;
-                    renderUsername();
-                });
-                usernameEdit.addEventListener('keypress', e => {
-                    if (e.key === 'Enter') {
-                        currentUsername = usernameEdit.value.trim() || originalUsername;
-                        isEditingUsername = false;
-                        renderUsername();
-                    }
-                });
-            } else {
-                usernameDisplay.innerHTML = `${currentUsername || 'Player'} <span class="username-pencil">✏</span>`;
-                const pencil = usernameDisplay.querySelector('.username-pencil');
-                pencil.addEventListener('click', () => {
-                    originalUsername = currentUsername;
-                    isEditingUsername = true;
-                    renderUsername();
-                });
-            }
-        }
-
-        function renderMobile() {
-            if (isEditingMobile) {
-                mobileDisplay.innerHTML = `<input class="mobile-edit" id="mobileEdit" value="${currentMobile || ''}" placeholder="+1234567890">`;
-                const mobileEdit = document.getElementById('mobileEdit');
-                mobileEdit.focus();
-                mobileEdit.addEventListener('blur', async () => {
-                    const newMobile = mobileEdit.value.trim();
-                    if (newMobile && !/^\+\d{10,15}$/.test(newMobile)) {
-                        showMessage('Invalid mobile number', 'error');
-                        currentMobile = originalMobile;
-                    } else if (newMobile && newMobile !== originalMobile) {
-                        const mobileDoc = await getDoc(doc(db, 'mobileNumbers', newMobile));
-                        if (mobileDoc.exists()) {
-                            showMessage('Mobile number already used', 'error');
-                            currentMobile = originalMobile;
-                        } else {
-                            await sendOTPToMobile(newMobile);
-                            showContainer(verifyMobile);
-                            mobileNumber.value = newMobile;
-                            otpInput.style.display = 'block';
-                            verifyOTP.style.display = 'block';
-                            sendOTP.style.display = 'none';
-                            verifyOTP.onclick = async () => {
-                                const inputOTP = otp.value.trim();
-                                if (await verifyOTPCode(inputOTP)) {
-                                    currentMobile = newMobile;
-                                    showMessage('Mobile verified', 'success');
-                                    showContainer(profilePage);
-                                } else {
-                                    showMessage('Invalid OTP', 'error');
-                                    currentMobile = originalMobile;
-                                }
-                                otpInput.style.display = 'none';
-                                verifyOTP.style.display = 'none';
-                                sendOTP.style.display = 'block';
-                                mobileNumber.value = '';
-                                otp.value = '';
-                                isEditingMobile = false;
-                                renderMobile();
-                            };
-                            return;
-                        }
-                    } else {
-                        currentMobile = originalMobile;
-                    }
-                    isEditingMobile = false;
-                    renderMobile();
-                });
-            } else {
-                mobileDisplay.innerHTML = `${currentMobile || 'No mobile number'} <span class="mobile-pencil">✏</span>`;
-                const pencil = mobileDisplay.querySelector('.mobile-pencil');
-                pencil.addEventListener('click', () => {
-                    originalMobile = currentMobile;
-                    isEditingMobile = true;
-                    renderMobile();
-                });
-            }
-        }
-
-        profileImage.addEventListener('click', () => {
-            hiddenAvatarUpload.click();
-        });
-
-        hiddenAvatarUpload.addEventListener('change', () => {
-            if (hiddenAvatarUpload.files.length > 0) {
-                const file = hiddenAvatarUpload.files[0];
-                if (file.size > 2 * 1024 * 1024) {
-                    showMessage('Image must be under 2MB', 'error');
-                    return;
-                }
-                avatarFile = file;
-                adjusterImage.src = URL.createObjectURL(file);
-                adjustX = 0;
-                adjustY = 0;
-                adjustZoom = 1;
-                xPos.value = 0;
-                yPos.value = 0;
-                zoom.value = 1;
-                updateAdjusterImage();
-                showContainer(adjusterModal);
-            }
-        });
-
-        function updateAdjusterImage() {
-            const containerSize = 150;
-            const scale = adjustZoom;
-            const imgWidth = adjusterImage.naturalWidth * scale;
-            const imgHeight = adjusterImage.naturalHeight * scale;
-            const offsetX = (adjustX / 100) * (imgWidth - containerSize);
-            const offsetY = (adjustY / 100) * (imgHeight - containerSize);
-            adjusterImage.style.transform = `translate(${-offsetX}px, ${-offsetY}px) scale(${scale})`;
-        }
-
-        xPos.addEventListener('input', () => {
-            adjustX = parseInt(xPos.value);
-            updateAdjusterImage();
-        });
-
-        yPos.addEventListener('input', () => {
-            adjustY = parseInt(yPos.value);
-            updateAdjusterImage();
-        });
-
-        zoom.addEventListener('input', () => {
-            adjustZoom = parseFloat(zoom.value);
-            updateAdjusterImage();
-        });
-
-        confirmAdjust.addEventListener('click', () => {
-            if (avatarFile) {
-                cropImage(avatarFile).then(croppedFile => {
-                    avatarFile = croppedFile;
-                    profileImage.innerHTML = `<img src="${URL.createObjectURL(croppedFile)}"><span class="pencil">✏</span>`;
-                    showContainer(profilePage);
-                }).catch(() => {
-                    showMessage('Error adjusting image', 'error');
-                    showContainer(profilePage);
-                });
-            }
-        });
-
-        cancelAdjust.addEventListener('click', () => {
-            avatarFile = null;
-            hiddenAvatarUpload.value = '';
-            showContainer(profilePage);
-        });
-
-        async function cropImage(file) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const size = 150;
-                    canvas.width = size;
-                    canvas.height = size;
-                    const scale = adjustZoom;
-                    const imgWidth = img.width * scale;
-                    const imgHeight = img.height * scale;
-                    const offsetX = (adjustX / 100) * (imgWidth - size);
-                    const offsetY = (adjustY / 100) * (imgHeight - size);
-                    ctx.drawImage(img, -offsetX, -offsetY, imgWidth, imgHeight);
-                    canvas.toBlob(blob => {
-                        if (blob) {
-                            resolve(new File([blob], file.name, { type: file.type }));
-                        } else {
-                            reject(new Error('Failed to crop'));
-                        }
-                    }, file.type);
-                };
-                img.onerror = () => reject(new Error('Failed to load image'));
-            });
-        }
-
-        saveProfile.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            const username = currentUsername?.trim();
-            if (!username) {
-                showMessage('Username cannot be empty', 'error');
-                return;
-            }
-            try {
-                let avatarUrl = currentAvatar;
-                let mobileNumber = currentMobile;
-                let isVerified = isMobileVerified;
-                if (avatarFile) {
-                    const storageRef = ref(storage, `avatars/${user.uid}`);
-                    await uploadBytes(storageRef, avatarFile);
-                    avatarUrl = await getDownloadURL(storageRef);
-                    avatarFile = null;
-                }
-                if (mobileNumber && mobileNumber !== originalMobile && !isEditingMobile) {
-                    const mobileDoc = await getDoc(doc(db, 'mobileNumbers', mobileNumber));
-                    if (mobileDoc.exists()) {
-                        showMessage('Mobile number already used', 'error');
-                        return;
-                    }
-                    isVerified = true;
-                    await setDoc(doc(db, 'mobileNumbers', mobileNumber), { userId: user.uid });
-                    if (originalMobile) {
-                        await deleteDoc(doc(db, 'mobileNumbers', originalMobile));
-                    }
-                }
-                await setDoc(doc(db, 'users', user.uid), {
-                    username,
-                    avatar: avatarUrl || '',
-                    mobileNumber: mobileNumber || '',
-                    isMobileVerified: isVerified
-                }, { merge: true });
-                currentAvatar = avatarUrl;
-                miniPicture.innerHTML = avatarUrl ? `<img src="${avatarUrl}">` : (username[0]?.toUpperCase() || 'P');
-                profileImage.innerHTML = avatarUrl ? `<img src="${avatarUrl}"><span class="pencil">✏</span>` : `${username[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
-                showMessage('Profile updated!', 'success');
-                showContainer(dashboard);
-            } catch (error) {
-                showMessage(error.message, 'error');
-            }
-        });
-
-        // Game Logic
-        playButton.addEventListener('click', startRandomMatch);
-
-        playWithFriend.addEventListener('click', () => {
-            showContainer(gamePage);
-        });
-
-        createRoom.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const userData = userDoc.data() || {};
-            const roomData = {
-                player1: user.uid,
-                player1Username: userData.username || 'Player',
-                player1Avatar: userData.avatar || '',
-                player2: null,
-                player2Username: null,
-                player2Avatar: null,
-                board: ['', '', '', '', '', '', '', '', ''],
-                turn: 'X',
-                status: 'waiting',
-                createdAt: Date.now()
-            };
-            const roomRef = await addDoc(collection(db, 'rooms'), roomData);
-            currentRoomId = roomRef.id;
-            currentPlayer = 'X';
-            showContainer(gameRoom);
-            roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
-            gameStatus.textContent = 'Waiting for opponent...';
-            listenToRoom(currentRoomId);
-        });
-
-        joinRoom.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            const roomId = roomIdInput.value.trim();
-            if (!roomId) {
-                showMessage('Enter a Room ID', 'error');
-                return;
-            }
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const userData = userDoc.data() || {};
-            const roomDoc = await getDoc(doc(db, 'rooms', roomId));
-            if (!roomDoc.exists()) {
-                showMessage('Room not found', 'error');
-                return;
-            }
-            const roomData = roomDoc.data();
-            if (roomData.player2) {
-                showMessage('Room is full', 'error');
-                return;
-            }
-            if (roomData.player1 === user.uid) {
-                showMessage('Cannot join your own room', 'error');
-                return;
-            }
-            await updateDoc(doc(db, 'rooms', roomId), {
-                player2: user.uid,
-                player2Username: userData.username || 'Player',
-                player2Avatar: userData.avatar || '',
-                status: 'active'
-            });
-            currentRoomId = roomId;
-            currentPlayer = 'O';
-            showContainer(gameRoom);
-            roomIdDisplay.textContent = `Room ID: ${roomId}`;
-            listenToRoom(roomId);
-            showMessage('Joined room!', 'success');
-        });
-
-        backToDashboard.addEventListener('click', () => {
-            showContainer(dashboard);
-        });
-
-        async function startRandomMatch() {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            showContainer(waitingArea);
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const userData = userDoc.data() || {};
-            const username = userData.username || 'Player';
-            const avatar = userData.avatar || '';
-            const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
-            const existing = await getDocs(q);
-            const opponentDocs = existing.docs.filter(doc => doc.data().userId !== user.uid);
-            if (opponentDocs.length > 0) {
-                const opponent = opponentDocs[0].data();
-                const roomData = {
-                    player1: user.uid,
-                    player1Username: username,
-                    player1Avatar: avatar,
-                    player2: opponent.userId,
-                    player2Username: opponent.username,
-                    player2Avatar: opponent.avatar,
-                    board: ['', '', '', '', '', '', '', '', ''],
-                    turn: 'X',
-                    status: 'active',
-                    createdAt: Date.now()
-                };
-                const roomRef = await addDoc(collection(db, 'rooms'), roomData);
-                await updateDoc(doc(db, 'matchmaking', opponentDocs[0].id), {
-                    status: 'paired',
-                    roomId: roomRef.id
-                });
-                currentRoomId = roomRef.id;
-                currentPlayer = 'X';
-                showContainer(gameRoom);
-                listenToRoom(roomRef.id);
-            } else {
-                const matchmakingData = {
-                    userId: user.uid,
-                    username,
-                    avatar,
-                    status: 'waiting',
-                    timestamp: Date.now()
-                };
-                const matchmakingRef = await addDoc(collection(db, 'matchmaking'), matchmakingData);
-                const unsubscribe = onSnapshot(doc(db, 'matchmaking', matchmakingRef.id), snapshot => {
-                    if (!snapshot.exists()) return;
-                    const data = snapshot.data();
-                    if (data.status === 'paired' && data.roomId) {
-                        currentRoomId = data.roomId;
-                        currentPlayer = 'O';
-                        unsubscribe();
-                        showContainer(gameRoom);
-                        listenToRoom(currentRoomId);
-                    }
-                });
-                setTimeout(async () => {
-                    unsubscribe();
-                    await deleteDoc(doc(db, 'matchmaking', matchmakingRef.id));
-                    showContainer(dashboard);
-                    showMessage('No opponent found', 'error');
-                }, 20000);
-            }
-        }
-
-        function listenToRoom(roomId) {
-            if (unsubscribeRoom) unsubscribeRoom();
-            unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), async snapshot => {
-                if (!snapshot.exists()) {
-                    showMessage('Room closed', 'error');
-                    cleanupGame();
-                    return;
-                }
-                const data = snapshot.data();
-                if (data.status === 'active' && data.player1 && data.player2) {
-                    let winner = data.winner || checkWinner(data.board);
-                    if (winner && !data.winner) {
-                        await updateDoc(doc(db, 'rooms', roomId), { winner, status: 'finished' });
-                    }
-                    gameStatus.textContent = data.turn === currentPlayer ? 'Your turn' : 'Opponent’s turn';
-                    player1Name.textContent = data.player1Username || 'Player 1';
-                    player2Name.textContent = data.player2Username || 'Player 2';
-                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}">` : (data.player1Username ? data.player1Username[0].toUpperCase() : 'P');
-                    player2Avatar.innerHTML = data.player2Avatar ? `<img src="${data.player2Avatar}">` : (data.player2Username ? data.player2Username[0].toUpperCase() : 'P');
-                    renderBoard(data.board);
-                    if (winner) {
-                        await handleGameEnd(winner);
-                    }
-                } else {
-                    player1Name.textContent = data.player1Username || 'Player 1';
-                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}">` : (data.player1Username ? data.player1Username[0].toUpperCase() : 'P');
-                    player2Name.textContent = 'Waiting...';
-                    player2Avatar.innerHTML = '';
-                    gameStatus.textContent = 'Waiting for opponent...';
-                }
-            });
-        }
-
-        function renderBoard(board) {
-            const cells = gameBoard.querySelectorAll('.cell');
-            cells.forEach((cell, index) => {
-                cell.textContent = board[index];
-                cell.className = 'cell';
-                if (board[index] === 'X') cell.classList.add('x');
-                if (board[index] === 'O') cell.classList.add('o');
-            });
-        }
-
-        function checkWinner(board) {
-            const wins = [
-                [0,1,2], [3,4,5], [6,7,8],
-                [0,3,6], [1,4,7], [2,5,8],
-                [0,4,8], [2,4,6]
-            ];
-            for (const [a, b, c] of wins) {
-                if (board[a] && board[a] === board[b] && board[b] === board[c]) {
-                    return board[a];
-                }
-            }
-            return board.every(cell => cell !== '') ? 'tie' : null;
-        }
-
-        gameBoard.addEventListener('click', async e => {
-            const cell = e.target;
-            if (!cell.classList.contains('cell') || !currentRoomId) return;
-            const index = cell.dataset.index;
-            const roomDoc = await getDoc(doc(db, 'rooms', currentRoomId));
-            const data = roomDoc.data();
-            if (!data || data.board[index] !== '' || data.winner || data.status !== 'active') return;
-            if ((currentPlayer === 'X' && data.turn !== 'X') || (currentPlayer === 'O' && data.turn !== 'O')) {
-                showMessage('Not your turn', 'error');
-                return;
-            }
-            const newBoard = [...data.board];
-            newBoard[index] = currentPlayer;
-            const newTurn = currentPlayer === 'X' ? 'O' : 'X';
-            await updateDoc(doc(db, 'rooms', currentRoomId), {
-                board: newBoard,
-                turn: newTurn
-            });
-        });
-
-        async function handleGameEnd(result) {
-            const user = auth.currentUser;
-            if (!user || !currentRoomId) return;
-            const historyData = {
-                result: result === currentPlayer ? 'win' : result === 'tie' ? 'tie' : 'loss',
-                opponent: currentPlayer === 'X' ? player2Name.textContent : player1Name.textContent,
-                timestamp: Date.now()
-            };
-            await addDoc(collection(db, 'users', user.uid, 'gameHistory'), historyData);
-            showMessage(result === currentPlayer ? 'You won!' : result === 'tie' ? 'Tie!' : 'You lost!', result === currentPlayer ? 'success' : 'error');
-            setTimeout(() => {
-                cleanupGame();
-                showContainer(dashboard);
-            }, 2000);
-        }
-
-        function cleanupGame() {
-            if (currentRoomId) {
-                updateDoc(doc(db, 'rooms', currentRoomId), { status: 'closed' }).catch(() => {});
-                currentRoomId = null;
-            }
-            if (unsubscribeRoom) {
-                unsubscribeRoom();
-                unsubscribeRoom = null;
-            }
-            currentPlayer = null;
-            gameBoard.querySelectorAll('.cell').forEach(cell => {
-                cell.textContent = '';
-                cell.className = 'cell';
-            });
-            gameStatus.textContent = '';
-            roomIdDisplay.textContent = '';
-            player1Avatar.innerHTML = '';
-            player2Avatar.innerHTML = '';
-            player1Name.textContent = '';
-            player2Name.textContent = '';
-        }
-
-        leaveRoom.addEventListener('click', () => {
-            showMessage('Left room', 'success');
-            cleanupGame();
-            showContainer(dashboard);
-        });
-
-        viewHistory.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showContainer(authContainer);
-                return;
-            }
-            const q = query(collection(db, 'users', user.uid, 'gameHistory'));
-            const snapshot = await getDocs(q);
-            matchList.innerHTML = '';
-            let wins = 0, losses = 0, ties = 0;
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.result === 'win') wins++;
-                else if (data.result === 'loss') losses++;
-                else if (data.result === 'tie') ties++;
-                const date = new Date(data.timestamp).toLocaleString();
-                const card = document.createElement('div');
-                card.className = 'match-card';
-                card.innerHTML = `Result: ${data.result}<br>Opponent: ${data.opponent || 'Unknown'}<br>Time: ${date}`;
-                matchList.appendChild(card);
-            });
-            stats.textContent = `Wins: ${wins} | Losses: ${losses} | Ties: ${ties}`;
-            showContainer(historyPage);
-        });
-
-        backToProfile.addEventListener('click', () => {
-            showContainer(profilePage);
-        });
-
-        backToDashboardFromProfile.addEventListener('click', () => {
-            showContainer(dashboard);
-        });
-
-        miniPicture.addEventListener('click', () => {
-            showContainer(profilePage);
-        });
-
-        logoutButton.addEventListener('click', async () => {
-            await signOut(auth);
-            showMessage('Logged out', 'success');
-            showContainer(authContainer);
-        });
-
-        onAuthStateChanged(auth, async user => {
-            if (user) {
-                if (!user.emailVerified) {
-                    showContainer(verifyEmail);
-                    return;
-                }
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const data = userDoc.data() || {};
-                currentUsername = data.username || 'Player';
-                currentAvatar = data.avatar || '';
-                currentMobile = data.mobileNumber || '';
-                isMobileVerified = data.isMobileVerified || false;
-                miniPicture.innerHTML = currentAvatar ? `<img src="${currentAvatar}">` : (currentUsername[0]?.toUpperCase() || 'P');
-                profileImage.innerHTML = currentAvatar ? `<img src="${currentAvatar}"><span class="pencil">✏</span>` : `${currentUsername[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
-                renderUsername();
-                renderMobile();
-                if (isSignUp) {
-                    showContainer(verifyMobile);
-                    isSignUp = false;
-                } else {
-                    showContainer(dashboard);
-                }
-            } else {
-                showContainer(authContainer);
-                currentAvatar = null;
-                currentUsername = null;
-                currentMobile = null;
-                isMobileVerified = false;
                 cleanupGame();
             }
         });
