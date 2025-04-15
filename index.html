@@ -3,37 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Tic-Tac-Toe</title>
+    <title>Neon Firebase Tic-Tac-Toe</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        :root {
-            --bg-color: #f5f7fa;
-            --card-bg: #ffffff;
-            --text-color: #1a202c;
-            --accent-color: #2b6cb0;
-            --secondary-color: #718096;
-            --border-color: #e2e8f0;
-            --hover-bg: #edf2f7;
-            --success-bg: #48bb78;
-            --error-bg: #f56565;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #1a202c;
-            --card-bg: #2d3748;
-            --text-color: #e2e8f0;
-            --accent-color: #63b3ed;
-            --secondary-color: #a0aec0;
-            --border-color: #4a5568;
-            --hover-bg: #4a5568;
-            --success-bg: #38a169;
-            --error-bg: #e53e3e;
+            font-family: 'Montserrat', 'Arial', sans-serif;
         }
 
         body {
@@ -41,65 +17,82 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
+            background: linear-gradient(135deg, #1C2526 0%, #2A2E6B 100%);
+            background-size: 200% 200%;
+            animation: gradientWave 15s ease infinite;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .container {
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 480px;
+            background: rgba(30, 35, 55, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 88, 255, 0.3);
+            width: 420px;
             text-align: center;
-            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 132, 0.2);
         }
 
         .dashboard {
+            width: 80vw;
             max-width: 1200px;
-            padding: 32px;
+            min-height: 80vh;
+            padding: 40px;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 30px;
         }
 
         h2 {
-            color: var(--text-color);
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 16px;
+            color: #FFD700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 20px;
         }
 
         .profile-section {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #FFD700;
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+            height: 120px;
+            position: relative;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
+            justify-content: center;
+            margin-bottom: 30px;
         }
 
         .mini-picture {
-            width: 64px;
-            height: 64px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            background: var(--border-color);
-            border: 2px solid var(--accent-color);
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #7B00FF;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
-            color: var(--text-color);
+            font-size: 36px;
+            color: #FFD700;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
         }
 
         .mini-picture:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(123, 0, 255, 0.5);
         }
 
         .mini-picture img {
@@ -110,128 +103,137 @@
         }
 
         .balance {
-            background: var(--hover-bg);
-            border: 1px solid var(--border-color);
+            background: rgba(123, 0, 255, 0.2);
+            border: 1px solid #7B00FF;
             border-radius: 8px;
-            padding: 8px 16px;
-            color: var(--text-color);
-            font-size: 18px;
+            padding: 8px 20px;
+            color: #FFD700;
+            font-size: 20px;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);
         }
 
         .wallet {
-            width: 48px;
-            height: 48px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            background: var(--accent-color);
-            border: 2px solid var(--border-color);
+            background: #00FF84;
+            border: 2px solid #FFD700;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
-            color: var(--card-bg);
+            font-size: 22px;
+            color: #1C2526;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
         }
 
         .wallet:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(0, 255, 132, 0.5);
         }
 
         .dashboard-sections {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
         }
 
         .section-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #0058FF;
+            border-radius: 15px;
+            padding: 25px;
             text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
         }
 
         .section-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 88, 255, 0.5);
+            border-color: #00FF84;
         }
 
         .section-card h3 {
-            color: var(--text-color);
-            font-size: 18px;
-            margin-bottom: 16px;
+            color: #FFFFFF;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(0, 88, 255, 0.5);
         }
 
         .section-card button {
             width: 100%;
             padding: 12px;
-            background: var(--accent-color);
+            background: linear-gradient(45deg, #0058FF, #7B00FF);
             border: none;
-            border-radius: 8px;
-            color: var(--card-bg);
+            border-radius: 10px;
+            color: #FFFFFF;
             font-size: 16px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
         }
 
         .section-card button:hover {
-            background: #2c5282;
+            background: linear-gradient(45deg, #00FF84, #00C4B4);
+            transform: translateY(-2px);
         }
 
         input {
             width: 100%;
-            padding: 12px;
-            background: var(--hover-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-color);
-            font-size: 16px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
             outline: none;
-            transition: border-color 0.2s;
+            border-radius: 30px;
+            color: #FFFFFF;
+            font-size: 16px;
+            box-shadow: inset 0 0 5px rgba(0, 255, 132, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
 
         input:focus {
-            border-color: var(--accent-color);
+            box-shadow: 0 0 15px #0058FF;
+            background: rgba(255, 255, 255, 0.15);
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background: var(--accent-color);
+            padding: 14px;
+            background: linear-gradient(45deg, #0058FF, #7B00FF);
             border: none;
-            border-radius: 8px;
-            color: var(--card-bg);
+            border-radius: 10px;
+            color: #FFFFFF;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            margin: 8px 0;
-            transition: background 0.2s;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
         }
 
         button:hover {
-            background: #2c5282;
-        }
-
-        .delete-button {
-            background: #e53e3e;
-        }
-
-        .delete-button:hover {
-            background: #c53030;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 88, 255, 0.5);
         }
 
         .toggle-text, .forgot-password {
-            color: var(--accent-color);
+            color: #00FF84;
             cursor: pointer;
-            margin-top: 12px;
+            margin-top: 15px;
             display: inline-block;
             font-size: 14px;
-            transition: color 0.2s;
+            text-shadow: 0 0 5px rgba(0, 255, 132, 0.5);
+            transition: color 0.3s ease;
         }
 
         .toggle-text:hover, .forgot-password:hover {
-            color: #2c5282;
+            color: #FFD700;
         }
 
         .message {
@@ -239,41 +241,47 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 12px 24px;
-            border-radius: 8px;
-            color: var(--card-bg);
+            padding: 15px 30px;
+            border-radius: 12px;
+            color: #FFFFFF;
             font-size: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px #0058FF, 0 0 20px #00FF84, 0 0 30px #7B00FF;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease;
             z-index: 1000;
         }
 
         .message.success {
-            background: var(--success-bg);
+            background: linear-gradient(45deg, #00FF84, #00C4B4);
         }
 
         .message.error {
-            background: var(--error-bg);
+            background: linear-gradient(45deg, #FF3B30, #FF9500);
         }
 
         .verify-email, .reset-password {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 32px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 480px;
+            background: rgba(30, 35, 55, 0.95);
+            border: 1px solid rgba(0, 255, 132, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 88, 255, 0.4);
+            padding: 40px;
+            border-radius: 20px;
+            width: 450px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .verify-email p, .reset-password p {
-            color: var(--text-color);
+            color: #FFFFFF;
             font-size: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
         }
 
-        .game-page, .game-room, .waiting-area, .profile-page, .history-page {
+        .game-page, .game-room, .waiting-area, .profile-page, .history-page, .adjuster-modal {
             display: none;
         }
 
@@ -281,21 +289,22 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            border: 2px solid var(--accent-color);
-            background: var(--hover-bg);
+            border: 3px solid #7B00FF;
+            background: rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 48px;
-            color: var(--text-color);
+            color: #FFD700;
             cursor: pointer;
-            margin: 0 auto 16px;
+            margin: 0 auto 25px;
+            transition: all 0.3s ease;
             position: relative;
-            transition: transform 0.2s;
         }
 
         .profile-image:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(123, 0, 255, 0.6);
         }
 
         .profile-image img {
@@ -305,171 +314,151 @@
             object-fit: cover;
         }
 
-        .profile-image .pencil {
+        .pencil {
             position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: var(--accent-color);
-            color: var(--card-bg);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        .username-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .username {
-            font-size: 18px;
-            color: var(--text-color);
+            bottom: 5px;
+            right: 5px;
+            font-size: 20px;
+            color: #00FF84;
+            text-shadow: 0 0 5px rgba(0, 255, 132, 0.7);
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .username .pencil {
-            font-size: 14px;
-            color: var(--accent-color);
+        .pencil:hover {
+            color: #FFD700;
+            transform: scale(1.2);
         }
 
-        .username-input {
-            display: none;
+        .username-display {
+            color: #FFD700;
             font-size: 18px;
-            padding: 8px;
-            width: auto;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .cropper-container {
-            display: none;
-            margin: 16px 0;
-            text-align: left;
+        .username-pencil {
+            font-size: 16px;
+            color: #FFD700;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .cropper-container canvas {
-            max-width: 100%;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+        .username-pencil:hover {
+            color: #00FF84;
+            transform: scale(1.2);
         }
 
-        .cropper-controls {
-            margin-top: 8px;
-        }
-
-        .cropper-controls label {
-            display: block;
-            margin-bottom: 4px;
-            color: var(--text-color);
-        }
-
-        .theme-toggle {
-            background: var(--secondary-color);
-        }
-
-        .theme-toggle:hover {
-            background: #4a5568;
+        .username-edit {
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            font-size: 18px;
+            padding: 5px;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 255, 132, 0.5);
+            text-align: center;
         }
 
         .history-page .match-list {
             max-height: 400px;
             overflow-y: auto;
-            padding: 12px;
+            padding: 15px;
         }
 
         .match-card {
-            background: var(--hover-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            color: var(--text-color);
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #7B00FF;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #FFFFFF;
             font-size: 14px;
         }
 
         .match-card.win {
-            border-color: var(--success-bg);
+            border-color: #FFD700;
         }
 
         .match-card.loss {
-            border-color: var(--error-bg);
+            border-color: #FF3B30;
         }
 
         .match-card.tie {
-            border-color: var(--accent-color);
+            border-color: #00FF84;
         }
 
         .stats {
-            margin: 16px 0;
-            color: var(--text-color);
+            color: #FFD700;
             font-size: 16px;
+            margin: 20px 0;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);
         }
 
         .game-board {
             display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-gap: 8px;
-            margin: 24px auto;
-            width: 316px;
+            grid-template-columns: repeat(3, 110px);
+            grid-gap: 10px;
+            margin: 30px auto;
+            width: 350px;
         }
 
         .cell {
-            width: 100px;
-            height: 100px;
-            background: var(--hover-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
+            width: 110px;
+            height: 110px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #7B00FF;
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 48px;
-            color: var(--text-color);
+            font-size: 50px;
+            color: #FFFFFF;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
         }
 
         .cell:hover {
-            background: var(--border-color);
+            background: rgba(123, 0, 255, 0.2);
+            transform: scale(1.05);
         }
 
         .cell.x {
-            color: var(--accent-color);
+            color: #FFD700;
         }
 
         .cell.o {
-            color: var(--secondary-color);
+            color: #00FF84;
         }
 
         .player-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .player {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .player-avatar {
-            width: 48px;
-            height: 48px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: var(--hover-bg);
-            border: 2px solid var(--accent-color);
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #7B00FF;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
-            color: var(--text-color);
+            font-size: 24px;
+            color: #FFD700;
         }
 
         .player-avatar img {
@@ -480,26 +469,78 @@
         }
 
         .player-name {
-            color: var(--text-color);
-            font-size: 14px;
+            color: #FFFFFF;
+            font-size: 16px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
 
         .room-id, .status {
-            color: var(--text-color);
-            margin-bottom: 16px;
-            font-size: 16px;
+            color: #FFD700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+            margin-bottom: 20px;
+            font-size: 18px;
         }
 
         .waiting-area p {
-            color: var(--text-color);
-            font-size: 16px;
+            color: #FFD700;
+            font-size: 18px;
             animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .adjuster-modal {
+            background: rgba(30, 35, 55, 0.95);
+            border: 1px solid rgba(0, 255, 132, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 88, 255, 0.4);
+            padding: 20px;
+            border-radius: 20px;
+            width: 400px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        .adjuster-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            overflow: hidden;
+            border: 2px solid #7B00FF;
+            border-radius: 50%;
+        }
+
+        .adjuster-image {
+            position: absolute;
+            max-width: none;
+            transition: all 0.1s ease;
+        }
+
+        .adjuster-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .adjuster-controls label {
+            color: #FFFFFF;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .adjuster-controls input[type="range"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -528,7 +569,7 @@
         <div class="dashboard-sections">
             <div class="section-card">
                 <h3>Tasks</h3>
-                <p>Coming soon!</p>
+                <p style="color: #FFFFFF;">Coming soon!</p>
             </div>
             <div class="section-card">
                 <h3>Play</h3>
@@ -613,24 +654,12 @@
         <div class="profile-image" id="profileImage">
             <span class="pencil">✏</span>
         </div>
-        <div class="cropper-container" id="cropperContainer">
-            <canvas id="cropperCanvas"></canvas>
-            <div class="cropper-controls">
-                <label for="zoomSlider">Zoom: </label>
-                <input type="range" id="zoomSlider" min="0.5" max="3" step="0.1" value="1">
-            </div>
-        </div>
         <input type="file" id="hiddenAvatarUpload" accept="image/*" style="display: none;">
-        <div class="username-container" id="usernameContainer">
-            <span class="username" id="usernameDisplay">Username <span class="pencil">✏</span></span>
-            <input type="text" class="username-input" id="usernameInput">
-        </div>
+        <div class="username-display" id="usernameDisplay"></div>
         <button id="saveProfile">Save Changes</button>
-        <button class="theme-toggle" id="themeToggle">Toggle Theme</button>
-        <h3 style="margin: 16px 0;">Transaction History</h3>
-        <p>No transactions yet.</p>
+        <h3 style="color: #FFFFFF; margin: 20px 0;">Transaction History</h3>
+        <p style="color: #FFFFFF;">No transactions yet.</p>
         <button id="viewHistory">View Game History</button>
-        <button class="delete-button" id="deleteAccount">Delete Account</button>
         <button id="backToDashboardFromProfile">Back to Dashboard</button>
     </div>
 
@@ -642,11 +671,29 @@
         <button id="backToProfile">Back to Profile</button>
     </div>
 
+    <!-- Picture Adjuster Modal -->
+    <div class="container adjuster-modal" id="adjusterModal">
+        <h2>Adjust Profile Picture</h2>
+        <div class="adjuster-container" id="adjusterContainer">
+            <img class="adjuster-image" id="adjusterImage">
+        </div>
+        <div class="adjuster-controls">
+            <label>Horizontal Position</label>
+            <input type="range" id="xPos" min="-100" max="100" value="0">
+            <label>Vertical Position</label>
+            <input type="range" id="yPos" min="-100" max="100" value="0">
+            <label>Zoom</label>
+            <input type="range" id="zoom" min="1" max="3" step="0.1" value="1">
+        </div>
+        <button id="confirmAdjust">Confirm</button>
+        <button id="cancelAdjust">Cancel</button>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
 
         // Firebase Configuration - REPLACE WITH YOUR OWN
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -676,6 +723,7 @@ const firebaseConfig = {
         const resetPassword = document.getElementById('resetPassword');
         const profilePage = document.getElementById('profilePage');
         const historyPage = document.getElementById('historyPage');
+        const adjusterModal = document.getElementById('adjusterModal');
         const formTitle = document.getElementById('formTitle');
         const authButton = document.getElementById('authButton');
         const toggleAuth = document.getElementById('toggleAuth');
@@ -706,25 +754,24 @@ const firebaseConfig = {
         const backToLogin = document.getElementById('backToLogin');
         const profileImage = document.getElementById('profileImage');
         const hiddenAvatarUpload = document.getElementById('hiddenAvatarUpload');
-        const usernameContainer = document.getElementById('usernameContainer');
         const usernameDisplay = document.getElementById('usernameDisplay');
-        const usernameInput = document.getElementById('usernameInput');
         const saveProfile = document.getElementById('saveProfile');
         const viewHistory = document.getElementById('viewHistory');
-        const deleteAccount = document.getElementById('deleteAccount');
         const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
         const matchList = document.getElementById('matchList');
         const stats = document.getElementById('stats');
         const backToProfile = document.getElementById('backToProfile');
         const walletButton = document.getElementById('walletButton');
-        const cropperContainer = document.getElementById('cropperContainer');
-        const cropperCanvas = document.getElementById('cropperCanvas');
-        const zoomSlider = document.getElementById('zoomSlider');
-        const themeToggle = document.getElementById('themeToggle');
+        const adjusterImage = document.getElementById('adjusterImage');
+        const xPos = document.getElementById('xPos');
+        const yPos = document.getElementById('yPos');
+        const zoom = document.getElementById('zoom');
+        const confirmAdjust = document.getElementById('confirmAdjust');
+        const cancelAdjust = document.getElementById('cancelAdjust');
 
         // Initialize Containers
         function initializeContainers() {
-            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage];
+            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage, adjusterModal];
             containers.forEach(c => c && (c.style.display = 'none'));
             authContainer.style.display = 'block';
         }
@@ -736,10 +783,13 @@ const firebaseConfig = {
         let opponentUsername = null;
         let unsubscribeRoom = null;
         let currentAvatar = null;
+        let currentUsername = null;
         let avatarFile = null;
-        let cropper = null;
-        let currentUsername = 'Player';
         let isEditingUsername = false;
+        let originalUsername = null;
+        let adjustX = 0;
+        let adjustY = 0;
+        let adjustZoom = 1;
 
         // Show Message
         function showMessage(message, type) {
@@ -756,12 +806,9 @@ const firebaseConfig = {
 
         // Show Container
         function showContainer(container) {
-            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage];
+            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage, adjusterModal];
             containers.forEach(c => c && (c.style.display = 'none'));
             container.style.display = 'block';
-            if (container === profilePage) {
-                resetProfilePage();
-            }
         }
 
         // Toggle Auth
@@ -786,6 +833,10 @@ const firebaseConfig = {
             try {
                 if (isSignUp) {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await setDoc(doc(db, 'users', userCredential.user.uid), {
+                        username: 'Player',
+                        avatar: ''
+                    });
                     await sendEmailVerification(userCredential.user);
                     showMessage('Sign Up Successful! Please verify your email.', 'success');
                     showContainer(verifyEmail);
@@ -875,20 +926,6 @@ const firebaseConfig = {
             showMessage('Wallet feature coming soon!', 'success');
         });
 
-        // Theme Toggle
-        themeToggle.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) return;
-            const newTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-            document.documentElement.dataset.theme = newTheme;
-            try {
-                await setDoc(doc(db, 'users', user.uid), { theme: newTheme }, { merge: true });
-                showMessage(`Switched to ${newTheme} mode`, 'success');
-            } catch (error) {
-                showMessage(`Error saving theme: ${error.message}`, 'error');
-            }
-        });
-
         // Profile Image Upload
         profileImage.addEventListener('click', () => {
             hiddenAvatarUpload.click();
@@ -903,110 +940,119 @@ const firebaseConfig = {
                     return;
                 }
                 avatarFile = file;
-                initCropper(file);
+                adjusterImage.src = URL.createObjectURL(file);
+                adjustX = 0;
+                adjustY = 0;
+                adjustZoom = 1;
+                xPos.value = 0;
+                yPos.value = 0;
+                zoom.value = 1;
+                updateAdjusterImage();
+                showContainer(adjusterModal);
             }
         });
+
+        // Picture Adjuster Controls
+        function updateAdjusterImage() {
+            const containerSize = 200;
+            const scale = adjustZoom;
+            const imgWidth = adjusterImage.naturalWidth * scale;
+            const imgHeight = adjusterImage.naturalHeight * scale;
+            const offsetX = (adjustX / 100) * (imgWidth - containerSize);
+            const offsetY = (adjustY / 100) * (imgHeight - containerSize);
+            adjusterImage.style.transform = `translate(${-offsetX}px, ${-offsetY}px) scale(${scale})`;
+        }
+
+        xPos.addEventListener('input', () => {
+            adjustX = parseInt(xPos.value);
+            updateAdjusterImage();
+        });
+
+        yPos.addEventListener('input', () => {
+            adjustY = parseInt(yPos.value);
+            updateAdjusterImage();
+        });
+
+        zoom.addEventListener('input', () => {
+            adjustZoom = parseFloat(zoom.value);
+            updateAdjusterImage();
+        });
+
+        confirmAdjust.addEventListener('click', () => {
+            if (avatarFile) {
+                cropImage(avatarFile).then(croppedFile => {
+                    avatarFile = croppedFile;
+                    profileImage.innerHTML = `<img src="${URL.createObjectURL(croppedFile)}" alt="Avatar"><span class="pencil">✏</span>`;
+                    showContainer(profilePage);
+                }).catch(() => {
+                    showMessage('Error adjusting image', 'error');
+                    showContainer(profilePage);
+                });
+            }
+        });
+
+        cancelAdjust.addEventListener('click', () => {
+            avatarFile = null;
+            hiddenAvatarUpload.value = '';
+            showContainer(profilePage);
+        });
+
+        async function cropImage(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const size = 200;
+                    canvas.width = size;
+                    canvas.height = size;
+                    const scale = adjustZoom;
+                    const imgWidth = img.width * scale;
+                    const imgHeight = img.height * scale;
+                    const offsetX = (adjustX / 100) * (imgWidth - size);
+                    const offsetY = (adjustY / 100) * (imgHeight - size);
+                    ctx.drawImage(img, -offsetX, -offsetY, imgWidth, imgHeight);
+                    canvas.toBlob(blob => {
+                        if (blob) {
+                            const croppedFile = new File([blob], file.name, { type: file.type });
+                            resolve(croppedFile);
+                        } else {
+                            reject(new Error('Failed to crop image'));
+                        }
+                    }, file.type);
+                };
+                img.onerror = () => reject(new Error('Failed to load image'));
+            });
+        }
 
         // Username Editing
-        usernameDisplay.addEventListener('click', () => {
-            if (isEditingUsername) return;
-            isEditingUsername = true;
-            usernameDisplay.style.display = 'none';
-            usernameInput.style.display = 'inline-block';
-            usernameInput.value = currentUsername;
-            usernameInput.focus();
-        });
-
-        usernameInput.addEventListener('blur', () => {
-            toggleUsernameEdit(false);
-        });
-
-        usernameInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') {
-                toggleUsernameEdit(false);
-            }
-        });
-
-        function toggleUsernameEdit(save) {
-            isEditingUsername = false;
-            usernameDisplay.style.display = 'inline-block';
-            usernameInput.style.display = 'none';
-            if (save && usernameInput.value.trim()) {
-                currentUsername = usernameInput.value.trim();
-                usernameDisplay.innerHTML = `${currentUsername} <span class="pencil">✏</span>`;
-            }
-        }
-
-        // Cropper
-        function initCropper(file) {
-            const ctx = cropperCanvas.getContext('2d');
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
-                cropperContainer.style.display = 'block';
-                cropperCanvas.width = 200;
-                cropperCanvas.height = 200;
-                let zoom = 1;
-                let offsetX = 0;
-                let offsetY = 0;
-                let isDragging = false;
-                let startX, startY;
-
-                function draw() {
-                    ctx.clearRect(0, 0, cropperCanvas.width, cropperCanvas.height);
-                    const size = Math.min(img.width, img.height) * zoom;
-                    const sx = (img.width - size / zoom) / 2 + offsetX;
-                    const sy = (img.height - size / zoom) / 2 + offsetY;
-                    ctx.drawImage(img, sx, sy, size / zoom, size / zoom, 0, 0, cropperCanvas.width, cropperCanvas.height);
-                }
-
-                draw();
-
-                zoomSlider.addEventListener('input', () => {
-                    zoom = parseFloat(zoomSlider.value);
-                    draw();
+        function renderUsername() {
+            if (isEditingUsername) {
+                usernameDisplay.innerHTML = `<input class="username-edit" id="usernameEdit" value="${currentUsername || 'Player'}">`;
+                const usernameEdit = document.getElementById('usernameEdit');
+                usernameEdit.focus();
+                usernameEdit.addEventListener('blur', () => {
+                    currentUsername = usernameEdit.value.trim() || originalUsername;
+                    isEditingUsername = false;
+                    renderUsername();
                 });
-
-                cropperCanvas.addEventListener('mousedown', e => {
-                    isDragging = true;
-                    startX = e.offsetX;
-                    startY = e.offsetY;
-                });
-
-                cropperCanvas.addEventListener('mousemove', e => {
-                    if (isDragging) {
-                        offsetX += (e.offsetX - startX) / zoom;
-                        offsetY += (e.offsetY - startY) / zoom;
-                        startX = e.offsetX;
-                        startY = e.offsetY;
-                        draw();
+                usernameEdit.addEventListener('keypress', e => {
+                    if (e.key === 'Enter') {
+                        currentUsername = usernameEdit.value.trim() || originalUsername;
+                        isEditingUsername = false;
+                        renderUsername();
                     }
                 });
-
-                cropperCanvas.addEventListener('mouseup', () => {
-                    isDragging = false;
+            } else {
+                usernameDisplay.innerHTML = `${currentUsername || 'Player'} <span class="username-pencil">✏</span>`;
+                const pencil = usernameDisplay.querySelector('.username-pencil');
+                pencil.addEventListener('click', () => {
+                    originalUsername = currentUsername;
+                    isEditingUsername = true;
+                    renderUsername();
                 });
-
-                cropperCanvas.addEventListener('mouseleave', () => {
-                    isDragging = false;
-                });
-
-                cropper = { draw, ctx };
-            };
-        }
-
-        function getCroppedImage() {
-            if (!cropper || !avatarFile) return null;
-            const canvas = document.createElement('canvas');
-            canvas.width = 120;
-            canvas.height = 120;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(cropperCanvas, 0, 0, 120, 120);
-            return new Promise(resolve => {
-                canvas.toBlob(blob => {
-                    resolve(blob);
-                }, 'image/jpeg', 0.9);
-            });
+            }
         }
 
         // Save Profile
@@ -1017,47 +1063,30 @@ const firebaseConfig = {
                 showContainer(authContainer);
                 return;
             }
-            const username = currentUsername;
+            const username = currentUsername?.trim();
             if (!username) {
-                showMessage('Please enter a username', 'error');
+                showMessage('Username cannot be empty', 'error');
                 return;
             }
             try {
                 let avatarUrl = currentAvatar;
                 if (avatarFile) {
-                    const croppedBlob = await getCroppedImage();
-                    if (croppedBlob) {
-                        const storageRef = ref(storage, `avatars/${user.uid}`);
-                        await uploadBytes(storageRef, croppedBlob);
-                        avatarUrl = await getDownloadURL(storageRef);
-                    }
+                    const storageRef = ref(storage, `avatars/${user.uid}`);
+                    await uploadBytes(storageRef, avatarFile);
+                    avatarUrl = await getDownloadURL(storageRef);
                     avatarFile = null;
-                    cropperContainer.style.display = 'none';
-                    cropper = null;
                 }
                 await setDoc(doc(db, 'users', user.uid), { username, avatar: avatarUrl || '' }, { merge: true });
+                currentAvatar = avatarUrl;
+                miniPicture.innerHTML = avatarUrl ? `<img src="${avatarUrl}" alt="Avatar">` : (username[0]?.toUpperCase() || 'P');
+                profileImage.innerHTML = avatarUrl ? `<img src="${avatarUrl}" alt="Avatar"><span class="pencil">✏</span>` : `${username[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
                 showMessage('Profile updated successfully!', 'success');
                 hiddenAvatarUpload.value = '';
                 showContainer(dashboard);
-                usernameDisplay.innerHTML = `${username} <span class="pencil">✏</span>`;
-                profileImage.innerHTML = avatarUrl ? `<img src="${avatarUrl}" alt="Avatar"><span class="pencil">✏</span>` : `${username[0].toUpperCase()}<span class="pencil">✏</span>`;
-                miniPicture.innerHTML = avatarUrl ? `<img src="${avatarUrl}" alt="Avatar">` : username[0].toUpperCase();
-                currentAvatar = avatarUrl;
             } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
+                showMessage(`Error saving profile: ${error.message}`, 'error');
             }
         });
-
-        // Reset Profile Page
-        function resetProfilePage() {
-            usernameDisplay.innerHTML = `${currentUsername} <span class="pencil">✏</span>`;
-            usernameInput.style.display = 'none';
-            usernameDisplay.style.display = 'inline-block';
-            cropperContainer.style.display = 'none';
-            hiddenAvatarUpload.value = '';
-            avatarFile = null;
-            cropper = null;
-        }
 
         // View Game History
         viewHistory.addEventListener('click', async () => {
@@ -1073,10 +1102,13 @@ const firebaseConfig = {
                 matchList.innerHTML = '';
                 let wins = 0, losses = 0, ties = 0;
                 if (snapshot.empty) {
-                    matchList.innerHTML = '<p>No matches yet.</p>';
+                    matchList.innerHTML = '<p style="color: #FFFFFF;">No matches yet.</p>';
                 } else {
                     snapshot.forEach(doc => {
                         const data = doc.data();
+                        if (data.result === 'win') wins++;
+                        else if (data.result === 'loss') losses++;
+                        else if (data.result === 'tie') ties++;
                         const date = new Date(data.timestamp);
                         const formattedDate = date.toLocaleString('en-US', {
                             weekday: 'short',
@@ -1095,12 +1127,9 @@ const firebaseConfig = {
                             Time: ${formattedDate}
                         `;
                         matchList.appendChild(card);
-                        if (data.result === 'win') wins++;
-                        else if (data.result === 'loss') losses++;
-                        else ties++;
                     });
                 }
-                stats.innerHTML = `Wins: ${wins} | Losses: ${losses} | Ties: ${ties}`;
+                stats.textContent = `Wins: ${wins} | Losses: ${losses} | Ties: ${ties}`;
                 showContainer(historyPage);
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
@@ -1115,53 +1144,6 @@ const firebaseConfig = {
         // Back to Dashboard from Profile
         backToDashboardFromProfile.addEventListener('click', () => {
             showContainer(dashboard);
-        });
-
-        // Delete Account
-        deleteAccount.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            showMessage('Are you sure? Click again to confirm.', 'error');
-            deleteAccount.onclick = async () => {
-                try {
-                    // Cleanup active room
-                    if (currentRoomId) {
-                        await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'closed' });
-                    }
-                    // Delete avatar from Storage
-                    const avatarRef = ref(storage, `avatars/${user.uid}`);
-                    try {
-                        await deleteObject(avatarRef);
-                    } catch (error) {
-                        if (error.code !== 'storage/object-not-found') throw error;
-                    }
-                    // Delete Firestore data
-                    const userDocRef = doc(db, 'users', user.uid);
-                    const gameHistoryQuery = query(collection(db, 'users', user.uid, 'gameHistory'));
-                    const gameHistoryDocs = await getDocs(gameHistoryQuery);
-                    for (const docSnapshot of gameHistoryDocs.docs) {
-                        await deleteDoc(docSnapshot.ref);
-                    }
-                    await deleteDoc(userDocRef);
-                    // Delete Auth user
-                    await deleteUser(user);
-                    showMessage('Account deleted successfully!', 'success');
-                    cleanupGame();
-                    showContainer(authContainer);
-                } catch (error) {
-                    if (error.code === 'auth/requires-recent-login') {
-                        showMessage('Please log in again to delete your account', 'error');
-                        await signOut(auth);
-                        showContainer(authContainer);
-                    } else {
-                        showMessage(`Error: ${error.message}`, 'error');
-                    }
-                }
-            };
         });
 
         // Play Button
@@ -1215,7 +1197,7 @@ const firebaseConfig = {
                 showContainer(gameRoom);
                 roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
                 gameStatus.textContent = 'Waiting for opponent...';
-                listenToRoom(currentRoomId, username, avatar);
+                listenToRoom(currentRoomId);
                 showMessage('Room created! Share the Room ID.', 'success');
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
@@ -1264,7 +1246,7 @@ const firebaseConfig = {
                 currentPlayer = 'O';
                 showContainer(gameRoom);
                 roomIdDisplay.textContent = `Room ID: ${roomId}`;
-                listenToRoom(roomId, username, avatar);
+                listenToRoom(roomId);
                 showMessage('Joined room successfully!', 'success');
                 roomIdInput.value = '';
             } catch (error) {
@@ -1332,7 +1314,7 @@ const firebaseConfig = {
                         unsubscribeMatch();
                         showContainer(gameRoom);
                         roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
-                        listenToRoom(currentRoomId, username, avatar);
+                        listenToRoom(currentRoomId);
                         showMessage('Opponent found! Game started.', 'success');
                     }
                 });
@@ -1378,7 +1360,7 @@ const firebaseConfig = {
                     unsubscribeMatch();
                     showContainer(gameRoom);
                     roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
-                    listenToRoom(roomRef.id, username, avatar);
+                    listenToRoom(roomRef.id);
                     showMessage('Opponent found! Game started.', 'success');
                 } else {
                     setTimeout(() => {
@@ -1418,7 +1400,7 @@ const firebaseConfig = {
         }
 
         // Listen to Room
-        function listenToRoom(roomId, username, userAvatar) {
+        function listenToRoom(roomId) {
             if (unsubscribeRoom) unsubscribeRoom();
             unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), async snapshot => {
                 if (!snapshot.exists()) {
@@ -1442,7 +1424,7 @@ const firebaseConfig = {
                     opponentUsername = currentPlayer === 'X' ? data.player2Username : data.player1Username;
                     renderBoard(data.board);
                     if (winner) {
-                        await handleGameEnd(winner, username);
+                        await handleGameEnd(winner);
                     }
                 } else {
                     player1Name.textContent = data.player1Username || 'Player 1';
@@ -1490,7 +1472,7 @@ const firebaseConfig = {
         });
 
         // Handle Game End
-        async function handleGameEnd(result, username) {
+        async function handleGameEnd(result) {
             const user = auth.currentUser;
             if (!user || !currentRoomId) return;
             try {
@@ -1559,6 +1541,7 @@ const firebaseConfig = {
                     showContainer(verifyEmail);
                     miniPicture.innerHTML = '';
                     profileImage.innerHTML = '<span class="pencil">✏</span>';
+                    usernameDisplay.innerHTML = '';
                     return;
                 }
                 showContainer(dashboard);
@@ -1567,23 +1550,24 @@ const firebaseConfig = {
                     const data = userDoc.data() || {};
                     currentUsername = data.username || 'Player';
                     currentAvatar = data.avatar || '';
-                    const theme = data.theme || 'light';
-                    document.documentElement.dataset.theme = theme;
-                    miniPicture.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar">` : currentUsername[0].toUpperCase();
-                    profileImage.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar"><span class="pencil">✏</span>` : `${currentUsername[0].toUpperCase()}<span class="pencil">✏</span>`;
-                    usernameDisplay.innerHTML = `${currentUsername} <span class="pencil">✏</span>`;
+                    miniPicture.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar">` : (currentUsername[0]?.toUpperCase() || 'P');
+                    profileImage.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar"><span class="pencil">✏</span>` : `${currentUsername[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
+                    renderUsername();
                 } catch (error) {
                     showMessage(`Error fetching profile: ${error.message}`, 'error');
                     miniPicture.innerHTML = 'P';
                     profileImage.innerHTML = 'P<span class="pencil">✏</span>';
+                    currentUsername = 'Player';
+                    renderUsername();
                 }
             } else {
                 showContainer(authContainer);
                 miniPicture.innerHTML = '';
                 profileImage.innerHTML = '<span class="pencil">✏</span>';
+                usernameDisplay.innerHTML = '';
                 currentAvatar = null;
+                currentUsername = null;
                 avatarFile = null;
-                currentUsername = 'Player';
                 cleanupGame();
             }
         });
