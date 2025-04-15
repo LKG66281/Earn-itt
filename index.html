@@ -3,1584 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Firebase Tic-Tac-Toe</title>
+    <title>Earn Itt - Phone OTP Auth</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Montserrat', 'Arial', sans-serif;
-        }
-
         body {
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1C2526 0%, #2A2E6B 100%);
-            background-size: 200% 200%;
-            animation: gradientWave 15s ease infinite;
-            overflow-x: hidden;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
         }
-
-        @keyframes gradientWave {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
         .container {
-            background: rgba(30, 35, 55, 0.9);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 88, 255, 0.3);
-            width: 420px;
-            text-align: center;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 132, 0.2);
-        }
-
-        .dashboard {
-            width: 80vw;
-            max-width: 1200px;
-            min-height: 80vh;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        h2 {
-            color: #FFD700;
-            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .profile-section {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #FFD700;
-            border-radius: 15px;
+            background: white;
             padding: 20px;
-            width: 100%;
-            height: 120px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .mini-picture {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #7B00FF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 36px;
-            color: #FFD700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .mini-picture:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(123, 0, 255, 0.5);
-        }
-
-        .mini-picture img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .balance {
-            background: rgba(123, 0, 255, 0.2);
-            border: 1px solid #7B00FF;
             border-radius: 8px;
-            padding: 8px 20px;
-            color: #FFD700;
-            font-size: 20px;
-            text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);
-        }
-
-        .wallet {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #00FF84;
-            border: 2px solid #FFD700;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 22px;
-            color: #1C2526;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .wallet:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(0, 255, 132, 0.5);
-        }
-
-        .dashboard-sections {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-top: 20px;
-        }
-
-        .section-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #0058FF;
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .section-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 88, 255, 0.5);
-            border-color: #00FF84;
-        }
-
-        .section-card h3 {
-            color: #FFFFFF;
-            font-size: 20px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 5px rgba(0, 88, 255, 0.5);
-        }
-
-        .section-card button {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(45deg, #0058FF, #7B00FF);
-            border: none;
-            border-radius: 10px;
-            color: #FFFFFF;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            max-width: 400px;
+            text-align: center;
         }
-
-        .section-card button:hover {
-            background: linear-gradient(45deg, #00FF84, #00C4B4);
-            transform: translateY(-2px);
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
         }
-
         input {
             width: 100%;
-            padding: 14px 18px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            outline: none;
-            border-radius: 30px;
-            color: #FFFFFF;
-            font-size: 16px;
-            box-shadow: inset 0 0 5px rgba(0, 255, 132, 0.3);
-            transition: all 0.3s ease;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
-
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        input:focus {
-            box-shadow: 0 0 15px #0058FF;
-            background: rgba(255, 255, 255, 0.15);
-        }
-
         button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(45deg, #0058FF, #7B00FF);
+            padding: 10px;
+            background-color: #1877f2;
+            color: white;
             border: none;
-            border-radius: 10px;
-            color: #FFFFFF;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 4px;
             cursor: pointer;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
+            font-size: 16px;
         }
-
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 88, 255, 0.5);
+            background-color: #165db7;
         }
-
-        .toggle-text, .forgot-password {
-            color: #00FF84;
-            cursor: pointer;
-            margin-top: 15px;
-            display: inline-block;
+        #recaptcha-container {
+            margin: 10px 0;
+        }
+        .error {
+            color: red;
             font-size: 14px;
-            text-shadow: 0 0 5px rgba(0, 255, 132, 0.5);
-            transition: color 0.3s ease;
+            margin-top: 10px;
         }
-
-        .toggle-text:hover, .forgot-password:hover {
-            color: #FFD700;
-        }
-
-        .message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 15px 30px;
-            border-radius: 12px;
-            color: #FFFFFF;
-            font-size: 16px;
-            box-shadow: 0 0 10px #0058FF, 0 0 20px #00FF84, 0 0 30px #7B00FF;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 1000;
-        }
-
-        .message.success {
-            background: linear-gradient(45deg, #00FF84, #00C4B4);
-        }
-
-        .message.error {
-            background: linear-gradient(45deg, #FF3B30, #FF9500);
-        }
-
-        .verify-email, .reset-password {
-            background: rgba(30, 35, 55, 0.95);
-            border: 1px solid rgba(0, 255, 132, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 88, 255, 0.4);
-            padding: 40px;
-            border-radius: 20px;
-            width: 450px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .verify-email p, .reset-password p {
-            color: #FFFFFF;
-            font-size: 16px;
-            margin-bottom: 25px;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
-        }
-
-        .game-page, .game-room, .waiting-area, .profile-page, .history-page, .adjuster-modal {
+        .dashboard {
             display: none;
         }
-
-        .profile-image {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 3px solid #7B00FF;
-            background: rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 48px;
-            color: #FFD700;
-            cursor: pointer;
-            margin: 0 auto 25px;
-            transition: all 0.3s ease;
-            position: relative;
+        #auth-container, .otp-container {
+            display: none;
         }
-
-        .profile-image:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(123, 0, 255, 0.6);
-        }
-
-        .profile-image img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .pencil {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            font-size: 20px;
-            color: #00FF84;
-            text-shadow: 0 0 5px rgba(0, 255, 132, 0.7);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .pencil:hover {
-            color: #FFD700;
-            transform: scale(1.2);
-        }
-
-        .username-display {
-            color: #FFD700;
-            font-size: 18px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .username-pencil {
-            font-size: 16px;
-            color: #FFD700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .username-pencil:hover {
-            color: #00FF84;
-            transform: scale(1.2);
-        }
-
-        .username-edit {
-            background: none;
-            border: none;
-            color: #FFFFFF;
-            font-size: 18px;
-            padding: 5px;
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 255, 132, 0.5);
-            text-align: center;
-        }
-
-        .history-page .match-list {
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 15px;
-        }
-
-        .match-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #7B00FF;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            color: #FFFFFF;
-            font-size: 14px;
-        }
-
-        .match-card.win {
-            border-color: #FFD700;
-        }
-
-        .match-card.loss {
-            border-color: #FF3B30;
-        }
-
-        .match-card.tie {
-            border-color: #00FF84;
-        }
-
-        .stats {
-            color: #FFD700;
-            font-size: 16px;
-            margin: 20px 0;
-            text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);
-        }
-
-        .game-board {
-            display: grid;
-            grid-template-columns: repeat(3, 110px);
-            grid-gap: 10px;
-            margin: 30px auto;
-            width: 350px;
-        }
-
-        .cell {
-            width: 110px;
-            height: 110px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #7B00FF;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 50px;
-            color: #FFFFFF;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .cell:hover {
-            background: rgba(123, 0, 255, 0.2);
-            transform: scale(1.05);
-        }
-
-        .cell.x {
-            color: #FFD700;
-        }
-
-        .cell.o {
-            color: #00FF84;
-        }
-
-        .player-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .player {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .player-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #7B00FF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            color: #FFD700;
-        }
-
-        .player-avatar img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .player-name {
-            color: #FFFFFF;
-            font-size: 16px;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-        }
-
-        .room-id, .status {
-            color: #FFD700;
-            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-
-        .waiting-area p {
-            color: #FFD700;
-            font-size: 18px;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .adjuster-modal {
-            background: rgba(30, 35, 55, 0.95);
-            border: 1px solid rgba(0, 255, 132, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 88, 255, 0.4);
-            padding: 20px;
-            border-radius: 20px;
-            width: 400px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-        }
-
-        .adjuster-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
-            overflow: hidden;
-            border: 2px solid #7B00FF;
-            border-radius: 50%;
-        }
-
-        .adjuster-image {
-            position: absolute;
-            max-width: none;
-            transition: all 0.1s ease;
-        }
-
-        .adjuster-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .adjuster-controls label {
-            color: #FFFFFF;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .adjuster-controls input[type="range"] {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 10px;
+        #auth-container.active, .otp-container.active, .dashboard.active {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <!-- Auth Container -->
-    <div class="container" id="authContainer">
-        <h2 id="formTitle">Sign Up</h2>
-        <div class="input-box">
-            <input type="email" id="email" placeholder="Email" required>
+    <div class="container">
+        <!-- Phone Number Input -->
+        <div id="auth-container" class="active">
+            <h2>Sign Up / Login</h2>
+            <input type="tel" id="phone-number" placeholder="+1234567890" required>
+            <div id="recaptcha-container"></div>
+            <button onclick="sendOTP()">Send OTP</button>
+            <div id="error-message" class="error"></div>
         </div>
-        <div class="input-box">
-            <input type="password" id="password" placeholder="Password" required>
+
+        <!-- OTP Verification -->
+        <div id="otp-container" class="otp-container">
+            <h2>Enter OTP</h2>
+            <input type="text" id="otp-input" placeholder="Enter 6-digit OTP" required>
+            <button onclick="verifyOTP()">Verify OTP</button>
+            <div id="otp-error-message" class="error"></div>
         </div>
-        <button id="authButton">Sign Up</button>
-        <span class="toggle-text" id="toggleAuth">Already have an account? Login</span>
-        <span class="forgot-password" id="forgotPassword">Forgot Password?</span>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="dashboard">
+            <h2>Welcome!</h2>
+            <p id="user-phone"></p>
+            <button onclick="signOut()">Sign Out</button>
+        </div>
     </div>
 
-    <!-- Dashboard -->
-    <div class="container dashboard" id="dashboard">
-        <div class="profile-section">
-            <div class="mini-picture" id="miniPicture"></div>
-            <div class="balance">₹ 0</div>
-            <div class="wallet" id="walletButton">W</div>
-        </div>
-        <div class="dashboard-sections">
-            <div class="section-card">
-                <h3>Tasks</h3>
-                <p style="color: #FFFFFF;">Coming soon!</p>
-            </div>
-            <div class="section-card">
-                <h3>Play</h3>
-                <button id="playButton">Start Match</button>
-            </div>
-            <div class="section-card">
-                <h3>Play with Friend</h3>
-                <button id="playWithFriend">Invite Friend</button>
-            </div>
-        </div>
-        <button id="logoutButton">Logout</button>
-    </div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
 
-    <!-- Game Page -->
-    <div class="container game-page" id="gamePage">
-        <h2>Choose Game Mode</h2>
-        <button id="createRoom">Create Room</button>
-        <div class="input-box">
-            <input type="text" id="roomIdInput" placeholder="Enter Room ID">
-        </div>
-        <button id="joinRoom">Join Room</button>
-        <button id="backToDashboard">Back to Dashboard</button>
-    </div>
-
-    <!-- Game Room -->
-    <div class="container game-room" id="gameRoom">
-        <h2>Tic-Tac-Toe</h2>
-        <p class="room-id" id="roomIdDisplay"></p>
-        <div class="player-info" id="playerInfo">
-            <div class="player">
-                <div class="player-avatar" id="player1Avatar"></div>
-                <span class="player-name" id="player1Name"></span>
-            </div>
-            <div class="player">
-                <div class="player-avatar" id="player2Avatar"></div>
-                <span class="player-name" id="player2Name"></span>
-            </div>
-        </div>
-        <p class="status" id="gameStatus">Waiting for opponent...</p>
-        <div class="game-board" id="gameBoard">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
-        </div>
-        <button id="leaveRoom">Leave Room</button>
-    </div>
-
-    <!-- Waiting Area -->
-    <div class="container waiting-area" id="waitingArea">
-        <h2>Matchmaking</h2>
-        <p>Searching for opponent...</p>
-    </div>
-
-    <!-- Verify Email -->
-    <div class="container verify-email" id="verifyEmail">
-        <h2>Email Verification</h2>
-        <p>Please check your inbox to verify your email address. A verification link has been sent to you.</p>
-        <button id="resendVerification">Resend Verification Email</button>
-        <button id="logoutFromVerify">Logout</button>
-    </div>
-
-    <!-- Reset Password -->
-    <div class="container reset-password" id="resetPassword">
-        <h2>Reset Your Password</h2>
-        <p>Enter your email address to receive a password reset link.</p>
-        <div class="input-box">
-            <input type="email" id="resetEmail" placeholder="Email" required>
-        </div>
-        <button id="sendResetEmail">Send Reset Link</button>
-        <button id="backToLogin">Back to Login</button>
-    </div>
-
-    <!-- Profile Page -->
-    <div class="container profile-page" id="profilePage">
-        <h2>Edit Profile</h2>
-        <div class="profile-image" id="profileImage">
-            <span class="pencil">✏</span>
-        </div>
-        <input type="file" id="hiddenAvatarUpload" accept="image/*" style="display: none;">
-        <div class="username-display" id="usernameDisplay"></div>
-        <button id="saveProfile">Save Changes</button>
-        <h3 style="color: #FFFFFF; margin: 20px 0;">Transaction History</h3>
-        <p style="color: #FFFFFF;">No transactions yet.</p>
-        <button id="viewHistory">View Game History</button>
-        <button id="backToDashboardFromProfile">Back to Dashboard</button>
-    </div>
-
-    <!-- Game History Page -->
-    <div class="container history-page" id="historyPage">
-        <h2>Game History</h2>
-        <div class="match-list" id="matchList"></div>
-        <div class="stats" id="stats"></div>
-        <button id="backToProfile">Back to Profile</button>
-    </div>
-
-    <!-- Picture Adjuster Modal -->
-    <div class="container adjuster-modal" id="adjusterModal">
-        <h2>Adjust Profile Picture</h2>
-        <div class="adjuster-container" id="adjusterContainer">
-            <img class="adjuster-image" id="adjusterImage">
-        </div>
-        <div class="adjuster-controls">
-            <label>Horizontal Position</label>
-            <input type="range" id="xPos" min="-100" max="100" value="0">
-            <label>Vertical Position</label>
-            <input type="range" id="yPos" min="-100" max="100" value="0">
-            <label>Zoom</label>
-            <input type="range" id="zoom" min="1" max="3" step="0.1" value="1">
-        </div>
-        <button id="confirmAdjust">Confirm</button>
-        <button id="cancelAdjust">Cancel</button>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
-
-        // Firebase Configuration - REPLACE WITH YOUR OWN
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-  authDomain: "earn-itt.firebaseapp.com",
-  projectId: "earn-itt",
-  storageBucket: "earn-itt.firebasestorage.app",
-  messagingSenderId: "785360520679",
-  appId: "1:785360520679:web:ac2e2710ece34591a52942",
-  measurementId: "G-P4Q2KYTBBM"
-};
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
+            authDomain: "earn-itt.firebaseapp.com",
+            projectId: "earn-itt",
+            storageBucket: "earn-itt.firebasestorage.app",
+            messagingSenderId: "785360520679",
+            appId: "1:785360520679:web:ac2e2710ece34591a52942",
+            measurementId: "G-P4Q2KYTBBM"
+        };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
-        // DOM Elements
-        const authContainer = document.getElementById('authContainer');
+        // UI Elements
+        const authContainer = document.getElementById('auth-container');
+        const otpContainer = document.getElementById('otp-container');
         const dashboard = document.getElementById('dashboard');
-        const gamePage = document.getElementById('gamePage');
-        const gameRoom = document.getElementById('gameRoom');
-        const waitingArea = document.getElementById('waitingArea');
-        const verifyEmail = document.getElementById('verifyEmail');
-        const resetPassword = document.getElementById('resetPassword');
-        const profilePage = document.getElementById('profilePage');
-        const historyPage = document.getElementById('historyPage');
-        const adjusterModal = document.getElementById('adjusterModal');
-        const formTitle = document.getElementById('formTitle');
-        const authButton = document.getElementById('authButton');
-        const toggleAuth = document.getElementById('toggleAuth');
-        const forgotPassword = document.getElementById('forgotPassword');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const miniPicture = document.getElementById('miniPicture');
-        const playButton = document.getElementById('playButton');
-        const playWithFriend = document.getElementById('playWithFriend');
-        const logoutButton = document.getElementById('logoutButton');
-        const createRoom = document.getElementById('createRoom');
-        const joinRoom = document.getElementById('joinRoom');
-        const roomIdInput = document.getElementById('roomIdInput');
-        const backToDashboard = document.getElementById('backToDashboard');
-        const roomIdDisplay = document.getElementById('roomIdDisplay');
-        const gameStatus = document.getElementById('gameStatus');
-        const gameBoard = document.getElementById('gameBoard');
-        const leaveRoom = document.getElementById('leaveRoom');
-        const playerInfo = document.getElementById('playerInfo');
-        const player1Avatar = document.getElementById('player1Avatar');
-        const player2Avatar = document.getElementById('player2Avatar');
-        const player1Name = document.getElementById('player1Name');
-        const player2Name = document.getElementById('player2Name');
-        const resendVerification = document.getElementById('resendVerification');
-        const logoutFromVerify = document.getElementById('logoutFromVerify');
-        const resetEmail = document.getElementById('resetEmail');
-        const sendResetEmail = document.getElementById('sendResetEmail');
-        const backToLogin = document.getElementById('backToLogin');
-        const profileImage = document.getElementById('profileImage');
-        const hiddenAvatarUpload = document.getElementById('hiddenAvatarUpload');
-        const usernameDisplay = document.getElementById('usernameDisplay');
-        const saveProfile = document.getElementById('saveProfile');
-        const viewHistory = document.getElementById('viewHistory');
-        const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
-        const matchList = document.getElementById('matchList');
-        const stats = document.getElementById('stats');
-        const backToProfile = document.getElementById('backToProfile');
-        const walletButton = document.getElementById('walletButton');
-        const adjusterImage = document.getElementById('adjusterImage');
-        const xPos = document.getElementById('xPos');
-        const yPos = document.getElementById('yPos');
-        const zoom = document.getElementById('zoom');
-        const confirmAdjust = document.getElementById('confirmAdjust');
-        const cancelAdjust = document.getElementById('cancelAdjust');
+        const phoneInput = document.getElementById('phone-number');
+        const otpInput = document.getElementById('otp-input');
+        const errorMessage = document.getElementById('error-message');
+        const otpErrorMessage = document.getElementById('otp-error-message');
+        const userPhone = document.getElementById('user-phone');
 
-        // Initialize Containers
-        function initializeContainers() {
-            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage, adjusterModal];
-            containers.forEach(c => c && (c.style.display = 'none'));
-            authContainer.style.display = 'block';
-        }
-        initializeContainers();
+        let confirmationResult;
 
-        let isSignUp = true;
-        let currentRoomId = null;
-        let currentPlayer = null;
-        let opponentUsername = null;
-        let unsubscribeRoom = null;
-        let currentAvatar = null;
-        let currentUsername = null;
-        let avatarFile = null;
-        let isEditingUsername = false;
-        let originalUsername = null;
-        let adjustX = 0;
-        let adjustY = 0;
-        let adjustZoom = 1;
-
-        // Show Message
-        function showMessage(message, type) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${type}`;
-            msgDiv.textContent = message;
-            document.body.appendChild(msgDiv);
-            msgDiv.style.opacity = '1';
-            setTimeout(() => {
-                msgDiv.style.opacity = '0';
-                setTimeout(() => msgDiv.remove(), 300);
-            }, 3000);
-        }
-
-        // Show Container
-        function showContainer(container) {
-            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage, adjusterModal];
-            containers.forEach(c => c && (c.style.display = 'none'));
-            container.style.display = 'block';
-        }
-
-        // Toggle Auth
-        toggleAuth.addEventListener('click', () => {
-            isSignUp = !isSignUp;
-            formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
-            authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
-            toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
-            forgotPassword.style.display = isSignUp ? 'none' : 'inline-block';
-            emailInput.value = '';
-            passwordInput.value = '';
+        // Initialize reCAPTCHA
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            'size': 'normal',
+            'callback': () => {
+                // reCAPTCHA solved, allow OTP send
+            },
+            'expired-callback': () => {
+                errorMessage.textContent = 'reCAPTCHA expired. Please try again.';
+            }
         });
+        recaptchaVerifier.render();
 
-        // Authentication
-        authButton.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            if (!email || !password) {
-                showMessage('Please enter email and password', 'error');
+        // Send OTP
+        function sendOTP() {
+            const phoneNumber = phoneInput.value.trim();
+            if (!phoneNumber.match(/^\+\d{10,15}$/)) {
+                errorMessage.textContent = 'Please enter a valid phone number (e.g., +1234567890)';
                 return;
             }
-            try {
-                if (isSignUp) {
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    await setDoc(doc(db, 'users', userCredential.user.uid), {
-                        username: 'Player',
-                        avatar: ''
-                    });
-                    await sendEmailVerification(userCredential.user);
-                    showMessage('Sign Up Successful! Please verify your email.', 'success');
-                    showContainer(verifyEmail);
-                } else {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showMessage('Login Successful!', 'success');
-                }
-                emailInput.value = '';
-                passwordInput.value = '';
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
 
-        // Forgot Password
-        forgotPassword.addEventListener('click', () => {
-            showContainer(resetPassword);
-        });
-
-        // Send Reset Email
-        sendResetEmail.addEventListener('click', async () => {
-            const email = resetEmail.value;
-            if (!email) {
-                showMessage('Please enter an email', 'error');
-                return;
-            }
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showMessage('Password reset link sent! Check your inbox.', 'success');
-                showContainer(authContainer);
-                resetEmail.value = '';
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
-
-        // Back to Login
-        backToLogin.addEventListener('click', () => {
-            showContainer(authContainer);
-            resetEmail.value = '';
-            formTitle.textContent = 'Login';
-            authButton.textContent = 'Login';
-            toggleAuth.textContent = 'Need an account? Sign Up';
-            forgotPassword.style.display = 'inline-block';
-            isSignUp = false;
-        });
-
-        // Resend Verification
-        resendVerification.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (user) {
-                try {
-                    await sendEmailVerification(user);
-                    showMessage('Verification email resent!', 'success');
-                } catch (error) {
-                    showMessage(`Error: ${error.message}`, 'error');
-                }
-            } else {
-                showMessage('Please log in again.', 'error');
-                showContainer(authContainer);
-            }
-        });
-
-        // Logout from Verify
-        logoutFromVerify.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                showMessage('Logged out successfully!', 'success');
-                showContainer(authContainer);
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
-
-        // Mini Picture Click
-        miniPicture.addEventListener('click', () => {
-            if (!auth.currentUser) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            showContainer(profilePage);
-        });
-
-        // Wallet Button
-        walletButton.addEventListener('click', () => {
-            showMessage('Wallet feature coming soon!', 'success');
-        });
-
-        // Profile Image Upload
-        profileImage.addEventListener('click', () => {
-            hiddenAvatarUpload.click();
-        });
-
-        hiddenAvatarUpload.addEventListener('change', () => {
-            if (hiddenAvatarUpload.files.length > 0) {
-                const file = hiddenAvatarUpload.files[0];
-                if (file.size > 2 * 1024 * 1024) {
-                    showMessage('Image must be under 2MB', 'error');
-                    hiddenAvatarUpload.value = '';
-                    return;
-                }
-                avatarFile = file;
-                adjusterImage.src = URL.createObjectURL(file);
-                adjustX = 0;
-                adjustY = 0;
-                adjustZoom = 1;
-                xPos.value = 0;
-                yPos.value = 0;
-                zoom.value = 1;
-                updateAdjusterImage();
-                showContainer(adjusterModal);
-            }
-        });
-
-        // Picture Adjuster Controls
-        function updateAdjusterImage() {
-            const containerSize = 200;
-            const scale = adjustZoom;
-            const imgWidth = adjusterImage.naturalWidth * scale;
-            const imgHeight = adjusterImage.naturalHeight * scale;
-            const offsetX = (adjustX / 100) * (imgWidth - containerSize);
-            const offsetY = (adjustY / 100) * (imgHeight - containerSize);
-            adjusterImage.style.transform = `translate(${-offsetX}px, ${-offsetY}px) scale(${scale})`;
-        }
-
-        xPos.addEventListener('input', () => {
-            adjustX = parseInt(xPos.value);
-            updateAdjusterImage();
-        });
-
-        yPos.addEventListener('input', () => {
-            adjustY = parseInt(yPos.value);
-            updateAdjusterImage();
-        });
-
-        zoom.addEventListener('input', () => {
-            adjustZoom = parseFloat(zoom.value);
-            updateAdjusterImage();
-        });
-
-        confirmAdjust.addEventListener('click', () => {
-            if (avatarFile) {
-                cropImage(avatarFile).then(croppedFile => {
-                    avatarFile = croppedFile;
-                    profileImage.innerHTML = `<img src="${URL.createObjectURL(croppedFile)}" alt="Avatar"><span class="pencil">✏</span>`;
-                    showContainer(profilePage);
-                }).catch(() => {
-                    showMessage('Error adjusting image', 'error');
-                    showContainer(profilePage);
+            errorMessage.textContent = '';
+            auth.signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
+                .then((result) => {
+                    confirmationResult = result;
+                    authContainer.classList.remove('active');
+                    otpContainer.classList.add('active');
+                })
+                .catch((error) => {
+                    errorMessage.textContent = 'Error sending OTP: ' + error.message;
+                    recaptchaVerifier.render(); // Reset reCAPTCHA
                 });
+        }
+
+        // Verify OTP
+        function verifyOTP() {
+            const otp = otpInput.value.trim();
+            if (otp.length !== 6 || !/^\d+$/.test(otp)) {
+                otpErrorMessage.textContent = 'Please enter a valid 6-digit OTP';
+                return;
             }
-        });
 
-        cancelAdjust.addEventListener('click', () => {
-            avatarFile = null;
-            hiddenAvatarUpload.value = '';
-            showContainer(profilePage);
-        });
+            otpErrorMessage.textContent = '';
+            confirmationResult.confirm(otp)
+                .then((result) => {
+                    // User signed in
+                    otpContainer.classList.remove('active');
+                    dashboard.classList.add('active');
+                    userPhone.textContent = 'Phone: ' + result.user.phoneNumber;
+                })
+                .catch((error) => {
+                    otpErrorMessage.textContent = 'Invalid OTP: ' + error.message;
+                });
+        }
 
-        async function cropImage(file) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const size = 200;
-                    canvas.width = size;
-                    canvas.height = size;
-                    const scale = adjustZoom;
-                    const imgWidth = img.width * scale;
-                    const imgHeight = img.height * scale;
-                    const offsetX = (adjustX / 100) * (imgWidth - size);
-                    const offsetY = (adjustY / 100) * (imgHeight - size);
-                    ctx.drawImage(img, -offsetX, -offsetY, imgWidth, imgHeight);
-                    canvas.toBlob(blob => {
-                        if (blob) {
-                            const croppedFile = new File([blob], file.name, { type: file.type });
-                            resolve(croppedFile);
-                        } else {
-                            reject(new Error('Failed to crop image'));
-                        }
-                    }, file.type);
-                };
-                img.onerror = () => reject(new Error('Failed to load image'));
+        // Sign Out
+        function signOut() {
+            auth.signOut().then(() => {
+                dashboard.classList.remove('active');
+                authContainer.classList.add('active');
+                phoneInput.value = '';
+                otpInput.value = '';
+                recaptchaVerifier.render();
+            }).catch((error) => {
+                alert('Error signing out: ' + error.message);
             });
         }
-
-        // Username Editing
-        function renderUsername() {
-            if (isEditingUsername) {
-                usernameDisplay.innerHTML = `<input class="username-edit" id="usernameEdit" value="${currentUsername || 'Player'}">`;
-                const usernameEdit = document.getElementById('usernameEdit');
-                usernameEdit.focus();
-                usernameEdit.addEventListener('blur', () => {
-                    currentUsername = usernameEdit.value.trim() || originalUsername;
-                    isEditingUsername = false;
-                    renderUsername();
-                });
-                usernameEdit.addEventListener('keypress', e => {
-                    if (e.key === 'Enter') {
-                        currentUsername = usernameEdit.value.trim() || originalUsername;
-                        isEditingUsername = false;
-                        renderUsername();
-                    }
-                });
-            } else {
-                usernameDisplay.innerHTML = `${currentUsername || 'Player'} <span class="username-pencil">✏</span>`;
-                const pencil = usernameDisplay.querySelector('.username-pencil');
-                pencil.addEventListener('click', () => {
-                    originalUsername = currentUsername;
-                    isEditingUsername = true;
-                    renderUsername();
-                });
-            }
-        }
-
-        // Save Profile
-        saveProfile.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            const username = currentUsername?.trim();
-            if (!username) {
-                showMessage('Username cannot be empty', 'error');
-                return;
-            }
-            try {
-                let avatarUrl = currentAvatar;
-                if (avatarFile) {
-                    const storageRef = ref(storage, `avatars/${user.uid}`);
-                    await uploadBytes(storageRef, avatarFile);
-                    avatarUrl = await getDownloadURL(storageRef);
-                    avatarFile = null;
-                }
-                await setDoc(doc(db, 'users', user.uid), { username, avatar: avatarUrl || '' }, { merge: true });
-                currentAvatar = avatarUrl;
-                miniPicture.innerHTML = avatarUrl ? `<img src="${avatarUrl}" alt="Avatar">` : (username[0]?.toUpperCase() || 'P');
-                profileImage.innerHTML = avatarUrl ? `<img src="${avatarUrl}" alt="Avatar"><span class="pencil">✏</span>` : `${username[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
-                showMessage('Profile updated successfully!', 'success');
-                hiddenAvatarUpload.value = '';
-                showContainer(dashboard);
-            } catch (error) {
-                showMessage(`Error saving profile: ${error.message}`, 'error');
-            }
-        });
-
-        // View Game History
-        viewHistory.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            try {
-                const q = query(collection(db, 'users', user.uid, 'gameHistory'));
-                const snapshot = await getDocs(q);
-                matchList.innerHTML = '';
-                let wins = 0, losses = 0, ties = 0;
-                if (snapshot.empty) {
-                    matchList.innerHTML = '<p style="color: #FFFFFF;">No matches yet.</p>';
-                } else {
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        if (data.result === 'win') wins++;
-                        else if (data.result === 'loss') losses++;
-                        else if (data.result === 'tie') ties++;
-                        const date = new Date(data.timestamp);
-                        const formattedDate = date.toLocaleString('en-US', {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true
-                        });
-                        const card = document.createElement('div');
-                        card.className = `match-card ${data.result}`;
-                        card.innerHTML = `
-                            Result: ${data.result.charAt(0).toUpperCase() + data.result.slice(1)}<br>
-                            Opponent: ${data.opponent || 'Random'}<br>
-                            Time: ${formattedDate}
-                        `;
-                        matchList.appendChild(card);
-                    });
-                }
-                stats.textContent = `Wins: ${wins} | Losses: ${losses} | Ties: ${ties}`;
-                showContainer(historyPage);
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
-
-        // Back to Profile
-        backToProfile.addEventListener('click', () => {
-            showContainer(profilePage);
-        });
-
-        // Back to Dashboard from Profile
-        backToDashboardFromProfile.addEventListener('click', () => {
-            showContainer(dashboard);
-        });
-
-        // Play Button
-        playButton.addEventListener('click', () => {
-            if (!auth.currentUser) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            startRandomMatch();
-        });
-
-        // Play with Friend
-        playWithFriend.addEventListener('click', () => {
-            if (!auth.currentUser) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            showContainer(gamePage);
-        });
-
-        // Create Room
-        createRoom.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const userData = userDoc.data() || {};
-                const username = userData.username || 'Player';
-                const avatar = userData.avatar || '';
-                const roomData = {
-                    player1: user.uid,
-                    player1Username: username,
-                    player1Avatar: avatar,
-                    player2: null,
-                    player2Username: null,
-                    player2Avatar: null,
-                    board: ['', '', '', '', '', '', '', '', ''],
-                    turn: 'X',
-                    status: 'waiting',
-                    createdAt: Date.now()
-                };
-                const roomRef = await addDoc(collection(db, 'rooms'), roomData);
-                currentRoomId = roomRef.id;
-                currentPlayer = 'X';
-                showContainer(gameRoom);
-                roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
-                gameStatus.textContent = 'Waiting for opponent...';
-                listenToRoom(currentRoomId);
-                showMessage('Room created! Share the Room ID.', 'success');
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
-
-        // Join Room
-        joinRoom.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            const roomId = roomIdInput.value.trim();
-            if (!roomId) {
-                showMessage('Please enter a Room ID', 'error');
-                return;
-            }
-            try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const userData = userDoc.data() || {};
-                const username = userData.username || 'Player';
-                const avatar = userData.avatar || '';
-                const roomDoc = await getDoc(doc(db, 'rooms', roomId));
-                if (!roomDoc.exists()) {
-                    showMessage('Room not found', 'error');
-                    return;
-                }
-                const roomData = roomDoc.data();
-                if (roomData.player2) {
-                    showMessage('Room is full', 'error');
-                    return;
-                }
-                if (roomData.player1 === user.uid) {
-                    showMessage('You cannot join your own room', 'error');
-                    return;
-                }
-                await updateDoc(doc(db, 'rooms', roomId), {
-                    player2: user.uid,
-                    player2Username: username,
-                    player2Avatar: avatar,
-                    status: 'active'
-                });
-                currentRoomId = roomId;
-                currentPlayer = 'O';
-                showContainer(gameRoom);
-                roomIdDisplay.textContent = `Room ID: ${roomId}`;
-                listenToRoom(roomId);
-                showMessage('Joined room successfully!', 'success');
-                roomIdInput.value = '';
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
-
-        // Back to Dashboard
-        backToDashboard.addEventListener('click', () => {
-            if (!auth.currentUser) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            showContainer(dashboard);
-        });
-
-        // Start Random Match
-        async function startRandomMatch() {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            let matchmakingId = null;
-            try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const userData = userDoc.data() || {};
-                const username = userData.username || 'Player';
-                const avatar = userData.avatar || '';
-                showContainer(waitingArea);
-
-                const userEntries = await getDocs(query(collection(db, 'matchmaking'), where('userId', '==', user.uid)));
-                for (const entry of userEntries.docs) {
-                    await deleteDoc(doc(db, 'matchmaking', entry.id));
-                }
-
-                const matchmakingData = {
-                    userId: user.uid,
-                    username,
-                    avatar,
-                    status: 'waiting',
-                    timestamp: Date.now()
-                };
-                const matchmakingRef = await addDoc(collection(db, 'matchmaking'), matchmakingData);
-                matchmakingId = matchmakingRef.id;
-
-                let isPaired = false;
-                const unsubscribeMatch = onSnapshot(doc(db, 'matchmaking', matchmakingId), async snapshot => {
-                    if (!snapshot.exists()) {
-                        if (!isPaired) {
-                            showContainer(dashboard);
-                            showMessage('Matchmaking canceled.', 'error');
-                        }
-                        return;
-                    }
-                    const data = snapshot.data();
-                    if (data.status === 'paired' && data.roomId) {
-                        isPaired = true;
-                        currentRoomId = data.roomId;
-                        currentPlayer = data.playerSymbol || 'O';
-                        opponentUsername = data.opponentUsername;
-                        await deleteDoc(doc(db, 'matchmaking', matchmakingId));
-                        unsubscribeMatch();
-                        showContainer(gameRoom);
-                        roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
-                        listenToRoom(currentRoomId);
-                        showMessage('Opponent found! Game started.', 'success');
-                    }
-                });
-
-                const now = Date.now();
-                const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
-                const existingEntries = await getDocs(q);
-
-                const opponentDocs = existingEntries.docs.filter(doc => {
-                    const data = doc.data();
-                    return data.userId !== user.uid && (now - data.timestamp) < 20000;
-                });
-
-                if (opponentDocs.length > 0 && !isPaired) {
-                    const opponentDoc = opponentDocs[0];
-                    const opponent = opponentDoc.data();
-                    isPaired = true;
-                    const roomData = {
-                        player1: user.uid,
-                        player1Username: username,
-                        player1Avatar: avatar,
-                        player2: opponent.userId,
-                        player2Username: opponent.username,
-                        player2Avatar: opponent.avatar,
-                        board: ['', '', '', '', '', '', '', '', ''],
-                        turn: 'X',
-                        status: 'active',
-                        createdAt: Date.now()
-                    };
-                    const roomRef = await addDoc(collection(db, 'rooms'), roomData);
-                    currentRoomId = roomRef.id;
-                    currentPlayer = 'X';
-                    opponentUsername = opponent.username;
-
-                    await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
-                        status: 'paired',
-                        roomId: roomRef.id,
-                        playerSymbol: 'O',
-                        opponentUsername: username
-                    });
-
-                    await deleteDoc(doc(db, 'matchmaking', matchmakingId));
-                    unsubscribeMatch();
-                    showContainer(gameRoom);
-                    roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
-                    listenToRoom(roomRef.id);
-                    showMessage('Opponent found! Game started.', 'success');
-                } else {
-                    setTimeout(() => {
-                        if (!isPaired) {
-                            unsubscribeMatch();
-                            if (matchmakingId) {
-                                deleteDoc(doc(db, 'matchmaking', matchmakingId));
-                            }
-                            showContainer(dashboard);
-                            showMessage('No opponent found. Try again.', 'error');
-                        }
-                    }, 20000);
-                }
-            } catch (error) {
-                showMessage('Matchmaking failed.', 'error');
-                if (matchmakingId) {
-                    deleteDoc(doc(db, 'matchmaking', matchmakingId));
-                }
-                showContainer(dashboard);
-            }
-        }
-
-        // Check Winner
-        function checkWinner(board) {
-            const winPatterns = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8],
-                [0, 3, 6], [1, 4, 7], [2, 5, 8],
-                [0, 4, 8], [2, 4, 6]
-            ];
-            for (const pattern of winPatterns) {
-                const [a, b, c] = pattern;
-                if (board[a] && board[a] === board[b] && board[b] === board[c]) {
-                    return board[a];
-                }
-            }
-            return board.every(cell => cell !== '') ? 'tie' : null;
-        }
-
-        // Listen to Room
-        function listenToRoom(roomId) {
-            if (unsubscribeRoom) unsubscribeRoom();
-            unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), async snapshot => {
-                if (!snapshot.exists()) {
-                    showMessage('Room closed', 'error');
-                    cleanupGame();
-                    return;
-                }
-                const data = snapshot.data();
-                if (data.status === 'active' && data.player1 && data.player2) {
-                    let winner = data.winner || checkWinner(data.board);
-                    if (winner && !data.winner) {
-                        await updateDoc(doc(db, 'rooms', roomId), { winner, status: 'finished' });
-                    }
-                    if (gameStatus) {
-                        gameStatus.textContent = data.turn === currentPlayer ? 'Your turn' : `Opponent's turn (${data.turn})`;
-                    }
-                    player1Name.textContent = data.player1Username || 'Player 1';
-                    player2Name.textContent = data.player2Username || 'Player 2';
-                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}" alt="Avatar">` : (data.player1Username ? data.player1Username[0].toUpperCase() : 'P');
-                    player2Avatar.innerHTML = data.player2Avatar ? `<img src="${data.player2Avatar}" alt="Avatar">` : (data.player2Username ? data.player2Username[0].toUpperCase() : 'P');
-                    opponentUsername = currentPlayer === 'X' ? data.player2Username : data.player1Username;
-                    renderBoard(data.board);
-                    if (winner) {
-                        await handleGameEnd(winner);
-                    }
-                } else {
-                    player1Name.textContent = data.player1Username || 'Player 1';
-                    player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}" alt="Avatar">` : (data.player1Username ? data.player1Username[0].toUpperCase() : 'P');
-                    player2Name.textContent = 'Waiting...';
-                    player2Avatar.innerHTML = '';
-                }
-            });
-        }
-
-        // Render Board
-        function renderBoard(board) {
-            const cells = gameBoard.querySelectorAll('.cell');
-            cells.forEach((cell, index) => {
-                cell.textContent = board[index];
-                cell.className = 'cell';
-                if (board[index] === 'X') cell.classList.add('x');
-                if (board[index] === 'O') cell.classList.add('o');
-            });
-        }
-
-        // Cell Click
-        gameBoard.addEventListener('click', async e => {
-            const cell = e.target;
-            if (!cell.classList.contains('cell') || !currentRoomId) return;
-            const index = cell.dataset.index;
-            try {
-                const roomDoc = await getDoc(doc(db, 'rooms', currentRoomId));
-                const data = roomDoc.data();
-                if (!data || data.board[index] !== '' || data.winner || data.status !== 'active') return;
-                if ((currentPlayer === 'X' && data.turn !== 'X') || (currentPlayer === 'O' && data.turn !== 'O')) {
-                    showMessage('Not your turn!', 'error');
-                    return;
-                }
-                const newBoard = [...data.board];
-                newBoard[index] = currentPlayer;
-                const newTurn = currentPlayer === 'X' ? 'O' : 'X';
-                await updateDoc(doc(db, 'rooms', currentRoomId), {
-                    board: newBoard,
-                    turn: newTurn
-                });
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
-
-        // Handle Game End
-        async function handleGameEnd(result) {
-            const user = auth.currentUser;
-            if (!user || !currentRoomId) return;
-            try {
-                const historyData = {
-                    result: result === currentPlayer ? 'win' : result === 'tie' ? 'tie' : 'loss',
-                    opponent: opponentUsername || 'Random',
-                    timestamp: Date.now()
-                };
-                await addDoc(collection(db, 'users', user.uid, 'gameHistory'), historyData);
-                if (result === currentPlayer) {
-                    showMessage('You won!', 'success');
-                } else if (result === 'tie') {
-                    showMessage('Game tied!', 'success');
-                } else {
-                    showMessage(`${opponentUsername} won!`, 'error');
-                }
-                await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'finished', winner: result });
-                setTimeout(() => {
-                    cleanupGame();
-                    showContainer(dashboard);
-                }, 2000);
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        }
-
-        // Cleanup Game
-        function cleanupGame() {
-            if (currentRoomId) {
-                updateDoc(doc(db, 'rooms', currentRoomId), { status: 'closed' }).catch(() => {});
-                currentRoomId = null;
-            }
-            if (unsubscribeRoom) {
-                unsubscribeRoom();
-                unsubscribeRoom = null;
-            }
-            currentPlayer = null;
-            opponentUsername = null;
-            gameBoard.querySelectorAll('.cell').forEach(cell => {
-                cell.textContent = '';
-                cell.className = 'cell';
-            });
-            gameStatus.textContent = 'Waiting for opponent...';
-            roomIdDisplay.textContent = '';
-            player1Avatar.innerHTML = '';
-            player2Avatar.innerHTML = '';
-            player1Name.textContent = '';
-            player2Name.textContent = '';
-            if (auth.currentUser) {
-                showContainer(dashboard);
-            } else {
-                showContainer(authContainer);
-            }
-        }
-
-        // Leave Room
-        leaveRoom.addEventListener('click', () => {
-            showMessage('Left room', 'success');
-            cleanupGame();
-        });
 
         // Auth State Listener
-        onAuthStateChanged(auth, async user => {
+        auth.onAuthStateChanged((user) => {
             if (user) {
-                if (!user.emailVerified) {
-                    showContainer(verifyEmail);
-                    miniPicture.innerHTML = '';
-                    profileImage.innerHTML = '<span class="pencil">✏</span>';
-                    usernameDisplay.innerHTML = '';
-                    return;
-                }
-                showContainer(dashboard);
-                try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    const data = userDoc.data() || {};
-                    currentUsername = data.username || 'Player';
-                    currentAvatar = data.avatar || '';
-                    miniPicture.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar">` : (currentUsername[0]?.toUpperCase() || 'P');
-                    profileImage.innerHTML = currentAvatar ? `<img src="${currentAvatar}" alt="Avatar"><span class="pencil">✏</span>` : `${currentUsername[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
-                    renderUsername();
-                } catch (error) {
-                    showMessage(`Error fetching profile: ${error.message}`, 'error');
-                    miniPicture.innerHTML = 'P';
-                    profileImage.innerHTML = 'P<span class="pencil">✏</span>';
-                    currentUsername = 'Player';
-                    renderUsername();
-                }
+                authContainer.classList.remove('active');
+                otpContainer.classList.remove('active');
+                dashboard.classList.add('active');
+                userPhone.textContent = 'Phone: ' + user.phoneNumber;
             } else {
-                showContainer(authContainer);
-                miniPicture.innerHTML = '';
-                profileImage.innerHTML = '<span class="pencil">✏</span>';
-                usernameDisplay.innerHTML = '';
-                currentAvatar = null;
-                currentUsername = null;
-                avatarFile = null;
-                cleanupGame();
-            }
-        });
-
-        // Logout
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                showMessage('Logged out successfully!', 'success');
-                showContainer(authContainer);
-                cleanupGame();
-            } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
+                dashboard.classList.remove('active');
+                authContainer.classList.add('active');
             }
         });
     </script>
