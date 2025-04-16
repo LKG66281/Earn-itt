@@ -953,13 +953,13 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
-            authDomain: "earn-itt.firebaseapp.com",
-            projectId: "earn-itt",
-            storageBucket: "earn-itt.firebasestorage.app",
-            messagingSenderId: "785360520679",
-            appId: "1:785360520679:web:ac2e2710ece34591a52942",
-            measurementId: "G-P4Q2KYTBBM"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -1045,6 +1045,7 @@
         let adjustY = 0;
         let adjustZoom = 1;
         let adjustRotate = 0;
+        let matchmakingTimeout = null;
 
         function showMessage(message, type) {
             const msgDiv = document.createElement('div');
@@ -1484,7 +1485,7 @@
                 listenToRoom(currentRoomId);
                 showMessage('Room created! Share the Room ID.', 'success');
             } catch (error) {
-                showMessage(`Error: ${error.message}`, 'error');
+                showMessage(`Error creating room: ${error.message}`, 'error');
             }
         });
 
@@ -1519,6 +1520,10 @@
                     showMessage('You cannot join your own room', 'error');
                     return;
                 }
+                if (roomData.status !== 'waiting') {
+                    showMessage('Room is not accepting players', 'error');
+                    return;
+                }
                 await updateDoc(doc(db, 'rooms', roomId), {
                     player2: user.uid,
                     player2Username: username,
@@ -1534,9 +1539,6 @@
                 roomIdInput.value = '';
             } catch (error) {
                 showMessage(`Error joining room: ${error.message}`, 'error');
-                if (error.code === 'permission-denied') {
-                    showMessage('You don’t have permission to join this room.', 'error');
-                }
             }
         });
 
@@ -1551,14 +1553,25 @@
 
         async function startRandomMatch() {
             const user = auth.currentUser;
-            if (!user) return;
+            if (!user) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
+                return;
+            }
 
             try {
+                // Clean up any existing matchmaking attempts
+                if (matchmakingTimeout) {
+                    clearTimeout(matchmakingTimeout);
+                    matchmakingTimeout = null;
+                }
+
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const userData = userDoc.data() || {};
                 const username = userData.username || 'Player';
                 const avatar = userData.avatar || '';
 
+                // Add user to matchmaking pool
                 const matchmakingRef = collection(db, 'matchmaking');
                 const matchmakingDoc = await addDoc(matchmakingRef, {
                     userId: user.uid,
@@ -1569,11 +1582,14 @@
                 });
 
                 showContainer(waitingArea);
+                showMessage('Searching for an opponent...', 'success');
 
+                // Listen for pairing
                 const unsubscribe = onSnapshot(doc(db, 'matchmaking', matchmakingDoc.id), async (snapshot) => {
                     if (!snapshot.exists()) {
                         showContainer(dashboard);
                         showMessage('Matchmaking cancelled', 'error');
+                        unsubscribe();
                         return;
                     }
 
@@ -1587,23 +1603,23 @@
                         roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
                         listenToRoom(currentRoomId);
                         showMessage('Opponent found! Game started.', 'success');
+                        if (matchmakingTimeout) {
+                            clearTimeout(matchmakingTimeout);
+                            matchmakingTimeout = null;
+                        }
                     }
                 });
 
-                const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'), where('userId', '!=', user.uid));
+                // Look for waiting opponents
+                const q = query(
+                    collection(db, 'matchmaking'),
+                    where('status', '==', 'waiting'),
+                    where('userId', '!=', user.uid)
+                );
                 const snapshot = await getDocs(q);
 
-                if (snapshot.empty) {
-                    setTimeout(async () => {
-                        const docSnapshot = await getDoc(doc(db, 'matchmaking', matchmakingDoc.id));
-                        if (docSnapshot.exists() && docSnapshot.data().status === 'waiting') {
-                            await deleteDoc(doc(db, 'matchmaking', matchmakingDoc.id));
-                            showContainer(dashboard);
-                            showMessage('No opponent found. Try again.', 'error');
-                            unsubscribe();
-                        }
-                    }, 10000);
-                } else {
+                if (!snapshot.empty) {
+                    // Pair with the first waiting opponent
                     const opponentDoc = snapshot.docs[0];
                     const opponentData = opponentDoc.data();
 
@@ -1625,6 +1641,7 @@
                     currentPlayer = 'X';
                     opponentUsername = opponentData.username;
 
+                    // Update opponent's matchmaking entry
                     await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
                         status: 'paired',
                         roomId: roomRef.id,
@@ -1632,16 +1649,32 @@
                         opponentUsername: username
                     });
 
+                    // Remove own matchmaking entry
                     await deleteDoc(doc(db, 'matchmaking', matchmakingDoc.id));
                     unsubscribe();
                     showContainer(gameRoom);
                     roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
                     listenToRoom(roomRef.id);
                     showMessage('Opponent found! Game started.', 'success');
+                } else {
+                    // Set timeout to cancel if no opponent is found
+                    matchmakingTimeout = setTimeout(async () => {
+                        const docSnapshot = await getDoc(doc(db, 'matchmaking', matchmakingDoc.id));
+                        if (docSnapshot.exists() && docSnapshot.data().status === 'waiting') {
+                            await deleteDoc(doc(db, 'matchmaking', matchmakingDoc.id));
+                            showContainer(dashboard);
+                            showMessage('No opponent found. Try again.', 'error');
+                            unsubscribe();
+                        }
+                    }, 15000); // Increased to 15s for better UX
                 }
             } catch (error) {
                 showMessage(`Matchmaking failed: ${error.message}`, 'error');
                 showContainer(dashboard);
+                if (matchmakingTimeout) {
+                    clearTimeout(matchmakingTimeout);
+                    matchmakingTimeout = null;
+                }
             }
         }
 
@@ -1686,12 +1719,19 @@
                     if (winner) {
                         await handleGameEnd(winner);
                     }
-                } else {
+                } else if (data.status === 'waiting') {
                     player1Name.textContent = data.player1Username || 'Player 1';
                     player1Avatar.innerHTML = data.player1Avatar ? `<img src="${data.player1Avatar}" alt="Avatar">` : (data.player1Username ? data.player1Username[0].toUpperCase() : 'P');
                     player2Name.textContent = 'Waiting...';
                     player2Avatar.innerHTML = '';
+                    gameStatus.textContent = 'Waiting for opponent...';
+                } else {
+                    showMessage('Room is no longer active', 'error');
+                    cleanupGame();
                 }
+            }, error => {
+                showMessage(`Room error: ${error.message}`, 'error');
+                cleanupGame();
             });
         }
 
@@ -1744,9 +1784,8 @@
                 } else if (result === 'tie') {
                     showMessage('Game tied!', 'success');
                 } else {
-                    showMessage(`${opponentUsername} won!`, 'error');
+                    showMessage(`${opponentUsername || 'Opponent'} won!`, 'error');
                 }
-                await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'finished', winner: result });
                 setTimeout(() => {
                     cleanupGame();
                     showContainer(dashboard);
@@ -1764,6 +1803,10 @@
             if (unsubscribeRoom) {
                 unsubscribeRoom();
                 unsubscribeRoom = null;
+            }
+            if (matchmakingTimeout) {
+                clearTimeout(matchmakingTimeout);
+                matchmakingTimeout = null;
             }
             currentPlayer = null;
             opponentUsername = null;
