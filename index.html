@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Firebase Tic-Tac-Toe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Orbitron', 'Arial', sans-serif; /* Changed to cyberpunk font */
+            font-family: 'Orbitron', 'Arial', sans-serif;
         }
 
         body {
@@ -17,10 +18,11 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0D0D0D 0%, #1A1A3D 100%); /* Darker cyberpunk gradient */
+            background: linear-gradient(135deg, #0D0D0D 0%, #1A1A3D 100%);
             background-size: 200% 200%;
             animation: gradientWave 12s ease infinite;
             overflow-x: hidden;
+            padding: 10px;
         }
 
         @keyframes gradientWave {
@@ -30,64 +32,65 @@
         }
 
         .container {
-            background: rgba(20, 20, 30, 0.95); /* Darker semi-transparent background */
-            padding: 30px;
+            background: rgba(20, 20, 30, 0.95);
+            padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5); /* Neon pink glow */
-            width: 450px;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+            width: 100%;
+            max-width: 450px;
             text-align: center;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.3); /* Cyan border */
+            border: 1px solid rgba(0, 255, 255, 0.3);
         }
 
         .dashboard {
-            width: 80vw;
+            width: 100%;
             max-width: 1200px;
             min-height: 80vh;
-            padding: 40px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 20px;
         }
 
         h2 {
-            color: #FF007A; /* Neon pink */
+            color: #FF007A;
             text-shadow: 0 0 10px rgba(255, 0, 122, 0.7);
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .profile-section {
             background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #00FFFF; /* Cyan border */
+            border: 2px solid #00FFFF;
             border-radius: 15px;
-            padding: 20px;
+            padding: 15px;
             width: 100%;
-            height: 120px;
+            height: auto;
             position: relative;
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            justify-content: center;
-            margin-bottom: 30px;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
         .mini-picture {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 80px;
-            height: 80px;
+            position: static;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #FF007A; /* Neon pink border */
+            border: 2px solid #FF007A;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 36px;
-            color: #00FFFF; /* Cyan text */
+            font-size: 28px;
+            color: #00FFFF;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-right: 10px;
         }
 
         .mini-picture:hover {
@@ -103,28 +106,27 @@
         }
 
         .balance {
-            background: rgba(255, 0, 122, 0.2); /* Pink tint */
+            background: rgba(255, 0, 122, 0.2);
             border: 1px solid #FF007A;
             border-radius: 8px;
-            padding: 8px 20px;
+            padding: 6px 15px;
             color: #00FFFF;
-            font-size: 20px;
+            font-size: 16px;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
+            margin: 10px 0;
         }
 
         .wallet {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
+            position: static;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: #00FFFF; /* Cyan */
+            background: #00FFFF;
             border: 2px solid #FF007A;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 22px;
+            font-size: 18px;
             color: #0D0D0D;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -137,16 +139,16 @@
 
         .dashboard-sections {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
         }
 
         .section-card {
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid #00FFFF;
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
             transition: all 0.3s ease;
         }
@@ -159,19 +161,19 @@
 
         .section-card h3 {
             color: #FFFFFF;
-            font-size: 20px;
-            margin-bottom: 20px;
+            font-size: 18px;
+            margin-bottom: 15px;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
         }
 
         .section-card button {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(45deg, #FF007A, #00FFFF); /* Pink to cyan gradient */
+            padding: 10px;
+            background: linear-gradient(45deg, #FF007A, #00FFFF);
             border: none;
             border-radius: 10px;
             color: #0D0D0D;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -183,13 +185,13 @@
 
         input {
             width: 100%;
-            padding: 14px 18px;
+            padding: 12px 15px;
             background: rgba(255, 255, 255, 0.1);
             border: none;
             outline: none;
             border-radius: 30px;
             color: #FFFFFF;
-            font-size: 16px;
+            font-size: 14px;
             box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.3);
             transition: all 0.3s ease;
         }
@@ -205,15 +207,15 @@
 
         button {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: linear-gradient(45deg, #FF007A, #00FFFF);
             border: none;
             border-radius: 10px;
             color: #0D0D0D;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             transition: all 0.3s ease;
         }
 
@@ -225,9 +227,9 @@
         .toggle-text, .forgot-password {
             color: #00FFFF;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
             display: inline-block;
-            font-size: 14px;
+            font-size: 12px;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
             transition: color 0.3s ease;
         }
@@ -241,10 +243,10 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 15px 30px;
+            padding: 10px 20px;
             border-radius: 12px;
             color: #0D0D0D;
-            font-size: 16px;
+            font-size: 14px;
             box-shadow: 0 0 10px #FF007A, 0 0 20px #00FFFF;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -263,9 +265,10 @@
             background: rgba(20, 20, 30, 0.95);
             border: 1px solid rgba(0, 255, 255, 0.3);
             box-shadow: 0 8px 32px rgba(0, 255, 255, 0.4);
-            padding: 40px;
+            padding: 20px;
             border-radius: 20px;
-            width: 450px;
+            width: 100%;
+            max-width: 450px;
             animation: fadeIn 0.5s ease;
         }
 
@@ -276,8 +279,8 @@
 
         .verify-email p, .reset-password p {
             color: #FFFFFF;
-            font-size: 16px;
-            margin-bottom: 25px;
+            font-size: 14px;
+            margin-bottom: 20px;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
         }
 
@@ -286,18 +289,18 @@
         }
 
         .profile-image {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             border: 3px solid #FF007A;
             background: rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 48px;
+            font-size: 40px;
             color: #00FFFF;
             cursor: pointer;
-            margin: 0 auto 25px;
+            margin: 0 auto 20px;
             transition: all 0.3s ease;
             position: relative;
         }
@@ -318,7 +321,7 @@
             position: absolute;
             bottom: 5px;
             right: 5px;
-            font-size: 20px;
+            font-size: 16px;
             color: #00FFFF;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
             cursor: pointer;
@@ -332,16 +335,16 @@
 
         .username-display {
             color: #00FFFF;
-            font-size: 18px;
-            margin-bottom: 25px;
+            font-size: 16px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .username-pencil {
-            font-size: 16px;
+            font-size: 14px;
             color: #00FFFF;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -356,7 +359,7 @@
             background: none;
             border: none;
             color: #FFFFFF;
-            font-size: 18px;
+            font-size: 16px;
             padding: 5px;
             outline: none;
             box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
@@ -364,19 +367,19 @@
         }
 
         .history-page .match-list {
-            max-height: 400px;
+            max-height: 300px;
             overflow-y: auto;
-            padding: 15px;
+            padding: 10px;
         }
 
         .match-card {
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid #FF007A;
             border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin-bottom: 10px;
             color: #FFFFFF;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .match-card.win {
@@ -393,29 +396,30 @@
 
         .stats {
             color: #00FFFF;
-            font-size: 16px;
-            margin: 20px 0;
+            font-size: 14px;
+            margin: 15px 0;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
         }
 
         .game-board {
             display: grid;
-            grid-template-columns: repeat(3, 110px);
-            grid-gap: 10px;
-            margin: 30px auto;
-            width: 350px;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 8px;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 300px;
         }
 
         .cell {
-            width: 110px;
-            height: 110px;
+            width: 100%;
+            aspect-ratio: 1/1;
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid #FF007A;
             border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 50px;
+            font-size: 40px;
             color: #FFFFFF;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -438,26 +442,29 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .player {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            flex: 1;
+            min-width: 100px;
         }
 
         .player-avatar {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid #FF007A;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 20px;
             color: #00FFFF;
         }
 
@@ -470,20 +477,20 @@
 
         .player-name {
             color: #FFFFFF;
-            font-size: 16px;
+            font-size: 14px;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
 
         .room-id, .status {
             color: #00FFFF;
             text-shadow: 0 0 8px rgba(0, 255, 255, 0.7);
-            margin-bottom: 20px;
-            font-size: 18px;
+            margin-bottom: 15px;
+            font-size: 16px;
         }
 
         .waiting-area p {
             color: #00FFFF;
-            font-size: 18px;
+            font-size: 16px;
             animation: pulse 1.5s infinite;
         }
 
@@ -493,14 +500,14 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Enhanced Adjuster Modal */
         .adjuster-modal {
             background: rgba(20, 20, 30, 0.95);
             border: 1px solid rgba(0, 255, 255, 0.3);
             box-shadow: 0 8px 32px rgba(0, 255, 255, 0.4);
-            padding: 30px;
+            padding: 20px;
             border-radius: 20px;
-            width: 500px;
+            width: 100%;
+            max-width: 400px;
             position: fixed;
             top: 50%;
             left: 50%;
@@ -510,9 +517,10 @@
 
         .adjuster-container {
             position: relative;
-            width: 300px;
-            height: 300px;
-            margin: 20px auto;
+            width: 100%;
+            max-width: 250px;
+            height: 250px;
+            margin: 15px auto;
             overflow: hidden;
             border: 3px solid #FF007A;
             border-radius: 50%;
@@ -526,11 +534,11 @@
         }
 
         .adjuster-preview {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             border: 2px solid #00FFFF;
-            margin: 20px auto;
+            margin: 15px auto;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -545,14 +553,14 @@
 
         .adjuster-controls {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
         }
 
         .adjuster-controls label {
             color: #FFFFFF;
-            font-size: 14px;
+            font-size: 12px;
             margin-bottom: 5px;
         }
 
@@ -565,18 +573,229 @@
 
         .adjuster-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            justify-content: center;
         }
 
         .adjuster-buttons button {
             width: auto;
-            padding: 10px 20px;
+            padding: 8px 15px;
+            min-width: 100px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                padding: 15px;
+                max-width: 100%;
+            }
+
+            .dashboard {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .profile-section {
+                flex-direction: column;
+                align-items: center;
+                padding: 10px;
+            }
+
+            .mini-picture {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+                margin: 5px;
+            }
+
+            .balance {
+                font-size: 14px;
+                padding: 5px 10px;
+            }
+
+            .wallet {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+
+            .dashboard-sections {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .section-card {
+                padding: 15px;
+            }
+
+            .section-card h3 {
+                font-size: 16px;
+            }
+
+            .section-card button {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            input {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            button {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .toggle-text, .forgot-password {
+                font-size: 11px;
+            }
+
+            .message {
+                padding: 8px 15px;
+                font-size: 13px;
+                max-width: 90%;
+            }
+
+            .verify-email, .reset-password {
+                padding: 15px;
+            }
+
+            .verify-email p, .reset-password p {
+                font-size: 13px;
+            }
+
+            .profile-image {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+            }
+
+            .pencil {
+                font-size: 14px;
+            }
+
+            .username-display {
+                font-size: 14px;
+            }
+
+            .username-pencil {
+                font-size: 13px;
+            }
+
+            .username-edit {
+                font-size: 14px;
+            }
+
+            .game-board {
+                max-width: 250px;
+                grid-gap: 6px;
+            }
+
+            .cell {
+                font-size: 32px;
+            }
+
+            .player-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .player {
+                min-width: 0;
+            }
+
+            .player-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            .player-name {
+                font-size: 13px;
+            }
+
+            .room-id, .status {
+                font-size: 14px;
+            }
+
+            .waiting-area p {
+                font-size: 14px;
+            }
+
+            .adjuster-modal {
+                padding: 15px;
+                max-width: 90%;
+            }
+
+            .adjuster-container {
+                max-width: 200px;
+                height: 200px;
+            }
+
+            .adjuster-preview {
+                width: 60px;
+                height: 60px;
+            }
+
+            .adjuster-controls {
+                gap: 10px;
+            }
+
+            .adjuster-controls label {
+                font-size: 11px;
+            }
+
+            .adjuster-buttons button {
+                padding: 7px 12px;
+                min-width: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 18px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .dashboard {
+                padding: 10px;
+            }
+
+            .game-board {
+                max-width: 200px;
+                grid-gap: 5px;
+            }
+
+            .cell {
+                font-size: 28px;
+            }
+
+            .adjuster-container {
+                max-width: 150px;
+                height: 150px;
+            }
+
+            .adjuster-preview {
+                width: 50px;
+                height: 50px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Auth Container -->
     <div class="container" id="authContainer">
         <h2 id="formTitle">Sign Up</h2>
         <div class="input-box">
@@ -590,7 +809,6 @@
         <span class="forgot-password" id="forgotPassword">Forgot Password?</span>
     </div>
 
-    <!-- Dashboard -->
     <div class="container dashboard" id="dashboard">
         <div class="profile-section">
             <div class="mini-picture" id="miniPicture"></div>
@@ -614,7 +832,6 @@
         <button id="logoutButton">Logout</button>
     </div>
 
-    <!-- Game Page -->
     <div class="container game-page" id="gamePage">
         <h2>Choose Game Mode</h2>
         <button id="createRoom">Create Room</button>
@@ -625,7 +842,6 @@
         <button id="backToDashboard">Back to Dashboard</button>
     </div>
 
-    <!-- Game Room -->
     <div class="container game-room" id="gameRoom">
         <h2>Tic-Tac-Toe</h2>
         <p class="room-id" id="roomIdDisplay"></p>
@@ -654,13 +870,11 @@
         <button id="leaveRoom">Leave Room</button>
     </div>
 
-    <!-- Waiting Area -->
     <div class="container waiting-area" id="waitingArea">
         <h2>Matchmaking</h2>
         <p>Searching for opponent...</p>
     </div>
 
-    <!-- Verify Email -->
     <div class="container verify-email" id="verifyEmail">
         <h2>Email Verification</h2>
         <p>Please check your inbox to verify your email address. A verification link has been sent to you.</p>
@@ -668,7 +882,6 @@
         <button id="logoutFromVerify">Logout</button>
     </div>
 
-    <!-- Reset Password -->
     <div class="container reset-password" id="resetPassword">
         <h2>Reset Your Password</h2>
         <p>Enter your email address to receive a password reset link.</p>
@@ -679,7 +892,6 @@
         <button id="backToLogin">Back to Login</button>
     </div>
 
-    <!-- Profile Page -->
     <div class="container profile-page" id="profilePage">
         <h2>Edit Profile</h2>
         <div class="profile-image" id="profileImage">
@@ -694,7 +906,6 @@
         <button id="backToDashboardFromProfile">Back to Dashboard</button>
     </div>
 
-    <!-- Game History Page -->
     <div class="container history-page" id="historyPage">
         <h2>Game History</h2>
         <div class="match-list" id="matchList"></div>
@@ -702,7 +913,6 @@
         <button id="backToProfile">Back to Profile</button>
     </div>
 
-    <!-- Enhanced Picture Adjuster Modal -->
     <div class="container adjuster-modal" id="adjusterModal">
         <h2>Adjust Profile Picture</h2>
         <div class="adjuster-container" id="adjusterContainer">
@@ -742,7 +952,6 @@
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDs2taPm-p2O-dYdBToYwq7vZBUSDNISyg",
             authDomain: "earn-itt.firebaseapp.com",
@@ -753,13 +962,11 @@
             measurementId: "G-P4Q2KYTBBM"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // DOM Elements
         const authContainer = document.getElementById('authContainer');
         const dashboard = document.getElementById('dashboard');
         const gamePage = document.getElementById('gamePage');
@@ -817,7 +1024,6 @@
         const cancelAdjust = document.getElementById('cancelAdjust');
         const resetAdjust = document.getElementById('resetAdjust');
 
-        // Initialize Containers
         function initializeContainers() {
             const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage, adjusterModal];
             containers.forEach(c => c && (c.style.display = 'none'));
@@ -840,7 +1046,6 @@
         let adjustZoom = 1;
         let adjustRotate = 0;
 
-        // Show Message
         function showMessage(message, type) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${type}`;
@@ -853,14 +1058,12 @@
             }, 3000);
         }
 
-        // Show Container
         function showContainer(container) {
             const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage, adjusterModal];
             containers.forEach(c => c && (c.style.display = 'none'));
             container.style.display = 'block';
         }
 
-        // Toggle Auth
         toggleAuth.addEventListener('click', () => {
             isSignUp = !isSignUp;
             formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
@@ -871,7 +1074,6 @@
             passwordInput.value = '';
         });
 
-        // Authentication
         authButton.addEventListener('click', async () => {
             const email = emailInput.value.trim();
             const password = passwordInput.value;
@@ -900,12 +1102,10 @@
             }
         });
 
-        // Forgot Password
         forgotPassword.addEventListener('click', () => {
             showContainer(resetPassword);
         });
 
-        // Send Reset Email
         sendResetEmail.addEventListener('click', async () => {
             const email = resetEmail.value.trim();
             if (!email) {
@@ -922,7 +1122,6 @@
             }
         });
 
-        // Back to Login
         backToLogin.addEventListener('click', () => {
             showContainer(authContainer);
             resetEmail.value = '';
@@ -933,7 +1132,6 @@
             isSignUp = false;
         });
 
-        // Resend Verification
         resendVerification.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (user) {
@@ -949,7 +1147,6 @@
             }
         });
 
-        // Logout from Verify
         logoutFromVerify.addEventListener('click', async () => {
             try {
                 await signOut(auth);
@@ -960,7 +1157,6 @@
             }
         });
 
-        // Mini Picture Click
         miniPicture.addEventListener('click', () => {
             if (!auth.currentUser) {
                 showMessage('Please log in first', 'error');
@@ -970,17 +1166,14 @@
             showContainer(profilePage);
         });
 
-        // Wallet Button
         walletButton.addEventListener('click', () => {
             showMessage('Wallet feature coming soon!', 'success');
         });
 
-        // Profile Image Upload
         profileImage.addEventListener('click', () => {
             hiddenAvatarUpload.click();
         });
 
-        // Drag-and-Drop Support
         adjusterContainer.addEventListener('dragover', e => {
             e.preventDefault();
             adjusterContainer.style.borderColor = '#00FFFF';
@@ -1028,9 +1221,8 @@
             showContainer(adjusterModal);
         }
 
-        // Enhanced Picture Adjuster Controls
         function updateAdjusterImage() {
-            const containerSize = 300;
+            const containerSize = adjusterContainer.offsetWidth;
             const scale = adjustZoom;
             const rotation = adjustRotate;
             const imgWidth = adjusterImage.naturalWidth * scale;
@@ -1038,7 +1230,7 @@
             const offsetX = (adjustX / 100) * (imgWidth - containerSize);
             const offsetY = (adjustY / 100) * (imgHeight - containerSize);
             adjusterImage.style.transform = `translate(${-offsetX}px, ${-offsetY}px) scale(${scale}) rotate(${rotation}deg)`;
-            previewImage.style.transform = `translate(${-offsetX / 3}px, ${-offsetY / 3}px) scale(${scale / 3}) rotate(${rotation}deg)`; // Scaled for preview
+            previewImage.style.transform = `translate(${-offsetX / 3}px, ${-offsetY / 3}px) scale(${scale / 3}) rotate(${rotation}deg)`;
         }
 
         xPos.addEventListener('input', () => {
@@ -1099,7 +1291,7 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const size = 300;
+                    const size = adjusterContainer.offsetWidth;
                     canvas.width = size;
                     canvas.height = size;
                     ctx.save();
@@ -1126,7 +1318,6 @@
             });
         }
 
-        // Username Editing
         function renderUsername() {
             if (isEditingUsername) {
                 usernameDisplay.innerHTML = `<input class="username-edit" id="usernameEdit" value="${currentUsername || 'Player'}">`;
@@ -1155,7 +1346,6 @@
             }
         }
 
-        // Save Profile
         saveProfile.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (!user) {
@@ -1188,7 +1378,6 @@
             }
         });
 
-        // View Game History
         viewHistory.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (!user) {
@@ -1236,17 +1425,14 @@
             }
         });
 
-        // Back to Profile
         backToProfile.addEventListener('click', () => {
             showContainer(profilePage);
         });
 
-        // Back to Dashboard from Profile
         backToDashboardFromProfile.addEventListener('click', () => {
             showContainer(dashboard);
         });
 
-        // Play Button
         playButton.addEventListener('click', () => {
             if (!auth.currentUser) {
                 showMessage('Please log in first', 'error');
@@ -1256,7 +1442,6 @@
             startRandomMatch();
         });
 
-        // Play with Friend
         playWithFriend.addEventListener('click', () => {
             if (!auth.currentUser) {
                 showMessage('Please log in first', 'error');
@@ -1266,7 +1451,6 @@
             showContainer(gamePage);
         });
 
-        // Create Room
         createRoom.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (!user) {
@@ -1304,7 +1488,6 @@
             }
         });
 
-        // Join Room
         joinRoom.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (!user) {
@@ -1357,7 +1540,6 @@
             }
         });
 
-        // Back to Dashboard
         backToDashboard.addEventListener('click', () => {
             if (!auth.currentUser) {
                 showMessage('Please log in first', 'error');
@@ -1367,7 +1549,6 @@
             showContainer(dashboard);
         });
 
-        // Start Random Match
         async function startRandomMatch() {
             const user = auth.currentUser;
             if (!user) {
@@ -1486,7 +1667,6 @@
             }
         }
 
-        // Check Winner
         function checkWinner(board) {
             const winPatterns = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -1502,7 +1682,6 @@
             return board.every(cell => cell !== '') ? 'tie' : null;
         }
 
-        // Listen to Room
         function listenToRoom(roomId) {
             if (unsubscribeRoom) unsubscribeRoom();
             unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), async snapshot => {
@@ -1538,7 +1717,6 @@
             });
         }
 
-        // Render Board
         function renderBoard(board) {
             const cells = gameBoard.querySelectorAll('.cell');
             cells.forEach((cell, index) => {
@@ -1549,7 +1727,6 @@
             });
         }
 
-        // Cell Click
         gameBoard.addEventListener('click', async e => {
             const cell = e.target;
             if (!cell.classList.contains('cell') || !currentRoomId) return;
@@ -1574,7 +1751,6 @@
             }
         });
 
-        // Handle Game End
         async function handleGameEnd(result) {
             const user = auth.currentUser;
             if (!user || !currentRoomId) return;
@@ -1602,7 +1778,6 @@
             }
         }
 
-        // Cleanup Game
         function cleanupGame() {
             if (currentRoomId) {
                 updateDoc(doc(db, 'rooms', currentRoomId), { status: 'closed' }).catch(() => {});
@@ -1631,13 +1806,11 @@
             }
         }
 
-        // Leave Room
         leaveRoom.addEventListener('click', () => {
             showMessage('Left room', 'success');
             cleanupGame();
         });
 
-        // Auth State Listener
         onAuthStateChanged(auth, async user => {
             if (user) {
                 if (!user.emailVerified) {
@@ -1675,7 +1848,6 @@
             }
         });
 
-        // Logout
         logoutButton.addEventListener('click', async () => {
             try {
                 await signOut(auth);
