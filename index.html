@@ -1551,51 +1551,38 @@
 
         async function startRandomMatch() {
             const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            let matchmakingId = null;
+            if (!user) return;
+
             try {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const userData = userDoc.data() || {};
                 const username = userData.username || 'Player';
                 const avatar = userData.avatar || '';
-                showContainer(waitingArea);
 
-                const userEntries = await getDocs(query(collection(db, 'matchmaking'), where('userId', '==', user.uid)));
-                for (const entry of userEntries.docs) {
-                    await deleteDoc(doc(db, 'matchmaking', entry.id));
-                }
-
-                const matchmakingData = {
+                const matchmakingRef = collection(db, 'matchmaking');
+                const matchmakingDoc = await addDoc(matchmakingRef, {
                     userId: user.uid,
-                    username,
-                    avatar,
+                    username: username,
+                    avatar: avatar,
                     status: 'waiting',
                     timestamp: Date.now()
-                };
-                const matchmakingRef = await addDoc(collection(db, 'matchmaking'), matchmakingData);
-                matchmakingId = matchmakingRef.id;
+                });
 
-                let isPaired = false;
-                const unsubscribeMatch = onSnapshot(doc(db, 'matchmaking', matchmakingId), async snapshot => {
+                showContainer(waitingArea);
+
+                const unsubscribe = onSnapshot(doc(db, 'matchmaking', matchmakingDoc.id), async (snapshot) => {
                     if (!snapshot.exists()) {
-                        if (!isPaired) {
-                            showContainer(dashboard);
-                            showMessage('Matchmaking canceled.', 'error');
-                        }
+                        showContainer(dashboard);
+                        showMessage('Matchmaking cancelled', 'error');
                         return;
                     }
+
                     const data = snapshot.data();
                     if (data.status === 'paired' && data.roomId) {
-                        isPaired = true;
                         currentRoomId = data.roomId;
                         currentPlayer = data.playerSymbol || 'O';
-                        opponentUsername = data.opponentUsername;
-                        await deleteDoc(doc(db, 'matchmaking', matchmakingId));
-                        unsubscribeMatch();
+                        opponentUsername = data.opponentUsername || 'Unknown';
+                        unsubscribe();
                         showContainer(gameRoom);
                         roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
                         listenToRoom(currentRoomId);
@@ -1603,35 +1590,40 @@
                     }
                 });
 
-                const now = Date.now();
-                const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
-                const existingEntries = await getDocs(q);
+                const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'), where('userId', '!=', user.uid));
+                const snapshot = await getDocs(q);
 
-                const opponentDocs = existingEntries.docs.filter(doc => {
-                    const data = doc.data();
-                    return data.userId !== user.uid && (now - data.timestamp) < 20000;
-                });
+                if (snapshot.empty) {
+                    setTimeout(async () => {
+                        const docSnapshot = await getDoc(doc(db, 'matchmaking', matchmakingDoc.id));
+                        if (docSnapshot.exists() && docSnapshot.data().status === 'waiting') {
+                            await deleteDoc(doc(db, 'matchmaking', matchmakingDoc.id));
+                            showContainer(dashboard);
+                            showMessage('No opponent found. Try again.', 'error');
+                            unsubscribe();
+                        }
+                    }, 10000);
+                } else {
+                    const opponentDoc = snapshot.docs[0];
+                    const opponentData = opponentDoc.data();
 
-                if (opponentDocs.length > 0 && !isPaired) {
-                    const opponentDoc = opponentDocs[0];
-                    const opponent = opponentDoc.data();
-                    isPaired = true;
                     const roomData = {
                         player1: user.uid,
                         player1Username: username,
                         player1Avatar: avatar,
-                        player2: opponent.userId,
-                        player2Username: opponent.username,
-                        player2Avatar: opponent.avatar,
+                        player2: opponentData.userId,
+                        player2Username: opponentData.username,
+                        player2Avatar: opponentData.avatar,
                         board: ['', '', '', '', '', '', '', '', ''],
                         turn: 'X',
                         status: 'active',
                         createdAt: Date.now()
                     };
+
                     const roomRef = await addDoc(collection(db, 'rooms'), roomData);
                     currentRoomId = roomRef.id;
                     currentPlayer = 'X';
-                    opponentUsername = opponent.username;
+                    opponentUsername = opponentData.username;
 
                     await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
                         status: 'paired',
@@ -1640,29 +1632,15 @@
                         opponentUsername: username
                     });
 
-                    await deleteDoc(doc(db, 'matchmaking', matchmakingId));
-                    unsubscribeMatch();
+                    await deleteDoc(doc(db, 'matchmaking', matchmakingDoc.id));
+                    unsubscribe();
                     showContainer(gameRoom);
                     roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
                     listenToRoom(roomRef.id);
                     showMessage('Opponent found! Game started.', 'success');
-                } else {
-                    setTimeout(() => {
-                        if (!isPaired) {
-                            unsubscribeMatch();
-                            if (matchmakingId) {
-                                deleteDoc(doc(db, 'matchmaking', matchmakingId));
-                            }
-                            showContainer(dashboard);
-                            showMessage('No opponent found. Try again.', 'error');
-                        }
-                    }, 20000);
                 }
             } catch (error) {
-                showMessage('Matchmaking failed.', 'error');
-                if (matchmakingId) {
-                    deleteDoc(doc(db, 'matchmaking', matchmakingId));
-                }
+                showMessage(`Matchmaking failed: ${error.message}`, 'error');
                 showContainer(dashboard);
             }
         }
