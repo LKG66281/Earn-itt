@@ -191,7 +191,6 @@
             color: #FFFFFF;
             font-size: 16px;
             box-shadow: inset 0 0 5px rgba(0, 255, 132, 0.3);
-            margin-bottom: 15px;
             transition: all 0.3s ease;
         }
 
@@ -550,9 +549,6 @@
     <div class="container" id="authContainer">
         <h2 id="formTitle">Sign Up</h2>
         <div class="input-box">
-            <input type="text" id="username" placeholder="Username" required>
-        </div>
-        <div class="input-box">
             <input type="email" id="email" placeholder="Email" required>
         </div>
         <div class="input-box">
@@ -696,19 +692,20 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCxUwcTWRApLE7F_LHMXHOrmoQVWabfpgA",
-            authDomain: "future-4a5bb.firebaseapp.com",
-            projectId: "future-4a5bb",
-            storageBucket: "future-4a5bb.firebasestorage.app",
-            messagingSenderId: "769026893150",
-            appId: "1:769026893150:web:a45882a2d5336b58d09bcf",
-            measurementId: "G-C13FSB81CT"
-        };
+        // Firebase Configuration - REPLACE WITH YOUR OWN
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCxUwcTWRApLE7F_LHMXHOrmoQVWabfpgA",
+  authDomain: "future-4a5bb.firebaseapp.com",
+  projectId: "future-4a5bb",
+  storageBucket: "future-4a5bb.firebasestorage.app",
+  messagingSenderId: "769026893150",
+  appId: "1:769026893150:web:a45882a2d5336b58d09bcf",
+  measurementId: "G-C13FSB81CT"
+}; and give a fresh and working code and rules
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -717,23 +714,20 @@
         const storage = getStorage(app);
 
         // DOM Elements
-        const containers = {
-            auth: document.getElementById('authContainer'),
-            dashboard: document.getElementById('dashboard'),
-            gamePage: document.getElementById('gamePage'),
-            gameRoom: document.getElementById('gameRoom'),
-            waitingArea: document.getElementById('waitingArea'),
-            verifyEmail: document.getElementById('verifyEmail'),
-            resetPassword: document.getElementById('resetPassword'),
-            profilePage: document.getElementById('profilePage'),
-            historyPage: document.getElementById('historyPage'),
-            adjusterModal: document.getElementById('adjusterModal')
-        };
+        const authContainer = document.getElementById('authContainer');
+        const dashboard = document.getElementById('dashboard');
+        const gamePage = document.getElementById('gamePage');
+        const gameRoom = document.getElementById('gameRoom');
+        const waitingArea = document.getElementById('waitingArea');
+        const verifyEmail = document.getElementById('verifyEmail');
+        const resetPassword = document.getElementById('resetPassword');
+        const profilePage = document.getElementById('profilePage');
+        const historyPage = document.getElementById('historyPage');
+        const adjusterModal = document.getElementById('adjusterModal');
         const formTitle = document.getElementById('formTitle');
         const authButton = document.getElementById('authButton');
         const toggleAuth = document.getElementById('toggleAuth');
         const forgotPassword = document.getElementById('forgotPassword');
-        const usernameInput = document.getElementById('username');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const miniPicture = document.getElementById('miniPicture');
@@ -748,6 +742,7 @@
         const gameStatus = document.getElementById('gameStatus');
         const gameBoard = document.getElementById('gameBoard');
         const leaveRoom = document.getElementById('leaveRoom');
+        const playerInfo = document.getElementById('playerInfo');
         const player1Avatar = document.getElementById('player1Avatar');
         const player2Avatar = document.getElementById('player2Avatar');
         const player1Name = document.getElementById('player1Name');
@@ -775,11 +770,12 @@
         const cancelAdjust = document.getElementById('cancelAdjust');
 
         // Initialize Containers
-        function showContainer(container) {
-            Object.values(containers).forEach(c => c && (c.style.display = 'none'));
-            container.style.display = 'block';
+        function initializeContainers() {
+            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage, adjusterModal];
+            containers.forEach(c => c && (c.style.display = 'none'));
+            authContainer.style.display = 'block';
         }
-        showContainer(containers.auth);
+        initializeContainers();
 
         let isSignUp = true;
         let currentRoomId = null;
@@ -808,166 +804,138 @@
             }, 3000);
         }
 
-        // Validate Username Uniqueness
-        async function isUsernameUnique(username, userId) {
-            const q = query(collection(db, 'users'), where('username', '==', username));
-            const snapshot = await getDocs(q);
-            return snapshot.empty || snapshot.docs.every(doc => doc.id === userId);
+        // Show Container
+        function showContainer(container) {
+            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea, verifyEmail, resetPassword, profilePage, historyPage, adjusterModal];
+            containers.forEach(c => c && (c.style.display = 'none'));
+            container.style.display = 'block';
         }
 
         // Toggle Auth
-        toggleAuth.onclick = () => {
+        toggleAuth.addEventListener('click', () => {
             isSignUp = !isSignUp;
             formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
             authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
             toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
             forgotPassword.style.display = isSignUp ? 'none' : 'inline-block';
-            usernameInput.style.display = isSignUp ? 'block' : 'none';
             emailInput.value = '';
             passwordInput.value = '';
-            usernameInput.value = '';
-        };
+        });
 
         // Authentication
-        authButton.onclick = async () => {
-            const email = emailInput.value.trim();
+        authButton.addEventListener('click', async () => {
+            const email = emailInput.value;
             const password = passwordInput.value;
-            const username = usernameInput.value.trim();
-            if (!email || !password || (isSignUp && !username)) {
-                showMessage('Please fill in all fields', 'error');
+            if (!email || !password) {
+                showMessage('Please enter email and password', 'error');
                 return;
             }
-            if (isSignUp && password.length < 8) {
-                showMessage('Password must be at least 8 characters', 'error');
-                return;
-            }
-            if (isSignUp && !/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
-                showMessage('Username must be 3-20 characters (letters, numbers, underscores)', 'error');
-                return;
-            }
-            authButton.disabled = true;
             try {
                 if (isSignUp) {
-                    if (!(await isUsernameUnique(username))) {
-                        showMessage('Username is already taken', 'error');
-                        return;
-                    }
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     await setDoc(doc(db, 'users', userCredential.user.uid), {
-                        username,
+                        username: 'Player',
                         avatar: ''
                     });
                     await sendEmailVerification(userCredential.user);
                     showMessage('Sign Up Successful! Please verify your email.', 'success');
-                    showContainer(containers.verifyEmail);
+                    showContainer(verifyEmail);
                 } else {
                     await signInWithEmailAndPassword(auth, email, password);
                     showMessage('Login Successful!', 'success');
                 }
                 emailInput.value = '';
                 passwordInput.value = '';
-                usernameInput.value = '';
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
-            } finally {
-                authButton.disabled = false;
             }
-        };
+        });
 
         // Forgot Password
-        forgotPassword.onclick = () => showContainer(containers.resetPassword);
+        forgotPassword.addEventListener('click', () => {
+            showContainer(resetPassword);
+        });
 
         // Send Reset Email
-        sendResetEmail.onclick = async () => {
-            const email = resetEmail.value.trim();
+        sendResetEmail.addEventListener('click', async () => {
+            const email = resetEmail.value;
             if (!email) {
                 showMessage('Please enter an email', 'error');
                 return;
             }
-            sendResetEmail.disabled = true;
             try {
                 await sendPasswordResetEmail(auth, email);
                 showMessage('Password reset link sent! Check your inbox.', 'success');
-                showContainer(containers.auth);
+                showContainer(authContainer);
                 resetEmail.value = '';
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
-            } finally {
-                sendResetEmail.disabled = false;
             }
-        };
+        });
 
         // Back to Login
-        backToLogin.onclick = () => {
-            showContainer(containers.auth);
+        backToLogin.addEventListener('click', () => {
+            showContainer(authContainer);
             resetEmail.value = '';
             formTitle.textContent = 'Login';
             authButton.textContent = 'Login';
             toggleAuth.textContent = 'Need an account? Sign Up';
             forgotPassword.style.display = 'inline-block';
-            usernameInput.style.display = 'none';
             isSignUp = false;
-        };
+        });
 
         // Resend Verification
-        resendVerification.onclick = async () => {
+        resendVerification.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (user) {
-                resendVerification.disabled = true;
                 try {
                     await sendEmailVerification(user);
                     showMessage('Verification email resent!', 'success');
                 } catch (error) {
                     showMessage(`Error: ${error.message}`, 'error');
-                } finally {
-                    resendVerification.disabled = false;
                 }
             } else {
                 showMessage('Please log in again.', 'error');
-                showContainer(containers.auth);
+                showContainer(authContainer);
             }
-        };
+        });
 
         // Logout from Verify
-        logoutFromVerify.onclick = async () => {
-            logoutFromVerify.disabled = true;
+        logoutFromVerify.addEventListener('click', async () => {
             try {
                 await signOut(auth);
                 showMessage('Logged out successfully!', 'success');
-                showContainer(containers.auth);
+                showContainer(authContainer);
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
-            } finally {
-                logoutFromVerify.disabled = false;
             }
-        };
+        });
 
         // Mini Picture Click
-        miniPicture.onclick = () => {
-            if (!auth.currentUser || !auth.currentUser.emailVerified) {
-                showMessage('Please log in and verify your email', 'error');
-                showContainer(containers.auth);
+        miniPicture.addEventListener('click', () => {
+            if (!auth.currentUser) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
                 return;
             }
-            showContainer(containers.profilePage);
-        };
+            showContainer(profilePage);
+        });
 
         // Wallet Button
-        walletButton.onclick = () => showMessage('Wallet feature coming soon!', 'success');
+        walletButton.addEventListener('click', () => {
+            showMessage('Wallet feature coming soon!', 'success');
+        });
 
         // Profile Image Upload
-        profileImage.onclick = () => hiddenAvatarUpload.click();
+        profileImage.addEventListener('click', () => {
+            hiddenAvatarUpload.click();
+        });
 
-        hiddenAvatarUpload.onchange = () => {
+        hiddenAvatarUpload.addEventListener('change', () => {
             if (hiddenAvatarUpload.files.length > 0) {
                 const file = hiddenAvatarUpload.files[0];
                 if (file.size > 2 * 1024 * 1024) {
                     showMessage('Image must be under 2MB', 'error');
-                    hiddenAvatarUpload.value = '';
-                    return;
-                }
-                if (!['image/png', 'image/jpeg'].includes(file.type)) {
-                    showMessage('Only PNG or JPEG images are allowed', 'error');
                     hiddenAvatarUpload.value = '';
                     return;
                 }
@@ -980,9 +948,9 @@
                 yPos.value = 0;
                 zoom.value = 1;
                 updateAdjusterImage();
-                showContainer(containers.adjusterModal);
+                showContainer(adjusterModal);
             }
-        };
+        });
 
         // Picture Adjuster Controls
         function updateAdjusterImage() {
@@ -995,39 +963,39 @@
             adjusterImage.style.transform = `translate(${-offsetX}px, ${-offsetY}px) scale(${scale})`;
         }
 
-        xPos.oninput = () => {
+        xPos.addEventListener('input', () => {
             adjustX = parseInt(xPos.value);
             updateAdjusterImage();
-        };
+        });
 
-        yPos.oninput = () => {
+        yPos.addEventListener('input', () => {
             adjustY = parseInt(yPos.value);
             updateAdjusterImage();
-        };
+        });
 
-        zoom.oninput = () => {
+        zoom.addEventListener('input', () => {
             adjustZoom = parseFloat(zoom.value);
             updateAdjusterImage();
-        };
+        });
 
-        confirmAdjust.onclick = () => {
+        confirmAdjust.addEventListener('click', () => {
             if (avatarFile) {
                 cropImage(avatarFile).then(croppedFile => {
                     avatarFile = croppedFile;
                     profileImage.innerHTML = `<img src="${URL.createObjectURL(croppedFile)}" alt="Avatar"><span class="pencil">✏</span>`;
-                    showContainer(containers.profilePage);
-                }).catch(error => {
-                    showMessage(`Error adjusting image: ${error.message}`, 'error');
-                    showContainer(containers.profilePage);
+                    showContainer(profilePage);
+                }).catch(() => {
+                    showMessage('Error adjusting image', 'error');
+                    showContainer(profilePage);
                 });
             }
-        };
+        });
 
-        cancelAdjust.onclick = () => {
+        cancelAdjust.addEventListener('click', () => {
             avatarFile = null;
             hiddenAvatarUpload.value = '';
-            showContainer(containers.profilePage);
-        };
+            showContainer(profilePage);
+        });
 
         async function cropImage(file) {
             return new Promise((resolve, reject) => {
@@ -1064,56 +1032,48 @@
                 usernameDisplay.innerHTML = `<input class="username-edit" id="usernameEdit" value="${currentUsername || 'Player'}">`;
                 const usernameEdit = document.getElementById('usernameEdit');
                 usernameEdit.focus();
-                usernameEdit.onblur = () => {
+                usernameEdit.addEventListener('blur', () => {
                     currentUsername = usernameEdit.value.trim() || originalUsername;
                     isEditingUsername = false;
                     renderUsername();
-                };
-                usernameEdit.onkeypress = e => {
+                });
+                usernameEdit.addEventListener('keypress', e => {
                     if (e.key === 'Enter') {
                         currentUsername = usernameEdit.value.trim() || originalUsername;
                         isEditingUsername = false;
                         renderUsername();
                     }
-                };
+                });
             } else {
                 usernameDisplay.innerHTML = `${currentUsername || 'Player'} <span class="username-pencil">✏</span>`;
-                usernameDisplay.querySelector('.username-pencil').onclick = () => {
+                const pencil = usernameDisplay.querySelector('.username-pencil');
+                pencil.addEventListener('click', () => {
                     originalUsername = currentUsername;
                     isEditingUsername = true;
                     renderUsername();
-                };
+                });
             }
         }
 
         // Save Profile
-        saveProfile.onclick = async () => {
+        saveProfile.addEventListener('click', async () => {
             const user = auth.currentUser;
-            if (!user || !user.emailVerified) {
-                showMessage('Please log in and verify your email', 'error');
-                showContainer(containers.auth);
+            if (!user) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
                 return;
             }
             const username = currentUsername?.trim();
-            if (!username || !/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
-                showMessage('Username must be 3-20 characters (letters, numbers, underscores)', 'error');
+            if (!username) {
+                showMessage('Username cannot be empty', 'error');
                 return;
             }
-            saveProfile.disabled = true;
             try {
-                if (!(await isUsernameUnique(username, user.uid))) {
-                    showMessage('Username is already taken', 'error');
-                    return;
-                }
                 let avatarUrl = currentAvatar;
                 if (avatarFile) {
                     const storageRef = ref(storage, `avatars/${user.uid}`);
-                    const uploadResult = await uploadBytes(storageRef).catch(err => {
-                        throw new Error('Upload failed: ' + err.message);
-                    });
-                    avatarUrl = await getDownloadURL(storageRef).catch(err => {
-                        throw new Error('Failed to get download URL: ' + err.message);
-                    });
+                    await uploadBytes(storageRef, avatarFile);
+                    avatarUrl = await getDownloadURL(storageRef);
                     avatarFile = null;
                 }
                 await setDoc(doc(db, 'users', user.uid), { username, avatar: avatarUrl || '' }, { merge: true });
@@ -1122,23 +1082,20 @@
                 profileImage.innerHTML = avatarUrl ? `<img src="${avatarUrl}" alt="Avatar"><span class="pencil">✏</span>` : `${username[0]?.toUpperCase() || 'P'}<span class="pencil">✏</span>`;
                 showMessage('Profile updated successfully!', 'success');
                 hiddenAvatarUpload.value = '';
-                showContainer(containers.dashboard);
+                showContainer(dashboard);
             } catch (error) {
                 showMessage(`Error saving profile: ${error.message}`, 'error');
-            } finally {
-                saveProfile.disabled = false;
             }
-        };
+        });
 
         // View Game History
-        viewHistory.onclick = async () => {
+        viewHistory.addEventListener('click', async () => {
             const user = auth.currentUser;
-            if (!user || !user.emailVerified) {
-                showMessage('Please log in and verify your email', 'error');
-                showContainer(containers.auth);
+            if (!user) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
                 return;
             }
-            viewHistory.disabled = true;
             try {
                 const q = query(collection(db, 'users', user.uid, 'gameHistory'));
                 const snapshot = await getDocs(q);
@@ -1173,49 +1130,50 @@
                     });
                 }
                 stats.textContent = `Wins: ${wins} | Losses: ${losses} | Ties: ${ties}`;
-                showContainer(containers.historyPage);
+                showContainer(historyPage);
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
-            } finally {
-                viewHistory.disabled = false;
             }
-        };
+        });
 
         // Back to Profile
-        backToProfile.onclick = () => showContainer(containers.profilePage);
+        backToProfile.addEventListener('click', () => {
+            showContainer(profilePage);
+        });
 
         // Back to Dashboard from Profile
-        backToDashboardFromProfile.onclick = () => showContainer(containers.dashboard);
+        backToDashboardFromProfile.addEventListener('click', () => {
+            showContainer(dashboard);
+        });
 
         // Play Button
-        playButton.onclick = () => {
-            if (!auth.currentUser || !auth.currentUser.emailVerified) {
-                showMessage('Please log in and verify your email', 'error');
-                showContainer(containers.auth);
+        playButton.addEventListener('click', () => {
+            if (!auth.currentUser) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
                 return;
             }
             startRandomMatch();
-        };
+        });
 
         // Play with Friend
-        playWithFriend.onclick = () => {
-            if (!auth.currentUser || !auth.currentUser.emailVerified) {
-                showMessage('Please log in and verify your email', 'error');
-                showContainer(containers.auth);
+        playWithFriend.addEventListener('click', () => {
+            if (!auth.currentUser) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
                 return;
             }
-            showContainer(containers.gamePage);
-        };
+            showContainer(gamePage);
+        });
 
         // Create Room
-        createRoom.onclick = async () => {
+        createRoom.addEventListener('click', async () => {
             const user = auth.currentUser;
-            if (!user || !user.emailVerified) {
-                showMessage('Please log in and verify your email', 'error');
-                showContainer(containers.auth);
+            if (!user) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
                 return;
             }
-            createRoom.disabled = true;
             try {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const userData = userDoc.data() || {};
@@ -1236,24 +1194,22 @@
                 const roomRef = await addDoc(collection(db, 'rooms'), roomData);
                 currentRoomId = roomRef.id;
                 currentPlayer = 'X';
-                showContainer(containers.gameRoom);
+                showContainer(gameRoom);
                 roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
                 gameStatus.textContent = 'Waiting for opponent...';
                 listenToRoom(currentRoomId);
                 showMessage('Room created! Share the Room ID.', 'success');
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
-            } finally {
-                createRoom.disabled = false;
             }
-        };
+        });
 
         // Join Room
-        joinRoom.onclick = async () => {
+        joinRoom.addEventListener('click', async () => {
             const user = auth.currentUser;
-            if (!user || !user.emailVerified) {
-                showMessage('Please log in and verify your email', 'error');
-                showContainer(containers.auth);
+            if (!user) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
                 return;
             }
             const roomId = roomIdInput.value.trim();
@@ -1261,7 +1217,6 @@
                 showMessage('Please enter a Room ID', 'error');
                 return;
             }
-            joinRoom.disabled = true;
             try {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const userData = userDoc.data() || {};
@@ -1289,34 +1244,32 @@
                 });
                 currentRoomId = roomId;
                 currentPlayer = 'O';
-                showContainer(containers.gameRoom);
+                showContainer(gameRoom);
                 roomIdDisplay.textContent = `Room ID: ${roomId}`;
                 listenToRoom(roomId);
                 showMessage('Joined room successfully!', 'success');
                 roomIdInput.value = '';
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
-            } finally {
-                joinRoom.disabled = false;
             }
-        };
+        });
 
         // Back to Dashboard
-        backToDashboard.onclick = () => {
-            if (!auth.currentUser || !auth.currentUser.emailVerified) {
-                showMessage('Please log in and verify your email', 'error');
-                showContainer(containers.auth);
+        backToDashboard.addEventListener('click', () => {
+            if (!auth.currentUser) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
                 return;
             }
-            showContainer(containers.dashboard);
-        };
+            showContainer(dashboard);
+        });
 
         // Start Random Match
         async function startRandomMatch() {
             const user = auth.currentUser;
-            if (!user || !user.emailVerified) {
-                showMessage('Please log in and verify your email', 'error');
-                showContainer(containers.auth);
+            if (!user) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
                 return;
             }
             let matchmakingId = null;
@@ -1325,9 +1278,8 @@
                 const userData = userDoc.data() || {};
                 const username = userData.username || 'Player';
                 const avatar = userData.avatar || '';
-                showContainer(containers.waitingArea);
+                showContainer(waitingArea);
 
-                // Clean up existing matchmaking entries
                 const userEntries = await getDocs(query(collection(db, 'matchmaking'), where('userId', '==', user.uid)));
                 for (const entry of userEntries.docs) {
                     await deleteDoc(doc(db, 'matchmaking', entry.id));
@@ -1347,7 +1299,7 @@
                 const unsubscribeMatch = onSnapshot(doc(db, 'matchmaking', matchmakingId), async snapshot => {
                     if (!snapshot.exists()) {
                         if (!isPaired) {
-                            showContainer(containers.dashboard);
+                            showContainer(dashboard);
                             showMessage('Matchmaking canceled.', 'error');
                         }
                         return;
@@ -1360,7 +1312,7 @@
                         opponentUsername = data.opponentUsername;
                         await deleteDoc(doc(db, 'matchmaking', matchmakingId));
                         unsubscribeMatch();
-                        showContainer(containers.gameRoom);
+                        showContainer(gameRoom);
                         roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
                         listenToRoom(currentRoomId);
                         showMessage('Opponent found! Game started.', 'success');
@@ -1377,43 +1329,38 @@
                 });
 
                 if (opponentDocs.length > 0 && !isPaired) {
-                    await runTransaction(db, async transaction => {
-                        const opponentDocRef = doc(db, 'matchmaking', opponentDocs[0].id);
-                        const opponentSnap = await transaction.get(opponentDocRef);
-                        if (!opponentSnap.exists() || opponentSnap.data().status !== 'waiting') {
-                            throw new Error('Opponent no longer available');
-                        }
-                        const opponent = opponentSnap.data();
-                        isPaired = true;
-                        const roomData = {
-                            player1: user.uid,
-                            player1Username: username,
-                            player1Avatar: avatar,
-                            player2: opponent.userId,
-                            player2Username: opponent.username,
-                            player2Avatar: opponent.avatar,
-                            board: ['', '', '', '', '', '', '', '', ''],
-                            turn: 'X',
-                            status: 'active',
-                            createdAt: Date.now()
-                        };
-                        const roomRef = doc(collection(db, 'rooms'));
-                        transaction.set(roomRef, roomData);
-                        transaction.update(opponentDocRef, {
-                            status: 'paired',
-                            roomId: roomRef.id,
-                            playerSymbol: 'O',
-                            opponentUsername: username
-                        });
-                        transaction.delete(doc(db, 'matchmaking', matchmakingId));
-                        currentRoomId = roomRef.id;
-                        currentPlayer = 'X';
-                        opponentUsername = opponent.username;
+                    const opponentDoc = opponentDocs[0];
+                    const opponent = opponentDoc.data();
+                    isPaired = true;
+                    const roomData = {
+                        player1: user.uid,
+                        player1Username: username,
+                        player1Avatar: avatar,
+                        player2: opponent.userId,
+                        player2Username: opponent.username,
+                        player2Avatar: opponent.avatar,
+                        board: ['', '', '', '', '', '', '', '', ''],
+                        turn: 'X',
+                        status: 'active',
+                        createdAt: Date.now()
+                    };
+                    const roomRef = await addDoc(collection(db, 'rooms'), roomData);
+                    currentRoomId = roomRef.id;
+                    currentPlayer = 'X';
+                    opponentUsername = opponent.username;
+
+                    await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
+                        status: 'paired',
+                        roomId: roomRef.id,
+                        playerSymbol: 'O',
+                        opponentUsername: username
                     });
+
+                    await deleteDoc(doc(db, 'matchmaking', matchmakingId));
                     unsubscribeMatch();
-                    showContainer(containers.gameRoom);
-                    roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
-                    listenToRoom(currentRoomId);
+                    showContainer(gameRoom);
+                    roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
+                    listenToRoom(roomRef.id);
                     showMessage('Opponent found! Game started.', 'success');
                 } else {
                     setTimeout(() => {
@@ -1422,17 +1369,17 @@
                             if (matchmakingId) {
                                 deleteDoc(doc(db, 'matchmaking', matchmakingId));
                             }
-                            showContainer(containers.dashboard);
+                            showContainer(dashboard);
                             showMessage('No opponent found. Try again.', 'error');
                         }
                     }, 20000);
                 }
             } catch (error) {
-                showMessage('Matchmaking failed: ' + error.message, 'error');
+                showMessage('Matchmaking failed.', 'error');
                 if (matchmakingId) {
                     deleteDoc(doc(db, 'matchmaking', matchmakingId));
                 }
-                showContainer(containers.dashboard);
+                showContainer(dashboard);
             }
         }
 
@@ -1462,11 +1409,6 @@
                     return;
                 }
                 const data = snapshot.data();
-                if (data.status === 'closed' || (currentPlayer === 'X' && !data.player2) || (currentPlayer === 'O' && !data.player1)) {
-                    showMessage('Opponent disconnected', 'error');
-                    cleanupGame();
-                    return;
-                }
                 if (data.status === 'active' && data.player1 && data.player2) {
                     let winner = data.winner || checkWinner(data.board);
                     if (winner && !data.winner) {
@@ -1550,7 +1492,7 @@
                 await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'finished', winner: result });
                 setTimeout(() => {
                     cleanupGame();
-                    showContainer(containers.dashboard);
+                    showContainer(dashboard);
                 }, 2000);
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
@@ -1579,33 +1521,30 @@
             player2Avatar.innerHTML = '';
             player1Name.textContent = '';
             player2Name.textContent = '';
-            if (auth.currentUser && auth.currentUser.emailVerified) {
-                showContainer(containers.dashboard);
+            if (auth.currentUser) {
+                showContainer(dashboard);
             } else {
-                showContainer(containers.auth);
+                showContainer(authContainer);
             }
         }
 
         // Leave Room
-        leaveRoom.onclick = async () => {
-            if (currentRoomId) {
-                await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'closed' });
-            }
+        leaveRoom.addEventListener('click', () => {
             showMessage('Left room', 'success');
             cleanupGame();
-        };
+        });
 
         // Auth State Listener
         onAuthStateChanged(auth, async user => {
             if (user) {
                 if (!user.emailVerified) {
-                    showContainer(containers.verifyEmail);
+                    showContainer(verifyEmail);
                     miniPicture.innerHTML = '';
                     profileImage.innerHTML = '<span class="pencil">✏</span>';
                     usernameDisplay.innerHTML = '';
                     return;
                 }
-                showContainer(containers.dashboard);
+                showContainer(dashboard);
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const data = userDoc.data() || {};
@@ -1622,7 +1561,7 @@
                     renderUsername();
                 }
             } else {
-                showContainer(containers.auth);
+                showContainer(authContainer);
                 miniPicture.innerHTML = '';
                 profileImage.innerHTML = '<span class="pencil">✏</span>';
                 usernameDisplay.innerHTML = '';
@@ -1634,19 +1573,16 @@
         });
 
         // Logout
-        logoutButton.onclick = async () => {
-            logoutButton.disabled = true;
+        logoutButton.addEventListener('click', async () => {
             try {
                 await signOut(auth);
                 showMessage('Logged out successfully!', 'success');
-                showContainer(containers.auth);
+                showContainer(authContainer);
                 cleanupGame();
             } catch (error) {
                 showMessage(`Error: ${error.message}`, 'error');
-            } finally {
-                logoutButton.disabled = false;
             }
-        };
+        });
     </script>
 </body>
 </html>
