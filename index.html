@@ -344,19 +344,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
-            padding-top: 25%;
+            padding: 5%;
         }
 
-        .profile-header {
-            position: absolute;
-            top: 5%;
-            left: 50%;
-            transform: translateX(-50%);
+        .profile-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
+            margin-top: 3%;
         }
 
         .profile-pic-circle {
@@ -378,7 +373,7 @@
         .username-container {
             display: flex;
             align-items: center;
-            margin-bottom: 3%;
+            margin-bottom: 5%;
         }
 
         .username-display {
@@ -409,7 +404,6 @@
             padding: 3%;
             border-radius: 5px;
             box-shadow: 0 0 15px rgba(255, 87, 51, 0.8);
-            margin-top: 5%;
         }
 
         .game-history-btn:hover {
@@ -496,11 +490,8 @@
             .edit-icon {
                 font-size: clamp(0.7rem, 2vw, 0.9rem);
             }
-            .profile-page {
-                padding-top: 30%;
-            }
-            .profile-header {
-                top: 3%;
+            .profile-content {
+                margin-top: 5%;
             }
         }
     </style>
@@ -544,9 +535,9 @@
     <!-- Profile Page -->
     <div class="container profile-page" id="profilePage">
         <h2>Profile</h2>
-        <div class="profile-header">
+        <div class="profile-content">
             <div id="profilePicCircle" class="profile-pic-circle"></div>
-            <input type="file" id="profilePicInput" accept="image/*">
+            <input type="file" id="profilePicInput" accept="image/png,image/jpeg">
             <div class="username-container">
                 <span id="usernameDisplay" class="username-display" contenteditable="false">Set Username</span>
                 <span class="edit-icon">✏</span>
@@ -689,6 +680,7 @@
         let opponentUsername = null;
         let unsubscribeRoom = null;
         let lastSaveTime = 0;
+        let localAvatarUrl = null;
 
         // Show Message
         function showMessage(message, type) {
@@ -720,10 +712,16 @@
                 return;
             }
             const firstLetter = username.charAt(0).toUpperCase() || 'P';
-            if (avatarUrl) {
+            if (avatarUrl && avatarUrl !== 'local') {
                 console.log('Setting profile picture:', avatarUrl);
                 profileBtn.style.backgroundImage = `url(${avatarUrl})`;
                 profilePicCircle.style.backgroundImage = `url(${avatarUrl})`;
+                profileBtn.style.color = 'transparent';
+                profilePicCircle.style.color = 'transparent';
+            } else if (avatarUrl === 'local' && localAvatarUrl) {
+                console.log('Using local avatar URL:', localAvatarUrl);
+                profileBtn.style.backgroundImage = `url(${localAvatarUrl})`;
+                profilePicCircle.style.backgroundImage = `url(${localAvatarUrl})`;
                 profileBtn.style.color = 'transparent';
                 profilePicCircle.style.color = 'transparent';
             } else {
@@ -784,7 +782,21 @@
                 };
 
                 if (avatarFile) {
-                    console.log('Uploading avatar: name=', avatarFile.name, 'size=', avatarFile.size);
+                    // Validate file
+                    const validTypes = ['image/png', 'image/jpeg'];
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+                    if (!validTypes.includes(avatarFile.type)) {
+                        console.error('Invalid file type:', avatarFile.type);
+                        showMessage('Please upload a PNG or JPEG image', 'error');
+                        return;
+                    }
+                    if (avatarFile.size > maxSize) {
+                        console.error('File too large:', avatarFile.size);
+                        showMessage('Image must be under 2MB', 'error');
+                        return;
+                    }
+
+                    console.log('Uploading avatar: name=', avatarFile.name, 'size=', avatarFile.size, 'type=', avatarFile.type);
                     const storageRef = ref(storage, `users/${user.uid}/avatar`);
                     try {
                         const uploadResult = await uploadBytes(storageRef, avatarFile);
@@ -792,10 +804,13 @@
                         const avatarUrl = await getDownloadURL(storageRef);
                         console.log('Generated avatarUrl:', avatarUrl);
                         userData.avatarUrl = avatarUrl;
+                        localAvatarUrl = null; // Clear local URL
                     } catch (uploadError) {
                         console.error('Avatar upload failed:', uploadError.code, uploadError.message);
-                        showMessage('Failed to upload avatar', 'error');
-                        return;
+                        showMessage('Failed to upload avatar. Using local image.', 'error');
+                        // Fallback: Use local image
+                        localAvatarUrl = URL.createObjectURL(avatarFile);
+                        userData.avatarUrl = 'local';
                     }
                 }
 
@@ -826,7 +841,7 @@
             console.log('Profile picture input changed');
             const file = e.target.files[0];
             if (file) {
-                console.log('Selected file: name=', file.name, 'size=', file.size);
+                console.log('Selected file: name=', file.name, 'size=', file.size, 'type=', file.type);
                 const username = usernameDisplay.textContent.trim() || 'Player';
                 await saveProfile(username, file);
                 profilePicInput.value = '';
@@ -1325,6 +1340,7 @@
                     const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
                     const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
                     console.log('Fetched user data: username=', username, 'avatarUrl=', avatarUrl);
+                    localAvatarUrl = null; // Reset local URL on login
                     updateProfileUI(username, avatarUrl);
                 } catch (error) {
                     console.error('Fetch user data error:', error.code, error.message);
@@ -1336,6 +1352,7 @@
                 userDisplay.textContent = '';
                 usernameDisplay.textContent = 'Set Username';
                 updateProfileUI('Player', null);
+                localAvatarUrl = null;
                 cleanupGame();
             }
         });
