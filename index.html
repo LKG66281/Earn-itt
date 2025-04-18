@@ -17,7 +17,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(45deg, #1a0033, #002b4d, #33001a);
+            background: linear-gradient(45deg, #0a001a, #001933, #1a000a);
             background-size: 400%;
             animation: bgGlow 15s ease infinite;
             overflow-x: hidden;
@@ -30,10 +30,10 @@
         }
 
         .container {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             padding: 5%;
             border-radius: 10px;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.7), 0 0 50px rgba(0, 255, 255, 0.7);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8), 0 0 50px rgba(0, 255, 255, 0.8);
             width: min(90%, 500px);
             text-align: center;
             position: relative;
@@ -42,13 +42,16 @@
 
         h2 {
             color: #ff00ff;
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+            text-shadow: 0 0 15px #ff00ff, 0 0 25px #00ffff;
             margin-bottom: 5%;
             font-size: clamp(1.5rem, 5vw, 2rem);
         }
 
         .input-box {
             margin-bottom: 5%;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         input {
@@ -60,12 +63,12 @@
             border-radius: 25px;
             color: #fff;
             font-size: clamp(0.9rem, 3vw, 1rem);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
             transition: box-shadow 0.3s ease;
         }
 
         input:focus {
-            box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff;
+            box-shadow: 0 0 25px #ff00ff, 0 0 35px #00ffff;
         }
 
         button {
@@ -79,7 +82,7 @@
             font-size: clamp(0.9rem, 3vw, 1rem);
             cursor: pointer;
             text-shadow: 0 0 5px #fff;
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.7);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
             transition: all 0.3s ease;
             margin-bottom: 3%;
             animation: pulseButton 2s infinite;
@@ -92,7 +95,7 @@
         }
 
         button:hover {
-            box-shadow: 0 0 30px #ff00ff, 0 0 50px #00ffff;
+            box-shadow: 0 0 35px #ff00ff, 0 0 55px #00ffff;
             color: #fff;
         }
 
@@ -107,7 +110,7 @@
 
         .toggle-text:hover {
             text-decoration: underline;
-            text-shadow: 0 0 10px #ff00ff;
+            text-shadow: 0 0 15px #ff00ff;
         }
 
         .message {
@@ -141,11 +144,11 @@
 
         .play-btn {
             background: linear-gradient(45deg, #ff9900, #ff00ff);
-            box-shadow: 0 0 15px rgba(255, 153, 0, 0.7);
+            box-shadow: 0 0 15px rgba(255, 153, 0, 0.8);
         }
 
         .play-btn:hover {
-            box-shadow: 0 0 30px #ff9900, 0 0 50px #ff00ff;
+            box-shadow: 0 0 35px #ff9900, 0 0 55px #ff00ff;
         }
 
         .game-board {
@@ -158,7 +161,7 @@
 
         .cell {
             aspect-ratio: 1;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             border: 2px solid #00ffff;
             display: flex;
             justify-content: center;
@@ -166,23 +169,23 @@
             font-size: clamp(2rem, 8vw, 3rem);
             color: #fff;
             cursor: pointer;
-            text-shadow: 0 0 10px #00ffff;
+            text-shadow: 0 0 15px #00ffff;
             transition: all 0.3s ease;
         }
 
         .cell:hover {
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 20px #ff00ff;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 25px #ff00ff;
         }
 
         .cell.x {
             color: #ff00ff;
-            text-shadow: 0 0 15px #ff00ff;
+            text-shadow: 0 0 20px #ff00ff;
         }
 
         .cell.o {
             color: #00ff00;
-            text-shadow: 0 0 15px #00ff00;
+            text-shadow: 0 0 20px #00ff00;
         }
 
         .room-id {
@@ -201,7 +204,7 @@
 
         .waiting-area p {
             color: #ff00ff;
-            text-shadow: 0 0 10px #ff00ff;
+            text-shadow: 0 0 15px #ff00ff;
             font-size: clamp(1.2rem, 4vw, 1.5rem);
             animation: pulse 1.5s infinite;
         }
@@ -212,18 +215,19 @@
             100% { opacity: 1; }
         }
 
-        /* New Styles for Buttons and Balance Box */
-        .dashboard-buttons {
+        /* Dashboard Layout */
+        .dashboard {
+            position: relative;
+            min-height: 80vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
-            gap: 3%;
-            margin: 5% 0;
-            flex-wrap: wrap;
+            align-items: center;
         }
 
         .circle-btn {
-            width: clamp(50px, 12vw, 60px);
-            height: clamp(50px, 12vw, 60px);
+            width: clamp(50px, 10vw, 60px);
+            height: clamp(50px, 10vw, 60px);
             border-radius: 50%;
             background: linear-gradient(45deg, #ff00ff, #00ffff, #ff9900);
             background-size: 300%;
@@ -235,31 +239,76 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.7), 0 0 25px rgba(0, 255, 255, 0.7);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.8);
             animation: pulseButton 3s infinite;
             transition: all 0.3s ease;
+            position: absolute;
         }
 
         .circle-btn:hover {
-            box-shadow: 0 0 30px #ff00ff, 0 0 50px #00ffff;
+            box-shadow: 0 0 40px #ff00ff, 0 0 60px #00ffff;
             transform: scale(1.1);
         }
 
+        #profileBtn {
+            top: 5%;
+            right: 5%;
+            background: none;
+            background-size: cover;
+            color: transparent;
+            border: 2px solid #ff00ff;
+        }
+
+        #walletBtn {
+            top: 5%;
+            left: 5%;
+        }
+
         .balance-box {
-            background: rgba(0, 0, 0, 0.9);
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
             border: 2px solid #ff9900;
             border-radius: 10px;
-            padding: 3%;
-            margin: 5% auto;
-            width: 80%;
+            padding: 2%;
+            width: clamp(100px, 25vw, 150px);
             color: #ff9900;
-            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
             font-weight: bold;
-            text-shadow: 0 0 10px #ff9900;
-            box-shadow: 0 0 20px rgba(255, 153, 0, 0.7);
+            text-shadow: 0 0 15px #ff9900;
+            box-shadow: 0 0 25px rgba(255, 153, 0, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        #playButton {
+            position: absolute;
+            bottom: 5%;
+            left: 5%;
+            width: clamp(100px, 20vw, 120px);
+        }
+
+        #friendsBtn {
+            bottom: 5%;
+            left: 30%;
+        }
+
+        #tournamentsBtn {
+            bottom: 5%;
+            right: 30%;
+        }
+
+        #tasksBtn {
+            bottom: 5%;
+            right: 5%;
+        }
+
+        .dashboard-center {
+            width: 80%;
+            margin: 20% auto 10% auto;
         }
 
         @media (max-width: 600px) {
@@ -283,17 +332,51 @@
                 font-size: clamp(1.5rem, 6vw, 2rem);
             }
             .circle-btn {
-                width: clamp(40px, 10vw, 50px);
-                height: clamp(40px, 10vw, 50px);
+                width: clamp(40px, 8vw, 50px);
+                height: clamp(40px, 8vw, 50px);
                 font-size: clamp(0.8rem, 2.5vw, 1rem);
             }
             .balance-box {
-                width: 90%;
-                padding: 4%;
-                font-size: clamp(1rem, 3.5vw, 1.2rem);
+                width: clamp(80px, 20vw, 120px);
+                padding: 3%;
+                font-size: clamp(0.8rem, 3vw, 1rem);
             }
-            .dashboard-buttons {
-                gap: 2%;
+            #profileBtn, #walletBtn, #playButton, #friendsBtn, #tournamentsBtn, #tasksBtn {
+                top: auto;
+                left: auto;
+                right: auto;
+                bottom: auto;
+            }
+            #profileBtn {
+                top: 3%;
+                right: 3%;
+            }
+            #walletBtn {
+                top: 3%;
+                left: 3%;
+            }
+            .balance-box {
+                top: 15%;
+            }
+            #playButton {
+                bottom: 3%;
+                left: 3%;
+                width: clamp(80px, 18vw, 100px);
+            }
+            #friendsBtn {
+                bottom: 3%;
+                left: 28%;
+            }
+            #tournamentsBtn {
+                bottom: 3%;
+                right: 28%;
+            }
+            #tasksBtn {
+                bottom: 3%;
+                right: 3%;
+            }
+            .dashboard-center {
+                margin: 25% auto 15% auto;
             }
         }
     </style>
@@ -314,27 +397,27 @@
 
     <!-- Dashboard -->
     <div class="container dashboard" id="dashboard">
-        <h2>Welcome, <span id="userDisplay"></span></h2>
-        <div id="verifyEmailPrompt" style="display: none;">
-            <p style="color: #ff9900; text-shadow: 0 0 5px #ff9900; margin-bottom: 5%;">
-                Please verify your email to play. Check your inbox!
-            </p>
-            <button id="resendVerification">Resend Verification Email</button>
-        </div>
         <div class="balance-box">₹0</div>
-        <div class="dashboard-buttons">
-            <button class="circle-btn" id="profileBtn">Pro</button>
-            <button class="circle-btn" id="tasksBtn">T</button>
-            <button class="circle-btn" id="tournamentsBtn">To</button>
-            <button class="circle-btn" id="friendsBtn">Fr</button>
-            <button class="circle-btn" id="walletBtn">W</button>
+        <button class="circle-btn" id="profileBtn">Pro</button>
+        <button class="circle-btn" id="walletBtn">W</button>
+        <button class="circle-btn" id="friendsBtn">Fr</button>
+        <button class="circle-btn" id="tournamentsBtn">To</button>
+        <button class="circle-btn" id="tasksBtn">T</button>
+        <div class="dashboard-center">
+            <h2>Welcome, <span id="userDisplay"></span></h2>
+            <div id="verifyEmailPrompt" style="display: none;">
+                <p style="color: #ff9900; text-shadow: 0 0 5px #ff9900; margin-bottom: 5%;">
+                    Please verify your email to play. Check your inbox!
+                </p>
+                <button id="resendVerification">Resend Verification Email</button>
+            </div>
+            <div class="input-box">
+                <input type="text" id="username" placeholder="Set Username">
+            </div>
+            <button id="saveUsername">Save Username</button>
+            <button class="play-btn" id="playButton">Play</button>
+            <button id="logoutButton">Logout</button>
         </div>
-        <div class="input-box">
-            <input type="text" id="username" placeholder="Set Username">
-        </div>
-        <button id="saveUsername">Save Username</button>
-        <button class="play-btn" id="playButton">Play</button>
-        <button id="logoutButton">Logout</button>
     </div>
 
     <!-- Game Page -->
@@ -441,6 +524,7 @@
         const playersDisplay = document.getElementById('playersDisplay');
         const verifyEmailPrompt = document.getElementById('verifyEmailPrompt');
         const resendVerification = document.getElementById('resendVerification');
+        const profileBtn = document.getElementById('profileBtn');
 
         // Initialize container visibility
         function initializeContainers() {
@@ -477,6 +561,36 @@
             const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea];
             containers.forEach(c => c && (c.style.display = 'none'));
             container.style.display = 'block';
+        }
+
+        // Generate Profile Button Background
+        async function updateProfileButton(username) {
+            console.log(`Updating profile button for username: ${username}`);
+            if (!profileBtn || !username) return;
+            const firstLetter = username.charAt(0).toUpperCase();
+            const canvas = document.createElement('canvas');
+            const size = 100;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Draw circular background
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff00ff';
+            ctx.fill();
+
+            // Draw letter
+            ctx.font = 'bold 60px Arial';
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(firstLetter, size / 2, size / 2);
+
+            // Set as background
+            profileBtn.style.backgroundImage = `url(${canvas.toDataURL()})`;
+            profileBtn.style.backgroundSize = 'cover';
+            profileBtn.style.border = '2px solid #ff00ff';
         }
 
         // Toggle Auth Mode
@@ -550,6 +664,7 @@
                 showMessage('Username saved!', 'success');
                 usernameInput.value = '';
                 userDisplay.textContent = username;
+                updateProfileButton(username);
             } catch (error) {
                 console.error('Save username error:', error);
                 showMessage(`Error: ${error.message}`, 'error');
@@ -895,6 +1010,7 @@
                 });
             }
             if (gameStatus) gameStatus.textContent = 'Waiting for opponent...';
+            if (gameStatus) gameStatus.textContent = 'Waiting for opponent...';
             if (roomIdDisplay) roomIdDisplay.textContent = '';
             if (playersDisplay) playersDisplay.textContent = '';
             if (auth.currentUser) {
@@ -925,15 +1041,18 @@
                     userDisplay.textContent = username;
                     usernameInput.placeholder = userDoc.exists() && userDoc.data().username ? 
                         `Current: ${userDoc.data().username}` : 'Set Username';
+                    updateProfileButton(username);
                 } catch (error) {
                     console.error('Fetch username error:', error);
                     showMessage(`Error fetching username: ${error.message}`, 'error');
                     userDisplay.textContent = 'Player';
+                    updateProfileButton('P');
                 }
             } else {
                 showContainer(authContainer);
                 userDisplay.textContent = '';
                 usernameInput.placeholder = 'Set Username';
+                updateProfileButton('P');
                 cleanupGame();
             }
         });
