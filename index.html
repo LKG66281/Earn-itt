@@ -33,7 +33,7 @@
             background: rgba(0, 0, 0, 0.9);
             padding: 5%;
             border-radius: 10px;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8), 0 0 50px rgba(0, 255, 255, 0.8);
+            box-shadow: 0 0 30px rgba(195, 0, 255, 0.8), 0 0 50px rgba(0, 230, 230, 0.8);
             width: min(90%, 500px);
             text-align: center;
             position: relative;
@@ -41,8 +41,8 @@
         }
 
         h2 {
-            color: #ff00ff;
-            text-shadow: 0 0 15px #ff00ff, 0 0 25px #00ffff;
+            color: #c300ff;
+            text-shadow: 0 0 15px #c300ff, 0 0 25px #00e6e6;
             margin-bottom: 5%;
             font-size: clamp(1.5rem, 5vw, 2rem);
         }
@@ -54,7 +54,7 @@
             margin-right: auto;
         }
 
-        input[type="text"], input[type="file"] {
+        input[type="text"], input[type="file"], input[type="email"], input[type="password"] {
             width: 100%;
             padding: 3%;
             background: rgba(255, 255, 255, 0.1);
@@ -63,22 +63,22 @@
             border-radius: 25px;
             color: #fff;
             font-size: clamp(0.9rem, 3vw, 1rem);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+            box-shadow: 0 0 10px rgba(0, 230, 230, 0.6);
             transition: box-shadow 0.3s ease;
         }
 
         input[type="file"] {
-            padding: 2%;
+            display: none;
         }
 
         input:focus {
-            box-shadow: 0 0 25px #ff00ff, 0 0 35px #00ffff;
+            box-shadow: 0 0 25px #c300ff, 0 0 35px #00e6e6;
         }
 
         button {
             width: 100%;
             padding: 3%;
-            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            background: linear-gradient(45deg, #c300ff, #00e6e6);
             background-size: 200%;
             border: none;
             border-radius: 5px;
@@ -86,7 +86,7 @@
             font-size: clamp(0.9rem, 3vw, 1rem);
             cursor: pointer;
             text-shadow: 0 0 5px #fff;
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
+            box-shadow: 0 0 15px rgba(195, 0, 255, 0.8);
             transition: all 0.3s ease;
             margin-bottom: 3%;
             animation: pulseButton 2s infinite;
@@ -99,22 +99,22 @@
         }
 
         button:hover {
-            box-shadow: 0 0 35px #ff00ff, 0 0 55px #00ffff;
+            box-shadow: 0 0 35px #c300ff, 0 0 55px #00e6e6;
             color: #fff;
         }
 
         .toggle-text {
-            color: #00ffff;
+            color: #00e6e6;
             cursor: pointer;
             margin-top: 3%;
             display: inline-block;
-            text-shadow: 0 0 5px #00ffff;
+            text-shadow: 0 0 5px #00e6e6;
             font-size: clamp(0.8rem, 2.5vw, 0.9rem);
         }
 
         .toggle-text:hover {
             text-decoration: underline;
-            text-shadow: 0 0 15px #ff00ff;
+            text-shadow: 0 0 15px #c300ff;
         }
 
         .message {
@@ -132,13 +132,13 @@
         }
 
         .message.success {
-            background: #00ff00;
-            text-shadow: 0 0 5px #00ff00;
+            background: #33ff66;
+            text-shadow: 0 0 5px #33ff66;
         }
 
         .message.error {
-            background: #ff0000;
-            text-shadow: 0 0 5px #ff0000;
+            background: #ff5733;
+            text-shadow: 0 0 5px #ff5733;
         }
 
         .dashboard, .game-page, .game-room, .waiting-area, .profile-page {
@@ -147,21 +147,45 @@
         }
 
         .play-btn {
-            background: linear-gradient(45deg, #ff9900, #ff00ff);
-            box-shadow: 0 0 15px rgba(255, 153, 0, 0.8);
+            background: linear-gradient(45deg, #ff5733, #c300ff);
+            box-shadow: 0 0 15px rgba(255, 87, 51, 0.8);
         }
 
         .play-btn:hover {
-            box-shadow: 0 0 35px #ff9900, 0 0 55px #ff00ff;
+            box-shadow: 0 0 35px #ff5733, 0 0 55px #c300ff;
+        }
+
+        .circle-btn {
+            width: clamp(50px, 10vw, 60px);
+            height: clamp(50px, 10vw, 60px);
+            border-radius: 50%;
+            background: linear-gradient(45deg, #c300ff, #00e6e6, #ff5733);
+            background-size: 300%;
+            border: none;
+            color: #fff;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(195, 0, 255, 0.8), 0 0 30px rgba(0, 230, 230, 0.8);
+            animation: pulseButton 3s infinite;
+            transition: all 0.3s ease;
+        }
+
+        .circle-btn:hover {
+            box-shadow: 0 0 40px #c300ff, 0 0 60px #00e6e6;
+            transform: scale(1.1);
         }
 
         .win-btn {
-            background: linear-gradient(45deg, #00ff00, #ff00ff);
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+            background: linear-gradient(45deg, #33ff66, #c300ff);
+            box-shadow: 0 0 15px rgba(51, 255, 102, 0.8);
         }
 
         .win-btn:hover {
-            box-shadow: 0 0 35px #00ff00, 0 0 55px #ff00ff;
+            box-shadow: 0 0 35px #33ff66, 0 0 55px #c300ff;
         }
 
         .game-board {
@@ -175,35 +199,35 @@
         .cell {
             aspect-ratio: 1;
             background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #00ffff;
+            border: 2px solid #00e6e6;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: clamp(2rem, 8vw, 3rem);
             color: #fff;
             cursor: pointer;
-            text-shadow: 0 0 15px #00ffff;
+            text-shadow: 0 0 15px #00e6e6;
             transition: all 0.3s ease;
         }
 
         .cell:hover {
             background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 25px #ff00ff;
+            box-shadow: 0 0 25px #c300ff;
         }
 
         .cell.x {
-            color: #ff00ff;
-            text-shadow: 0 0 20px #ff00ff;
+            color: #c300ff;
+            text-shadow: 0 0 20px #c300ff;
         }
 
         .cell.o {
-            color: #00ff00;
-            text-shadow: 0 0 20px #00ff00;
+            color: #33ff66;
+            text-shadow: 0 0 20px #33ff66;
         }
 
         .room-id {
-            color: #ff9900;
-            text-shadow: 0 0 5px #ff9900;
+            color: #ff5733;
+            text-shadow: 0 0 5px #ff5733;
             margin-bottom: 5%;
             font-size: clamp(1rem, 3.5vw, 1.2rem);
         }
@@ -211,13 +235,13 @@
         .status {
             color: #fff;
             margin-bottom: 5%;
-            text-shadow: 0 0 5px #00ffff;
+            text-shadow: 0 0 5px #00e6e6;
             font-size: clamp(1rem, 3.5vw, 1.2rem);
         }
 
         .waiting-area p {
-            color: #ff00ff;
-            text-shadow: 0 0 15px #ff00ff;
+            color: #c300ff;
+            text-shadow: 0 0 15px #c300ff;
             font-size: clamp(1.2rem, 4vw, 1.5rem);
             animation: pulse 1.5s infinite;
         }
@@ -238,38 +262,13 @@
             align-items: center;
         }
 
-        .circle-btn {
-            width: clamp(50px, 10vw, 60px);
-            height: clamp(50px, 10vw, 60px);
-            border-radius: 50%;
-            background: linear-gradient(45deg, #ff00ff, #00ffff, #ff9900);
-            background-size: 300%;
-            border: none;
-            color: #fff;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-            font-weight: bold;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.8);
-            animation: pulseButton 3s infinite;
-            transition: all 0.3s ease;
-            position: absolute;
-        }
-
-        .circle-btn:hover {
-            box-shadow: 0 0 40px #ff00ff, 0 0 60px #00ffff;
-            transform: scale(1.1);
-        }
-
         #profileBtn {
             top: 5%;
             right: 5%;
             background: none;
             background-size: cover;
             color: transparent;
-            border: 2px solid #ff00ff;
+            border: 2px solid #c300ff;
         }
 
         #walletBtn {
@@ -283,15 +282,15 @@
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.95);
-            border: 2px solid #ff9900;
+            border: 2px solid #ff5733;
             border-radius: 10px;
             padding: 2%;
             width: clamp(100px, 25vw, 150px);
-            color: #ff9900;
+            color: #ff5733;
             font-size: clamp(1rem, 3.5vw, 1.2rem);
             font-weight: bold;
-            text-shadow: 0 0 15px #ff9900;
-            box-shadow: 0 0 25px rgba(255, 153, 0, 0.8);
+            text-shadow: 0 0 15px #ff5733;
+            box-shadow: 0 0 25px rgba(255, 87, 51, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -303,13 +302,16 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: clamp(100px, 20vw, 120px);
+            border-radius: 50%;
         }
 
         #winButton {
             position: absolute;
             bottom: 5%;
             left: 5%;
-            width: clamp(100px, 20vw, 120px);
+            width: clamp(50px, 10vw, 60px);
+            height: clamp(50px, 10vw, 60px);
+            border-radius: 50%;
         }
 
         #friendsBtn {
@@ -343,10 +345,26 @@
             width: clamp(100px, 25vw, 150px);
             height: clamp(100px, 25vw, 150px);
             border-radius: 50%;
-            border: 2px solid #ff00ff;
+            border: 2px solid #c300ff;
             margin-bottom: 5%;
             object-fit: cover;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+            box-shadow: 0 0 20px rgba(195, 0, 255, 0.8);
+            cursor: pointer;
+        }
+
+        .username-display {
+            color: #00e6e6;
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
+            text-shadow: 0 0 10px #00e6e6;
+            margin-bottom: 5%;
+            cursor: pointer;
+            padding: 2%;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .username-display:hover {
+            background: rgba(195, 0, 255, 0.2);
         }
 
         @media (max-width: 600px) {
@@ -369,7 +387,7 @@
             .cell {
                 font-size: clamp(1.5rem, 6vw, 2rem);
             }
-            .circle-btn {
+            .circle-btn, #playButton, #winButton {
                 width: clamp(40px, 8vw, 50px);
                 height: clamp(40px, 8vw, 50px);
                 font-size: clamp(0.8rem, 2.5vw, 1rem);
@@ -378,12 +396,6 @@
                 width: clamp(80px, 20vw, 120px);
                 padding: 3%;
                 font-size: clamp(0.8rem, 3vw, 1rem);
-            }
-            #profileBtn, #walletBtn, #playButton, #winButton, #friendsBtn, #tournamentsBtn, #tasksBtn {
-                top: auto;
-                left: auto;
-                right: auto;
-                bottom: auto;
             }
             #profileBtn {
                 top: 3%;
@@ -400,12 +412,10 @@
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                width: clamp(80px, 18vw, 100px);
             }
             #winButton {
                 bottom: 3%;
                 left: 3%;
-                width: clamp(80px, 18vw, 100px);
             }
             #friendsBtn {
                 bottom: 3%;
@@ -425,6 +435,9 @@
             .profile-pic-preview {
                 width: clamp(80px, 20vw, 120px);
                 height: clamp(80px, 20vw, 120px);
+            }
+            .username-display {
+                font-size: clamp(0.8rem, 3vw, 1rem);
             }
         }
     </style>
@@ -451,12 +464,12 @@
         <button class="circle-btn" id="friendsBtn">Fr</button>
         <button class="circle-btn" id="tournamentsBtn">To</button>
         <button class="circle-btn" id="tasksBtn">T</button>
-        <button class="play-btn" id="playButton">Play</button>
-        <button class="win-btn" id="winButton">Win</button>
+        <button class="circle-btn play-btn" id="playButton">Play</button>
+        <button class="circle-btn win-btn" id="winButton">Win</button>
         <div class="dashboard-center">
             <h2>Welcome, <span id="userDisplay"></span></h2>
             <div id="verifyEmailPrompt" style="display: none;">
-                <p style="color: #ff9900; text-shadow: 0 0 5px #ff9900; margin-bottom: 5%;">
+                <p style="color: #ff5733; text-shadow: 0 0 5px #ff5733; margin-bottom: 5%;">
                     Please verify your email to play. Check your inbox!
                 </p>
                 <button id="resendVerification">Resend Verification Email</button>
@@ -469,12 +482,8 @@
     <div class="container profile-page" id="profilePage">
         <h2>Edit Profile</h2>
         <img id="profilePicPreview" class="profile-pic-preview" src="" alt="Profile Picture">
-        <div class="input-box">
-            <input type="file" id="profilePicInput" accept="image/*">
-        </div>
-        <div class="input-box">
-            <input type="text" id="username" placeholder="Set Username">
-        </div>
+        <input type="file" id="profilePicInput" accept="image/*">
+        <span id="usernameDisplay" class="username-display">Set Username</span>
         <button id="saveProfile">Save Changes</button>
         <button id="backToDashboardFromProfile">Back to Dashboard</button>
     </div>
@@ -578,7 +587,7 @@
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const userDisplay = document.getElementById('userDisplay');
-        const usernameInput = document.getElementById('username');
+        const usernameDisplay = document.getElementById('usernameDisplay');
         const saveProfileButton = document.getElementById('saveProfile');
         const profilePicInput = document.getElementById('profilePicInput');
         const profilePicPreview = document.getElementById('profilePicPreview');
@@ -611,6 +620,8 @@
         let currentPlayer = null;
         let opponentUsername = null;
         let unsubscribeRoom = null;
+        let pendingProfilePic = null;
+        let pendingUsername = null;
 
         // Show Message
         function showMessage(message, type) {
@@ -635,16 +646,21 @@
         }
 
         // Update Profile Button
-        async function updateProfileButton(username, avatarUrl) {
+        function updateProfileButton(username, avatarUrl) {
             console.log(`Updating profile button: username=${username}, avatarUrl=${avatarUrl}`);
-            if (!profileBtn) return;
+            if (!profileBtn) {
+                console.error('Profile button not found');
+                return;
+            }
             if (avatarUrl) {
+                console.log('Setting profile picture:', avatarUrl);
                 profileBtn.style.backgroundImage = `url(${avatarUrl})`;
                 profileBtn.style.backgroundSize = 'cover';
-                profileBtn.style.border = '2px solid #ff00ff';
+                profileBtn.style.border = '2px solid #c300ff';
                 profileBtn.style.color = 'transparent';
             } else {
-                const firstLetter = username.charAt(0).toUpperCase();
+                console.log('No avatar, using letter fallback for:', username);
+                const firstLetter = username.charAt(0).toUpperCase() || 'P';
                 const canvas = document.createElement('canvas');
                 const size = 100;
                 canvas.width = size;
@@ -652,7 +668,7 @@
                 const ctx = canvas.getContext('2d');
                 ctx.beginPath();
                 ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-                ctx.fillStyle = '#ff00ff';
+                ctx.fillStyle = '#c300ff';
                 ctx.fill();
                 ctx.font = 'bold 60px Arial';
                 ctx.fillStyle = '#fff';
@@ -661,7 +677,7 @@
                 ctx.fillText(firstLetter, size / 2, size / 2);
                 profileBtn.style.backgroundImage = `url(${canvas.toDataURL()})`;
                 profileBtn.style.backgroundSize = 'cover';
-                profileBtn.style.border = '2px solid #ff00ff';
+                profileBtn.style.border = '2px solid #c300ff';
                 profileBtn.style.color = 'transparent';
             }
         }
@@ -671,11 +687,37 @@
             console.log('Profile picture selected');
             const file = e.target.files[0];
             if (file) {
+                console.log('Previewing file:', file.name);
+                pendingProfilePic = file;
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     profilePicPreview.src = event.target.result;
+                    console.log('Preview updated');
                 };
                 reader.readAsDataURL(file);
+            } else {
+                console.log('No file selected');
+                pendingProfilePic = null;
+            }
+        });
+
+        // Trigger Gallery on Profile Picture Click
+        profilePicPreview?.addEventListener('click', () => {
+            console.log('Profile picture clicked, opening gallery');
+            profilePicInput?.click();
+        });
+
+        // Username Editing
+        usernameDisplay?.addEventListener('click', () => {
+            console.log('Username clicked, prompting for edit');
+            const currentUsername = usernameDisplay.textContent === 'Set Username' ? '' : usernameDisplay.textContent;
+            const newUsername = prompt('Enter new username:', currentUsername);
+            if (newUsername && newUsername.trim()) {
+                console.log('New username entered:', newUsername.trim());
+                pendingUsername = newUsername.trim();
+                usernameDisplay.textContent = pendingUsername;
+            } else {
+                console.log('No valid username entered');
             }
         });
 
@@ -683,39 +725,66 @@
         saveProfileButton?.addEventListener('click', async () => {
             console.log('Save profile clicked');
             const user = auth.currentUser;
-            if (!user || !user.emailVerified) {
+            if (!user) {
+                console.error('No user logged in');
+                showMessage('Please log in first', 'error');
+                return;
+            }
+            if (!user.emailVerified) {
+                console.error('Email not verified');
                 showMessage('Please verify your email first', 'error');
                 return;
             }
-            const username = usernameInput?.value.trim();
-            const profilePicFile = profilePicInput?.files[0];
-            if (!username) {
-                showMessage('Please enter a username', 'error');
+            const username = pendingUsername || usernameDisplay.textContent.trim();
+            if (!username || username === 'Set Username') {
+                console.error('Username is empty');
+                showMessage('Please set a username', 'error');
                 return;
             }
             try {
+                console.log('Saving profile for user:', user.uid);
                 const userDocRef = doc(db, 'users', user.uid);
-                let avatarUrl = (await getDoc(userDocRef)).data()?.avatarUrl;
-                if (profilePicFile) {
+                let userData = { username };
+                let avatarUrl = null;
+
+                // Handle profile picture upload
+                if (pendingProfilePic) {
+                    console.log('Uploading profile picture:', pendingProfilePic.name);
                     const storageRef = ref(storage, `users/${user.uid}/avatar`);
-                    await uploadBytes(storageRef, profilePicFile);
-                    avatarUrl = await getDownloadURL(storageRef);
+                    const uploadResult = await uploadBytes(storageRef, pendingProfilePic);
+                    avatarUrl = await getDownloadURL(uploadResult.ref);
+                    console.log('Profile picture uploaded, URL:', avatarUrl);
+                    userData.avatarUrl = avatarUrl;
+                } else {
+                    console.log('No new profile picture selected');
+                    const userDoc = await getDoc(userDocRef);
+                    avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
+                    if (avatarUrl) {
+                        userData.avatarUrl = avatarUrl;
+                    }
                 }
-                await setDoc(userDocRef, { 
-                    username, 
-                    avatarUrl,
-                    stats: { wins: 0, losses: 0, ties: 0 } 
+
+                // Save to Firestore
+                console.log('Saving to Firestore:', userData);
+                await setDoc(userDocRef, {
+                    ...userData,
+                    stats: { wins: 0, losses: 0, ties: 0 }
                 }, { merge: true });
-                showMessage('Profile saved!', 'success');
-                usernameInput.value = '';
-                profilePicInput.value = '';
+
+                // Update UI
+                console.log('Updating UI with username:', username, 'avatarUrl:', avatarUrl);
                 userDisplay.textContent = username;
+                usernameDisplay.textContent = username;
                 updateProfileButton(username, avatarUrl);
                 profilePicPreview.src = avatarUrl || '';
+                profilePicInput.value = '';
+                pendingProfilePic = null;
+                pendingUsername = null;
+                showMessage('Profile saved successfully!', 'success');
                 showContainer(dashboard);
             } catch (error) {
-                console.error('Save profile error:', error);
-                showMessage(`Error: ${error.message}`, 'error');
+                console.error('Save profile error:', error.code, error.message);
+                showMessage(`Error saving profile: ${error.message}`, 'error');
             }
         });
 
@@ -724,26 +793,33 @@
             console.log('Profile button clicked');
             const user = auth.currentUser;
             if (!user) {
+                console.error('No user logged in');
                 showMessage('Please log in first', 'error');
                 showContainer(authContainer);
                 return;
             }
             try {
+                console.log('Loading profile for user:', user.uid);
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : '';
+                const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Set Username';
                 const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : '';
-                usernameInput.value = username;
+                console.log('Profile data:', { username, avatarUrl });
+                usernameDisplay.textContent = username;
                 profilePicPreview.src = avatarUrl || '';
+                pendingProfilePic = null;
+                pendingUsername = null;
                 showContainer(profilePage);
             } catch (error) {
-                console.error('Profile page error:', error);
-                showMessage(`Error: ${error.message}`, 'error');
+                console.error('Profile page error:', error.code, error.message);
+                showMessage(`Error loading profile: ${error.message}`, 'error');
             }
         });
 
         // Back to Dashboard from Profile
         backToDashboardFromProfile?.addEventListener('click', () => {
             console.log('Back to dashboard from profile clicked');
+            pendingProfilePic = null;
+            pendingUsername = null;
             showContainer(dashboard);
         });
 
@@ -762,6 +838,7 @@
             const email = emailInput?.value;
             const password = passwordInput?.value;
             if (!email || !password) {
+                console.error('Email or password missing');
                 showMessage('Please enter email and password', 'error');
                 return;
             }
@@ -791,7 +868,7 @@
                     await sendEmailVerification(user);
                     showMessage('Verification email resent! Check your inbox.', 'success');
                 } catch (error) {
-                    console.error('Resend verification error:', error);
+                    console.error('Resend verification error:', error.code, error.message);
                     showMessage(`Error: ${error.message}`, 'error');
                 }
             }
@@ -802,11 +879,13 @@
             console.log('Play button clicked');
             const user = auth.currentUser;
             if (!user) {
+                console.error('No user logged in');
                 showMessage('Please log in first', 'error');
                 showContainer(authContainer);
                 return;
             }
             if (!user.emailVerified) {
+                console.error('Email not verified');
                 showMessage('Please verify your email first', 'error');
                 return;
             }
@@ -815,11 +894,12 @@
                 if (userDoc.exists() && userDoc.data().username) {
                     showContainer(gamePage);
                 } else {
+                    console.log('No username set, redirecting to profile');
                     showMessage('Please set a username first', 'error');
                     showContainer(profilePage);
                 }
             } catch (error) {
-                console.error('Play button error:', error);
+                console.error('Play button error:', error.code, error.message);
                 showMessage(`Error: ${error.message}`, 'error');
             }
         });
@@ -828,6 +908,7 @@
         backToDashboard.addEventListener('click', () => {
             console.log('Back to dashboard clicked');
             if (!auth.currentUser) {
+                console.error('No user logged in');
                 showMessage('Please log in first', 'error');
                 showContainer(authContainer);
                 return;
@@ -840,6 +921,7 @@
             console.log('Play random clicked');
             const user = auth.currentUser;
             if (!user || !user.emailVerified) {
+                console.error('User not logged in or email not verified');
                 showMessage('Please verify your email first', 'error');
                 showContainer(authContainer);
                 return;
@@ -1161,15 +1243,16 @@
                 verifyEmailPrompt.style.display = user.emailVerified ? 'none' : 'block';
                 playButton.style.display = user.emailVerified ? 'block' : 'none';
                 try {
+                    console.log('Fetching user data for:', user.uid);
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
                     const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : '';
+                    console.log('User data:', { username, avatarUrl });
                     userDisplay.textContent = username;
-                    usernameInput.placeholder = userDoc.exists() && userDoc.data().username ? 
-                        `Current: ${userDoc.data().username}` : 'Set Username';
+                    usernameDisplay.textContent = username;
                     updateProfileButton(username, avatarUrl);
                 } catch (error) {
-                    console.error('Fetch user data error:', error);
+                    console.error('Fetch user data error:', error.code, error.message);
                     showMessage(`Error fetching user data: ${error.message}`, 'error');
                     userDisplay.textContent = 'Player';
                     updateProfileButton('P', '');
@@ -1177,7 +1260,7 @@
             } else {
                 showContainer(authContainer);
                 userDisplay.textContent = '';
-                usernameInput.placeholder = 'Set Username';
+                usernameDisplay.textContent = 'Set Username';
                 updateProfileButton('P', '');
                 cleanupGame();
             }
