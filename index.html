@@ -212,6 +212,56 @@
             100% { opacity: 1; }
         }
 
+        /* New Styles for Buttons and Balance Box */
+        .dashboard-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 3%;
+            margin: 5% 0;
+            flex-wrap: wrap;
+        }
+
+        .circle-btn {
+            width: clamp(50px, 12vw, 60px);
+            height: clamp(50px, 12vw, 60px);
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ff9900);
+            background-size: 300%;
+            border: none;
+            color: #fff;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.7), 0 0 25px rgba(0, 255, 255, 0.7);
+            animation: pulseButton 3s infinite;
+            transition: all 0.3s ease;
+        }
+
+        .circle-btn:hover {
+            box-shadow: 0 0 30px #ff00ff, 0 0 50px #00ffff;
+            transform: scale(1.1);
+        }
+
+        .balance-box {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff9900;
+            border-radius: 10px;
+            padding: 3%;
+            margin: 5% auto;
+            width: 80%;
+            color: #ff9900;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff9900;
+            box-shadow: 0 0 20px rgba(255, 153, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 8%;
@@ -231,6 +281,19 @@
             }
             .cell {
                 font-size: clamp(1.5rem, 6vw, 2rem);
+            }
+            .circle-btn {
+                width: clamp(40px, 10vw, 50px);
+                height: clamp(40px, 10vw, 50px);
+                font-size: clamp(0.8rem, 2.5vw, 1rem);
+            }
+            .balance-box {
+                width: 90%;
+                padding: 4%;
+                font-size: clamp(1rem, 3.5vw, 1.2rem);
+            }
+            .dashboard-buttons {
+                gap: 2%;
             }
         }
     </style>
@@ -257,6 +320,14 @@
                 Please verify your email to play. Check your inbox!
             </p>
             <button id="resendVerification">Resend Verification Email</button>
+        </div>
+        <div class="balance-box">₹0</div>
+        <div class="dashboard-buttons">
+            <button class="circle-btn" id="profileBtn">Pro</button>
+            <button class="circle-btn" id="tasksBtn">T</button>
+            <button class="circle-btn" id="tournamentsBtn">To</button>
+            <button class="circle-btn" id="friendsBtn">Fr</button>
+            <button class="circle-btn" id="walletBtn">W</button>
         </div>
         <div class="input-box">
             <input type="text" id="username" placeholder="Set Username">
