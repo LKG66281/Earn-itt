@@ -344,6 +344,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+            padding-top: 25%;
+        }
+
+        .profile-header {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
         }
 
         .profile-pic-circle {
@@ -351,7 +364,7 @@
             height: clamp(80px, 20vw, 100px);
             border-radius: 50%;
             border: 2px solid #c300ff;
-            margin-bottom: 5%;
+            margin-bottom: 3%;
             background-size: cover;
             background-position: center;
             box-shadow: 0 0 20px rgba(195, 0, 255, 0.8);
@@ -365,7 +378,7 @@
         .username-container {
             display: flex;
             align-items: center;
-            margin-bottom: 5%;
+            margin-bottom: 3%;
         }
 
         .username-display {
@@ -396,10 +409,16 @@
             padding: 3%;
             border-radius: 5px;
             box-shadow: 0 0 15px rgba(255, 87, 51, 0.8);
+            margin-top: 5%;
         }
 
         .game-history-btn:hover {
             box-shadow: 0 0 35px #ff5733, 0 0 55px #c300ff;
+        }
+
+        #backToDashboardFromProfile {
+            width: 80%;
+            margin-top: 3%;
         }
 
         @media (max-width: 600px) {
@@ -477,6 +496,12 @@
             .edit-icon {
                 font-size: clamp(0.7rem, 2vw, 0.9rem);
             }
+            .profile-page {
+                padding-top: 30%;
+            }
+            .profile-header {
+                top: 3%;
+            }
         }
     </style>
 </head>
@@ -519,11 +544,13 @@
     <!-- Profile Page -->
     <div class="container profile-page" id="profilePage">
         <h2>Profile</h2>
-        <div id="profilePicCircle" class="profile-pic-circle"></div>
-        <input type="file" id="profilePicInput" accept="image/*">
-        <div class="username-container">
-            <span id="usernameDisplay" class="username-display" contenteditable="false">Set Username</span>
-            <span class="edit-icon">✏</span>
+        <div class="profile-header">
+            <div id="profilePicCircle" class="profile-pic-circle"></div>
+            <input type="file" id="profilePicInput" accept="image/*">
+            <div class="username-container">
+                <span id="usernameDisplay" class="username-display" contenteditable="false">Set Username</span>
+                <span class="edit-icon">✏</span>
+            </div>
         </div>
         <button class="game-history-btn" id="gameHistoryBtn">Game History</button>
         <button id="backToDashboardFromProfile">Back to Dashboard</button>
@@ -737,7 +764,7 @@
                 return;
             }
             lastSaveTime = now;
-            console.log('Starting profile save for user:', auth.currentUser?.uid, 'username:', username, 'has avatar:', !!avatarFile);
+            console.log('Starting profile save: user=', auth.currentUser?.uid, 'username=', username, 'avatarFile=', !!avatarFile);
             const user = auth.currentUser;
             if (!user) {
                 console.error('No user logged in');
@@ -751,30 +778,24 @@
             }
             try {
                 const userDocRef = doc(db, 'users', user.uid);
-                let userData = { username };
-                let avatarUrl = null;
+                let userData = { 
+                    username: username,
+                    avatarUrl: null 
+                };
 
                 if (avatarFile) {
-                    console.log('Uploading avatar:', avatarFile.name, 'size:', avatarFile.size);
+                    console.log('Uploading avatar: name=', avatarFile.name, 'size=', avatarFile.size);
                     const storageRef = ref(storage, `users/${user.uid}/avatar`);
                     try {
                         const uploadResult = await uploadBytes(storageRef, avatarFile);
                         console.log('Upload successful:', uploadResult.metadata);
-                        avatarUrl = await getDownloadURL(storageRef);
-                        console.log('Generated permanent URL:', avatarUrl);
+                        const avatarUrl = await getDownloadURL(storageRef);
+                        console.log('Generated avatarUrl:', avatarUrl);
                         userData.avatarUrl = avatarUrl;
                     } catch (uploadError) {
                         console.error('Avatar upload failed:', uploadError.code, uploadError.message);
                         showMessage('Failed to upload avatar', 'error');
                         return;
-                    }
-                } else {
-                    console.log('No new avatar file, checking existing avatarUrl');
-                    const userDoc = await getDoc(userDocRef);
-                    avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
-                    console.log('Existing avatarUrl:', avatarUrl);
-                    if (avatarUrl) {
-                        userData.avatarUrl = avatarUrl;
                     }
                 }
 
@@ -783,10 +804,10 @@
                     ...userData,
                     stats: { wins: 0, losses: 0, ties: 0 }
                 }, { merge: true });
-                console.log('Firestore save successful for user:', user.uid);
+                console.log('Firestore save successful: user=', user.uid, 'avatarUrl=', userData.avatarUrl);
 
-                console.log('Updating UI with username:', username, 'avatarUrl:', avatarUrl);
-                updateProfileUI(username, avatarUrl);
+                console.log('Updating UI: username=', username, 'avatarUrl=', userData.avatarUrl);
+                updateProfileUI(username, userData.avatarUrl);
                 showMessage('Profile updated!', 'success');
             } catch (error) {
                 console.error('Save profile error:', error.code, error.message);
@@ -805,7 +826,7 @@
             console.log('Profile picture input changed');
             const file = e.target.files[0];
             if (file) {
-                console.log('Selected file:', file.name, 'size:', file.size);
+                console.log('Selected file: name=', file.name, 'size=', file.size);
                 const username = usernameDisplay.textContent.trim() || 'Player';
                 await saveProfile(username, file);
                 profilePicInput.value = '';
@@ -853,11 +874,11 @@
                 return;
             }
             try {
-                console.log('Loading profile for user:', user.uid);
+                console.log('Loading profile: user=', user.uid);
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
                 const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
-                console.log('Profile data:', { username, avatarUrl });
+                console.log('Profile loaded: username=', username, 'avatarUrl=', avatarUrl);
                 usernameDisplay.textContent = username;
                 updateProfileUI(username, avatarUrl);
                 showContainer(profilePage);
@@ -1299,11 +1320,11 @@
                 verifyEmailPrompt.style.display = user.emailVerified ? 'none' : 'block';
                 playButton.style.display = user.emailVerified ? 'block' : 'none';
                 try {
-                    console.log('Fetching user data for:', user.uid);
+                    console.log('Fetching user data: user=', user.uid);
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
                     const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
-                    console.log('Fetched user data:', { username, avatarUrl });
+                    console.log('Fetched user data: username=', username, 'avatarUrl=', avatarUrl);
                     updateProfileUI(username, avatarUrl);
                 } catch (error) {
                     console.error('Fetch user data error:', error.code, error.message);
