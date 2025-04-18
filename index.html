@@ -755,14 +755,17 @@
                     const storageRef = ref(storage, `users/${user.uid}/avatar`);
                     const uploadResult = await uploadBytes(storageRef, avatarFile);
                     avatarUrl = await getDownloadURL(uploadResult.ref);
-                    console.log('Profile picture uploaded, URL:', avatarUrl);
+                    console.log('Profile picture uploaded, permanent URL:', avatarUrl);
                     userData.avatarUrl = avatarUrl;
                 } else {
-                    console.log('No new profile picture');
+                    console.log('No new profile picture, checking existing');
                     const userDoc = await getDoc(userDocRef);
                     avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
                     if (avatarUrl) {
+                        console.log('Using existing avatarUrl:', avatarUrl);
                         userData.avatarUrl = avatarUrl;
+                    } else {
+                        console.log('No existing avatarUrl');
                     }
                 }
 
@@ -843,7 +846,7 @@
                 console.log('Loading profile for user:', user.uid);
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
-                const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : '';
+                const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
                 console.log('Profile data:', { username, avatarUrl });
                 usernameDisplay.textContent = username;
                 updateProfileUI(username, avatarUrl);
@@ -1289,19 +1292,19 @@
                     console.log('Fetching user data for:', user.uid);
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
-                    const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : '';
+                    const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
                     console.log('User data:', { username, avatarUrl });
                     updateProfileUI(username, avatarUrl);
                 } catch (error) {
                     console.error('Fetch user data error:', error.code, error.message);
                     showMessage(`Error fetching user data: ${error.message}`, 'error');
-                    updateProfileUI('Player', '');
+                    updateProfileUI('Player', null);
                 }
             } else {
                 showContainer(authContainer);
                 userDisplay.textContent = '';
                 usernameDisplay.textContent = 'Set Username';
-                updateProfileUI('Player', '');
+                updateProfileUI('Player', null);
                 cleanupGame();
             }
         });
