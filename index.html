@@ -341,22 +341,32 @@
             align-items: center;
         }
 
-        .profile-pic-preview {
-            width: clamp(100px, 25vw, 150px);
-            height: clamp(100px, 25vw, 150px);
+        .profile-pic-circle {
+            width: clamp(80px, 20vw, 100px);
+            height: clamp(80px, 20vw, 100px);
             border-radius: 50%;
             border: 2px solid #c300ff;
             margin-bottom: 5%;
-            object-fit: cover;
+            background-size: cover;
+            background-position: center;
             box-shadow: 0 0 20px rgba(195, 0, 255, 0.8);
             cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: transparent;
+        }
+
+        .username-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5%;
         }
 
         .username-display {
             color: #00e6e6;
             font-size: clamp(1rem, 3.5vw, 1.2rem);
             text-shadow: 0 0 10px #00e6e6;
-            margin-bottom: 5%;
             cursor: pointer;
             padding: 2%;
             border-radius: 5px;
@@ -365,6 +375,26 @@
 
         .username-display:hover {
             background: rgba(195, 0, 255, 0.2);
+        }
+
+        .edit-icon {
+            color: #00e6e6;
+            margin-left: 2%;
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            text-shadow: 0 0 5px #00e6e6;
+            cursor: pointer;
+        }
+
+        .game-history-btn {
+            background: linear-gradient(45deg, #ff5733, #c300ff);
+            width: 80%;
+            padding: 3%;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(255, 87, 51, 0.8);
+        }
+
+        .game-history-btn:hover {
+            box-shadow: 0 0 35px #ff5733, 0 0 55px #c300ff;
         }
 
         @media (max-width: 600px) {
@@ -432,12 +462,15 @@
             .dashboard-center {
                 margin: 25% auto 15% auto;
             }
-            .profile-pic-preview {
-                width: clamp(80px, 20vw, 120px);
-                height: clamp(80px, 20vw, 120px);
+            .profile-pic-circle {
+                width: clamp(60px, 15vw, 80px);
+                height: clamp(60px, 15vw, 80px);
             }
             .username-display {
                 font-size: clamp(0.8rem, 3vw, 1rem);
+            }
+            .edit-icon {
+                font-size: clamp(0.7rem, 2vw, 0.9rem);
             }
         }
     </style>
@@ -480,11 +513,14 @@
 
     <!-- Profile Page -->
     <div class="container profile-page" id="profilePage">
-        <h2>Edit Profile</h2>
-        <img id="profilePicPreview" class="profile-pic-preview" src="" alt="Profile Picture">
+        <h2>Profile</h2>
+        <div id="profilePicCircle" class="profile-pic-circle"></div>
         <input type="file" id="profilePicInput" accept="image/*">
-        <span id="usernameDisplay" class="username-display">Set Username</span>
-        <button id="saveProfile">Save Changes</button>
+        <div class="username-container">
+            <span id="usernameDisplay" class="username-display" contenteditable="false">Set Username</span>
+            <span class="edit-icon">✏</span>
+        </div>
+        <button class="game-history-btn" id="gameHistoryBtn">Game History</button>
         <button id="backToDashboardFromProfile">Back to Dashboard</button>
     </div>
 
@@ -588,15 +624,15 @@
         const passwordInput = document.getElementById('password');
         const userDisplay = document.getElementById('userDisplay');
         const usernameDisplay = document.getElementById('usernameDisplay');
-        const saveProfileButton = document.getElementById('saveProfile');
+        const profilePicCircle = document.getElementById('profilePicCircle');
         const profilePicInput = document.getElementById('profilePicInput');
-        const profilePicPreview = document.getElementById('profilePicPreview');
+        const gameHistoryBtn = document.getElementById('gameHistoryBtn');
+        const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
         const playButton = document.getElementById('playButton');
         const winButton = document.getElementById('winButton');
         const logoutButton = document.getElementById('logoutButton');
         const playRandom = document.getElementById('playRandom');
         const backToDashboard = document.getElementById('backToDashboard');
-        const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
         const roomIdDisplay = document.getElementById('roomIdDisplay');
         const gameStatus = document.getElementById('gameStatus');
         const gameBoard = document.getElementById('gameBoard');
@@ -620,8 +656,7 @@
         let currentPlayer = null;
         let opponentUsername = null;
         let unsubscribeRoom = null;
-        let pendingProfilePic = null;
-        let pendingUsername = null;
+        let lastSaveTime = 0;
 
         // Show Message
         function showMessage(message, type) {
@@ -645,22 +680,22 @@
             container.style.display = 'block';
         }
 
-        // Update Profile Button
-        function updateProfileButton(username, avatarUrl) {
-            console.log(`Updating profile button: username=${username}, avatarUrl=${avatarUrl}`);
-            if (!profileBtn) {
-                console.error('Profile button not found');
+        // Update Profile Circle and Button
+        function updateProfileUI(username, avatarUrl) {
+            console.log(`Updating profile UI: username=${username}, avatarUrl=${avatarUrl}`);
+            if (!profileBtn || !profilePicCircle) {
+                console.error('Profile elements not found');
                 return;
             }
+            const firstLetter = username.charAt(0).toUpperCase() || 'P';
             if (avatarUrl) {
                 console.log('Setting profile picture:', avatarUrl);
                 profileBtn.style.backgroundImage = `url(${avatarUrl})`;
-                profileBtn.style.backgroundSize = 'cover';
-                profileBtn.style.border = '2px solid #c300ff';
+                profilePicCircle.style.backgroundImage = `url(${avatarUrl})`;
                 profileBtn.style.color = 'transparent';
+                profilePicCircle.style.color = 'transparent';
             } else {
                 console.log('No avatar, using letter fallback for:', username);
-                const firstLetter = username.charAt(0).toUpperCase() || 'P';
                 const canvas = document.createElement('canvas');
                 const size = 100;
                 canvas.width = size;
@@ -675,55 +710,29 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(firstLetter, size / 2, size / 2);
-                profileBtn.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                profileBtn.style.backgroundSize = 'cover';
-                profileBtn.style.border = '2px solid #c300ff';
+                const canvasUrl = canvas.toDataURL();
+                profileBtn.style.backgroundImage = `url(${canvasUrl})`;
+                profilePicCircle.style.backgroundImage = `url(${canvasUrl})`;
                 profileBtn.style.color = 'transparent';
+                profilePicCircle.style.color = 'transparent';
             }
+            profileBtn.style.backgroundSize = 'cover';
+            profileBtn.style.border = '2px solid #c300ff';
+            profilePicCircle.style.backgroundSize = 'cover';
+            profilePicCircle.style.border = '2px solid #c300ff';
+            userDisplay.textContent = username;
+            usernameDisplay.textContent = username;
         }
 
-        // Profile Picture Preview
-        profilePicInput?.addEventListener('change', (e) => {
-            console.log('Profile picture selected');
-            const file = e.target.files[0];
-            if (file) {
-                console.log('Previewing file:', file.name);
-                pendingProfilePic = file;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    profilePicPreview.src = event.target.result;
-                    console.log('Preview updated');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                console.log('No file selected');
-                pendingProfilePic = null;
+        // Save Profile to Firebase
+        async function saveProfile(username, avatarFile) {
+            const now = Date.now();
+            if (now - lastSaveTime < 500) {
+                console.log('Debouncing save');
+                return;
             }
-        });
-
-        // Trigger Gallery on Profile Picture Click
-        profilePicPreview?.addEventListener('click', () => {
-            console.log('Profile picture clicked, opening gallery');
-            profilePicInput?.click();
-        });
-
-        // Username Editing
-        usernameDisplay?.addEventListener('click', () => {
-            console.log('Username clicked, prompting for edit');
-            const currentUsername = usernameDisplay.textContent === 'Set Username' ? '' : usernameDisplay.textContent;
-            const newUsername = prompt('Enter new username:', currentUsername);
-            if (newUsername && newUsername.trim()) {
-                console.log('New username entered:', newUsername.trim());
-                pendingUsername = newUsername.trim();
-                usernameDisplay.textContent = pendingUsername;
-            } else {
-                console.log('No valid username entered');
-            }
-        });
-
-        // Save Profile
-        saveProfileButton?.addEventListener('click', async () => {
-            console.log('Save profile clicked');
+            lastSaveTime = now;
+            console.log('Saving profile');
             const user = auth.currentUser;
             if (!user) {
                 console.error('No user logged in');
@@ -735,28 +744,21 @@
                 showMessage('Please verify your email first', 'error');
                 return;
             }
-            const username = pendingUsername || usernameDisplay.textContent.trim();
-            if (!username || username === 'Set Username') {
-                console.error('Username is empty');
-                showMessage('Please set a username', 'error');
-                return;
-            }
             try {
                 console.log('Saving profile for user:', user.uid);
                 const userDocRef = doc(db, 'users', user.uid);
                 let userData = { username };
                 let avatarUrl = null;
 
-                // Handle profile picture upload
-                if (pendingProfilePic) {
-                    console.log('Uploading profile picture:', pendingProfilePic.name);
+                if (avatarFile) {
+                    console.log('Uploading profile picture:', avatarFile.name);
                     const storageRef = ref(storage, `users/${user.uid}/avatar`);
-                    const uploadResult = await uploadBytes(storageRef, pendingProfilePic);
+                    const uploadResult = await uploadBytes(storageRef, avatarFile);
                     avatarUrl = await getDownloadURL(uploadResult.ref);
                     console.log('Profile picture uploaded, URL:', avatarUrl);
                     userData.avatarUrl = avatarUrl;
                 } else {
-                    console.log('No new profile picture selected');
+                    console.log('No new profile picture');
                     const userDoc = await getDoc(userDocRef);
                     avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
                     if (avatarUrl) {
@@ -764,27 +766,66 @@
                     }
                 }
 
-                // Save to Firestore
                 console.log('Saving to Firestore:', userData);
                 await setDoc(userDocRef, {
                     ...userData,
                     stats: { wins: 0, losses: 0, ties: 0 }
                 }, { merge: true });
 
-                // Update UI
                 console.log('Updating UI with username:', username, 'avatarUrl:', avatarUrl);
-                userDisplay.textContent = username;
-                usernameDisplay.textContent = username;
-                updateProfileButton(username, avatarUrl);
-                profilePicPreview.src = avatarUrl || '';
-                profilePicInput.value = '';
-                pendingProfilePic = null;
-                pendingUsername = null;
-                showMessage('Profile saved successfully!', 'success');
-                showContainer(dashboard);
+                updateProfileUI(username, avatarUrl);
+                showMessage('Profile updated!', 'success');
             } catch (error) {
                 console.error('Save profile error:', error.code, error.message);
                 showMessage(`Error saving profile: ${error.message}`, 'error');
+            }
+        }
+
+        // Profile Picture Click
+        profilePicCircle?.addEventListener('click', () => {
+            console.log('Profile picture clicked, opening gallery');
+            profilePicInput?.click();
+        });
+
+        // Profile Picture Change
+        profilePicInput?.addEventListener('change', async (e) => {
+            console.log('Profile picture selected');
+            const file = e.target.files[0];
+            if (file) {
+                console.log('Selected file:', file.name);
+                const username = usernameDisplay.textContent.trim() || 'Player';
+                await saveProfile(username, file);
+                profilePicInput.value = '';
+            } else {
+                console.log('No file selected');
+            }
+        });
+
+        // Username Editing
+        usernameDisplay?.addEventListener('click', () => {
+            console.log('Username clicked, enabling edit');
+            usernameDisplay.contentEditable = 'true';
+            usernameDisplay.focus();
+        });
+
+        usernameDisplay?.addEventListener('blur', async () => {
+            console.log('Username blur, saving');
+            usernameDisplay.contentEditable = 'false';
+            const newUsername = usernameDisplay.textContent.trim();
+            if (!newUsername) {
+                console.error('Username is empty');
+                showMessage('Please enter a username', 'error');
+                const userDoc = await getDoc(doc(db, 'users', auth.currentUser?.uid));
+                usernameDisplay.textContent = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
+                return;
+            }
+            await saveProfile(newUsername, null);
+        });
+
+        usernameDisplay?.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                usernameDisplay.blur();
             }
         });
 
@@ -801,13 +842,11 @@
             try {
                 console.log('Loading profile for user:', user.uid);
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Set Username';
+                const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
                 const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : '';
                 console.log('Profile data:', { username, avatarUrl });
                 usernameDisplay.textContent = username;
-                profilePicPreview.src = avatarUrl || '';
-                pendingProfilePic = null;
-                pendingUsername = null;
+                updateProfileUI(username, avatarUrl);
                 showContainer(profilePage);
             } catch (error) {
                 console.error('Profile page error:', error.code, error.message);
@@ -815,11 +854,15 @@
             }
         });
 
+        // Game History Button (Placeholder)
+        gameHistoryBtn?.addEventListener('click', () => {
+            console.log('Game history clicked');
+            showMessage('Game history not implemented yet', 'error');
+        });
+
         // Back to Dashboard from Profile
         backToDashboardFromProfile?.addEventListener('click', () => {
             console.log('Back to dashboard from profile clicked');
-            pendingProfilePic = null;
-            pendingUsername = null;
             showContainer(dashboard);
         });
 
@@ -1248,20 +1291,17 @@
                     const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
                     const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : '';
                     console.log('User data:', { username, avatarUrl });
-                    userDisplay.textContent = username;
-                    usernameDisplay.textContent = username;
-                    updateProfileButton(username, avatarUrl);
+                    updateProfileUI(username, avatarUrl);
                 } catch (error) {
                     console.error('Fetch user data error:', error.code, error.message);
                     showMessage(`Error fetching user data: ${error.message}`, 'error');
-                    userDisplay.textContent = 'Player';
-                    updateProfileButton('P', '');
+                    updateProfileUI('Player', '');
                 }
             } else {
                 showContainer(authContainer);
                 userDisplay.textContent = '';
                 usernameDisplay.textContent = 'Set Username';
-                updateProfileButton('P', '');
+                updateProfileUI('Player', '');
                 cleanupGame();
             }
         });
