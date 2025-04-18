@@ -54,7 +54,7 @@
             margin-right: auto;
         }
 
-        input {
+        input[type="text"], input[type="file"] {
             width: 100%;
             padding: 3%;
             background: rgba(255, 255, 255, 0.1);
@@ -65,6 +65,10 @@
             font-size: clamp(0.9rem, 3vw, 1rem);
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
             transition: box-shadow 0.3s ease;
+        }
+
+        input[type="file"] {
+            padding: 2%;
         }
 
         input:focus {
@@ -137,7 +141,7 @@
             text-shadow: 0 0 5px #ff0000;
         }
 
-        .dashboard, .game-page, .game-room, .waiting-area {
+        .dashboard, .game-page, .game-room, .waiting-area, .profile-page {
             display: none;
             color: #fff;
         }
@@ -149,6 +153,15 @@
 
         .play-btn:hover {
             box-shadow: 0 0 35px #ff9900, 0 0 55px #ff00ff;
+        }
+
+        .win-btn {
+            background: linear-gradient(45deg, #00ff00, #ff00ff);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+        }
+
+        .win-btn:hover {
+            box-shadow: 0 0 35px #00ff00, 0 0 55px #ff00ff;
         }
 
         .game-board {
@@ -286,6 +299,14 @@
 
         #playButton {
             position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: clamp(100px, 20vw, 120px);
+        }
+
+        #winButton {
+            position: absolute;
             bottom: 5%;
             left: 5%;
             width: clamp(100px, 20vw, 120px);
@@ -309,6 +330,23 @@
         .dashboard-center {
             width: 80%;
             margin: 20% auto 10% auto;
+        }
+
+        /* Profile Page */
+        .profile-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-pic-preview {
+            width: clamp(100px, 25vw, 150px);
+            height: clamp(100px, 25vw, 150px);
+            border-radius: 50%;
+            border: 2px solid #ff00ff;
+            margin-bottom: 5%;
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
         }
 
         @media (max-width: 600px) {
@@ -341,7 +379,7 @@
                 padding: 3%;
                 font-size: clamp(0.8rem, 3vw, 1rem);
             }
-            #profileBtn, #walletBtn, #playButton, #friendsBtn, #tournamentsBtn, #tasksBtn {
+            #profileBtn, #walletBtn, #playButton, #winButton, #friendsBtn, #tournamentsBtn, #tasksBtn {
                 top: auto;
                 left: auto;
                 right: auto;
@@ -359,6 +397,12 @@
                 top: 15%;
             }
             #playButton {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: clamp(80px, 18vw, 100px);
+            }
+            #winButton {
                 bottom: 3%;
                 left: 3%;
                 width: clamp(80px, 18vw, 100px);
@@ -377,6 +421,10 @@
             }
             .dashboard-center {
                 margin: 25% auto 15% auto;
+            }
+            .profile-pic-preview {
+                width: clamp(80px, 20vw, 120px);
+                height: clamp(80px, 20vw, 120px);
             }
         }
     </style>
@@ -403,6 +451,8 @@
         <button class="circle-btn" id="friendsBtn">Fr</button>
         <button class="circle-btn" id="tournamentsBtn">To</button>
         <button class="circle-btn" id="tasksBtn">T</button>
+        <button class="play-btn" id="playButton">Play</button>
+        <button class="win-btn" id="winButton">Win</button>
         <div class="dashboard-center">
             <h2>Welcome, <span id="userDisplay"></span></h2>
             <div id="verifyEmailPrompt" style="display: none;">
@@ -411,13 +461,22 @@
                 </p>
                 <button id="resendVerification">Resend Verification Email</button>
             </div>
-            <div class="input-box">
-                <input type="text" id="username" placeholder="Set Username">
-            </div>
-            <button id="saveUsername">Save Username</button>
-            <button class="play-btn" id="playButton">Play</button>
             <button id="logoutButton">Logout</button>
         </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div class="container profile-page" id="profilePage">
+        <h2>Edit Profile</h2>
+        <img id="profilePicPreview" class="profile-pic-preview" src="" alt="Profile Picture">
+        <div class="input-box">
+            <input type="file" id="profilePicInput" accept="image/*">
+        </div>
+        <div class="input-box">
+            <input type="text" id="username" placeholder="Set Username">
+        </div>
+        <button id="saveProfile">Save Changes</button>
+        <button id="backToDashboardFromProfile">Back to Dashboard</button>
     </div>
 
     <!-- Game Page -->
@@ -477,6 +536,12 @@
             where, 
             getDocs 
         } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+        import { 
+            getStorage, 
+            ref, 
+            uploadBytes, 
+            getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCxUwcTWRApLE7F_LHMXHOrmoQVWabfpgA",
@@ -488,11 +553,12 @@
             measurementId: "G-XQ00FD9LZ4"
         };
 
-        let auth, db;
+        let auth, db, storage;
         try {
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
+            storage = getStorage(app);
             console.log('Firebase initialized successfully');
         } catch (error) {
             console.error('Firebase initialization error:', error);
@@ -502,6 +568,7 @@
         // DOM Elements
         const authContainer = document.getElementById('authContainer');
         const dashboard = document.getElementById('dashboard');
+        const profilePage = document.getElementById('profilePage');
         const gamePage = document.getElementById('gamePage');
         const gameRoom = document.getElementById('gameRoom');
         const waitingArea = document.getElementById('waitingArea');
@@ -512,11 +579,15 @@
         const passwordInput = document.getElementById('password');
         const userDisplay = document.getElementById('userDisplay');
         const usernameInput = document.getElementById('username');
-        const saveUsernameButton = document.getElementById('saveUsername');
+        const saveProfileButton = document.getElementById('saveProfile');
+        const profilePicInput = document.getElementById('profilePicInput');
+        const profilePicPreview = document.getElementById('profilePicPreview');
         const playButton = document.getElementById('playButton');
+        const winButton = document.getElementById('winButton');
         const logoutButton = document.getElementById('logoutButton');
         const playRandom = document.getElementById('playRandom');
         const backToDashboard = document.getElementById('backToDashboard');
+        const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
         const roomIdDisplay = document.getElementById('roomIdDisplay');
         const gameStatus = document.getElementById('gameStatus');
         const gameBoard = document.getElementById('gameBoard');
@@ -529,7 +600,7 @@
         // Initialize container visibility
         function initializeContainers() {
             console.log('Initializing containers');
-            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea];
+            const containers = [authContainer, dashboard, profilePage, gamePage, gameRoom, waitingArea];
             containers.forEach(c => c && (c.style.display = 'none'));
             authContainer.style.display = 'block';
         }
@@ -558,40 +629,123 @@
         // Show/Hide Containers
         function showContainer(container) {
             console.log(`Showing container: ${container?.id || 'unknown'}`);
-            const containers = [authContainer, dashboard, gamePage, gameRoom, waitingArea];
+            const containers = [authContainer, dashboard, profilePage, gamePage, gameRoom, waitingArea];
             containers.forEach(c => c && (c.style.display = 'none'));
             container.style.display = 'block';
         }
 
-        // Generate Profile Button Background
-        async function updateProfileButton(username) {
-            console.log(`Updating profile button for username: ${username}`);
-            if (!profileBtn || !username) return;
-            const firstLetter = username.charAt(0).toUpperCase();
-            const canvas = document.createElement('canvas');
-            const size = 100;
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext('2d');
-
-            // Draw circular background
-            ctx.beginPath();
-            ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-            ctx.fillStyle = '#ff00ff';
-            ctx.fill();
-
-            // Draw letter
-            ctx.font = 'bold 60px Arial';
-            ctx.fillStyle = '#fff';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(firstLetter, size / 2, size / 2);
-
-            // Set as background
-            profileBtn.style.backgroundImage = `url(${canvas.toDataURL()})`;
-            profileBtn.style.backgroundSize = 'cover';
-            profileBtn.style.border = '2px solid #ff00ff';
+        // Update Profile Button
+        async function updateProfileButton(username, avatarUrl) {
+            console.log(`Updating profile button: username=${username}, avatarUrl=${avatarUrl}`);
+            if (!profileBtn) return;
+            if (avatarUrl) {
+                profileBtn.style.backgroundImage = `url(${avatarUrl})`;
+                profileBtn.style.backgroundSize = 'cover';
+                profileBtn.style.border = '2px solid #ff00ff';
+                profileBtn.style.color = 'transparent';
+            } else {
+                const firstLetter = username.charAt(0).toUpperCase();
+                const canvas = document.createElement('canvas');
+                const size = 100;
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff00ff';
+                ctx.fill();
+                ctx.font = 'bold 60px Arial';
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(firstLetter, size / 2, size / 2);
+                profileBtn.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                profileBtn.style.backgroundSize = 'cover';
+                profileBtn.style.border = '2px solid #ff00ff';
+                profileBtn.style.color = 'transparent';
+            }
         }
+
+        // Profile Picture Preview
+        profilePicInput?.addEventListener('change', (e) => {
+            console.log('Profile picture selected');
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    profilePicPreview.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Save Profile
+        saveProfileButton?.addEventListener('click', async () => {
+            console.log('Save profile clicked');
+            const user = auth.currentUser;
+            if (!user || !user.emailVerified) {
+                showMessage('Please verify your email first', 'error');
+                return;
+            }
+            const username = usernameInput?.value.trim();
+            const profilePicFile = profilePicInput?.files[0];
+            if (!username) {
+                showMessage('Please enter a username', 'error');
+                return;
+            }
+            try {
+                const userDocRef = doc(db, 'users', user.uid);
+                let avatarUrl = (await getDoc(userDocRef)).data()?.avatarUrl;
+                if (profilePicFile) {
+                    const storageRef = ref(storage, `users/${user.uid}/avatar`);
+                    await uploadBytes(storageRef, profilePicFile);
+                    avatarUrl = await getDownloadURL(storageRef);
+                }
+                await setDoc(userDocRef, { 
+                    username, 
+                    avatarUrl,
+                    stats: { wins: 0, losses: 0, ties: 0 } 
+                }, { merge: true });
+                showMessage('Profile saved!', 'success');
+                usernameInput.value = '';
+                profilePicInput.value = '';
+                userDisplay.textContent = username;
+                updateProfileButton(username, avatarUrl);
+                profilePicPreview.src = avatarUrl || '';
+                showContainer(dashboard);
+            } catch (error) {
+                console.error('Save profile error:', error);
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Profile Button Click
+        profileBtn?.addEventListener('click', async () => {
+            console.log('Profile button clicked');
+            const user = auth.currentUser;
+            if (!user) {
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
+                return;
+            }
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : '';
+                const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : '';
+                usernameInput.value = username;
+                profilePicPreview.src = avatarUrl || '';
+                showContainer(profilePage);
+            } catch (error) {
+                console.error('Profile page error:', error);
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Back to Dashboard from Profile
+        backToDashboardFromProfile?.addEventListener('click', () => {
+            console.log('Back to dashboard from profile clicked');
+            showContainer(dashboard);
+        });
 
         // Toggle Auth Mode
         toggleAuth.addEventListener('click', () => {
@@ -643,34 +797,6 @@
             }
         });
 
-        // Save Username
-        saveUsernameButton.addEventListener('click', async () => {
-            console.log('Save username clicked');
-            const user = auth.currentUser;
-            if (!user || !user.emailVerified) {
-                showMessage('Please verify your email first', 'error');
-                return;
-            }
-            const username = usernameInput?.value.trim();
-            if (!username) {
-                showMessage('Please enter a username', 'error');
-                return;
-            }
-            try {
-                await setDoc(doc(db, 'users', user.uid), { 
-                    username, 
-                    stats: { wins: 0, losses: 0, ties: 0 } 
-                }, { merge: true });
-                showMessage('Username saved!', 'success');
-                usernameInput.value = '';
-                userDisplay.textContent = username;
-                updateProfileButton(username);
-            } catch (error) {
-                console.error('Save username error:', error);
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
-
         // Play Button
         playButton.addEventListener('click', async () => {
             console.log('Play button clicked');
@@ -690,6 +816,7 @@
                     showContainer(gamePage);
                 } else {
                     showMessage('Please set a username first', 'error');
+                    showContainer(profilePage);
                 }
             } catch (error) {
                 console.error('Play button error:', error);
@@ -1010,7 +1137,6 @@
                 });
             }
             if (gameStatus) gameStatus.textContent = 'Waiting for opponent...';
-            if (gameStatus) gameStatus.textContent = 'Waiting for opponent...';
             if (roomIdDisplay) roomIdDisplay.textContent = '';
             if (playersDisplay) playersDisplay.textContent = '';
             if (auth.currentUser) {
@@ -1034,25 +1160,25 @@
                 showContainer(dashboard);
                 verifyEmailPrompt.style.display = user.emailVerified ? 'none' : 'block';
                 playButton.style.display = user.emailVerified ? 'block' : 'none';
-                saveUsernameButton.style.display = user.emailVerified ? 'block' : 'none';
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
+                    const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : '';
                     userDisplay.textContent = username;
                     usernameInput.placeholder = userDoc.exists() && userDoc.data().username ? 
                         `Current: ${userDoc.data().username}` : 'Set Username';
-                    updateProfileButton(username);
+                    updateProfileButton(username, avatarUrl);
                 } catch (error) {
-                    console.error('Fetch username error:', error);
-                    showMessage(`Error fetching username: ${error.message}`, 'error');
+                    console.error('Fetch user data error:', error);
+                    showMessage(`Error fetching user data: ${error.message}`, 'error');
                     userDisplay.textContent = 'Player';
-                    updateProfileButton('P');
+                    updateProfileButton('P', '');
                 }
             } else {
                 showContainer(authContainer);
                 userDisplay.textContent = '';
                 usernameInput.placeholder = 'Set Username';
-                updateProfileButton('P');
+                updateProfileButton('P', '');
                 cleanupGame();
             }
         });
