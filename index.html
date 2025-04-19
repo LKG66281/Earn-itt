@@ -423,28 +423,41 @@
             padding: 5%;
         }
 
-        .history-table {
+        .history-container {
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             margin-bottom: 5%;
-            border-collapse: collapse;
         }
 
-        .history-table th, .history-table td {
-            padding: 2%;
+        .history-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 4%;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .history-box.win {
+            border: 2px solid #33ff66;
+            box-shadow: 0 0 15px #33ff66, 0 0 25px #33ff66;
+        }
+
+        .history-box.loss-tie {
+            border: 2px solid #ff5733;
+            box-shadow: 0 0 15px #ff5733, 0 0 25px #ff5733;
+        }
+
+        .history-box:hover {
+            transform: scale(1.05);
+        }
+
+        .history-box p {
             color: #fff;
-            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
             text-shadow: 0 0 5px #00e6e6;
-            border: 1px solid #00e6e6;
-        }
-
-        .history-table th {
-            background: rgba(195, 0, 255, 0.2);
-            color: #c300ff;
-            text-shadow: 0 0 10px #c300ff;
-        }
-
-        .history-table tr:nth-child(even) {
-            background: rgba(0, 230, 230, 0.1);
+            margin-bottom: 2%;
         }
 
         .stats-summary {
@@ -541,9 +554,12 @@
             .profile-content {
                 margin-top: 5%;
             }
-            .history-table th, .history-table td {
-                font-size: clamp(0.7rem, 2vw, 0.8rem);
-                padding: 3%;
+            .history-box p {
+                font-size: clamp(0.8rem, 2vw, 0.9rem);
+                margin-bottom: 3%;
+            }
+            .history-container {
+                gap: 10px;
             }
             .stats-summary {
                 font-size: clamp(0.8rem, 3vw, 1rem);
@@ -605,16 +621,7 @@
     <!-- Game History Page -->
     <div class="container game-history-page" id="gameHistoryPage">
         <h2>Game History</h2>
-        <table class="history-table" id="historyTable">
-            <thead>
-                <tr>
-                    <th>Date & Time</th>
-                    <th>Opponent</th>
-                    <th>Result</th>
-                </tr>
-            </thead>
-            <tbody id="historyTableBody"></tbody>
-        </table>
+        <div class="history-container" id="historyContainer"></div>
         <div class="stats-summary" id="statsSummary"></div>
         <button id="backToProfile">Go to Profile</button>
     </div>
@@ -725,7 +732,7 @@
         const profilePicInput = document.getElementById('profilePicInput');
         const gameHistoryBtn = document.getElementById('gameHistoryBtn');
         const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
-        const historyTableBody = document.getElementById('historyTableBody');
+        const historyContainer = document.getElementById('historyContainer');
         const statsSummary = document.getElementById('statsSummary');
         const backToProfile = document.getElementById('backToProfile');
         const playButton = document.getElementById('playButton');
@@ -940,25 +947,26 @@
                 const historyDocs = await getDocs(historyQuery);
                 console.log('Game history docs:', historyDocs.size);
 
-                historyTableBody.innerHTML = '';
+                historyContainer.innerHTML = '';
                 historyDocs.forEach(doc => {
                     const game = doc.data();
                     const date = game.timestamp?.toDate ? game.timestamp.toDate() : new Date();
                     const formattedDate = date.toLocaleString('en-US', {
-                        month: 'short',
+                        month: 'long',
                         day: '2-digit',
                         year: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit',
                         hour12: false
                     });
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${formattedDate}</td>
-                        <td>${game.opponentUsername || 'Unknown'}</td>
-                        <td>${game.result.charAt(0).toUpperCase() + game.result.slice(1)}</td>
+                    const box = document.createElement('div');
+                    box.className = `history-box ${game.result === 'win' ? 'win' : 'loss-tie'}`;
+                    box.innerHTML = `
+                        <p>Opponent: ${game.opponentUsername || 'Unknown'}</p>
+                        <p>Result: ${game.result.charAt(0).toUpperCase() + game.result.slice(1)}</p>
+                        <p>Time: ${formattedDate}</p>
                     `;
-                    historyTableBody.appendChild(row);
+                    historyContainer.appendChild(box);
                 });
 
                 statsSummary.textContent = `Total Matches: Wins ${stats.wins}, Losses ${stats.losses}, Ties ${stats.ties}`;
