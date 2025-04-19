@@ -141,7 +141,7 @@
             text-shadow: 0 0 5px #ff5733;
         }
 
-        .dashboard, .game-page, .game-room, .waiting-area, .profile-page {
+        .dashboard, .game-page, .game-room, .waiting-area, .profile-page, .game-history-page {
             display: none;
             color: #fff;
         }
@@ -415,6 +415,54 @@
             margin-top: 3%;
         }
 
+        /* Game History Page */
+        .game-history-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5%;
+        }
+
+        .history-table {
+            width: 100%;
+            margin-bottom: 5%;
+            border-collapse: collapse;
+        }
+
+        .history-table th, .history-table td {
+            padding: 2%;
+            color: #fff;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            text-shadow: 0 0 5px #00e6e6;
+            border: 1px solid #00e6e6;
+        }
+
+        .history-table th {
+            background: rgba(195, 0, 255, 0.2);
+            color: #c300ff;
+            text-shadow: 0 0 10px #c300ff;
+        }
+
+        .history-table tr:nth-child(even) {
+            background: rgba(0, 230, 230, 0.1);
+        }
+
+        .stats-summary {
+            margin-bottom: 5%;
+            color: #33ff66;
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
+            text-shadow: 0 0 10px #33ff66;
+        }
+
+        #backToProfile {
+            width: 80%;
+            background: linear-gradient(45deg, #c300ff, #ff5733);
+        }
+
+        #backToProfile:hover {
+            box-shadow: 0 0 35px #c300ff, 0 0 55px #ff5733;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 8%;
@@ -493,6 +541,13 @@
             .profile-content {
                 margin-top: 5%;
             }
+            .history-table th, .history-table td {
+                font-size: clamp(0.7rem, 2vw, 0.8rem);
+                padding: 3%;
+            }
+            .stats-summary {
+                font-size: clamp(0.8rem, 3vw, 1rem);
+            }
         }
     </style>
 </head>
@@ -545,6 +600,23 @@
         </div>
         <button class="game-history-btn" id="gameHistoryBtn">Game History</button>
         <button id="backToDashboardFromProfile">Back to Dashboard</button>
+    </div>
+
+    <!-- Game History Page -->
+    <div class="container game-history-page" id="gameHistoryPage">
+        <h2>Game History</h2>
+        <table class="history-table" id="historyTable">
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Opponent</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+        </table>
+        <div class="stats-summary" id="statsSummary"></div>
+        <button id="backToProfile">Go to Profile</button>
     </div>
 
     <!-- Game Page -->
@@ -602,7 +674,8 @@
             addDoc, 
             query, 
             where, 
-            getDocs 
+            getDocs, 
+            serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
         import { 
             getStorage, 
@@ -637,6 +710,7 @@
         const authContainer = document.getElementById('authContainer');
         const dashboard = document.getElementById('dashboard');
         const profilePage = document.getElementById('profilePage');
+        const gameHistoryPage = document.getElementById('gameHistoryPage');
         const gamePage = document.getElementById('gamePage');
         const gameRoom = document.getElementById('gameRoom');
         const waitingArea = document.getElementById('waitingArea');
@@ -651,6 +725,9 @@
         const profilePicInput = document.getElementById('profilePicInput');
         const gameHistoryBtn = document.getElementById('gameHistoryBtn');
         const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
+        const historyTableBody = document.getElementById('historyTableBody');
+        const statsSummary = document.getElementById('statsSummary');
+        const backToProfile = document.getElementById('backToProfile');
         const playButton = document.getElementById('playButton');
         const winButton = document.getElementById('winButton');
         const logoutButton = document.getElementById('logoutButton');
@@ -668,7 +745,7 @@
         // Initialize container visibility
         function initializeContainers() {
             console.log('Initializing containers');
-            const containers = [authContainer, dashboard, profilePage, gamePage, gameRoom, waitingArea];
+            const containers = [authContainer, dashboard, profilePage, gameHistoryPage, gamePage, gameRoom, waitingArea];
             containers.forEach(c => c && (c.style.display = 'none'));
             authContainer.style.display = 'block';
         }
@@ -680,7 +757,6 @@
         let opponentUsername = null;
         let unsubscribeRoom = null;
         let lastSaveTime = 0;
-        let localAvatarUrl = null;
 
         // Show Message
         function showMessage(message, type) {
@@ -699,7 +775,7 @@
         // Show/Hide Containers
         function showContainer(container) {
             console.log(`Showing container: ${container?.id || 'unknown'}`);
-            const containers = [authContainer, dashboard, profilePage, gamePage, gameRoom, waitingArea];
+            const containers = [authContainer, dashboard, profilePage, gameHistoryPage, gamePage, gameRoom, waitingArea];
             containers.forEach(c => c && (c.style.display = 'none'));
             container.style.display = 'block';
         }
@@ -712,40 +788,25 @@
                 return;
             }
             const firstLetter = username.charAt(0).toUpperCase() || 'P';
-            if (avatarUrl && avatarUrl !== 'local') {
-                console.log('Setting profile picture:', avatarUrl);
-                profileBtn.style.backgroundImage = `url(${avatarUrl})`;
-                profilePicCircle.style.backgroundImage = `url(${avatarUrl})`;
-                profileBtn.style.color = 'transparent';
-                profilePicCircle.style.color = 'transparent';
-            } else if (avatarUrl === 'local' && localAvatarUrl) {
-                console.log('Using local avatar URL:', localAvatarUrl);
-                profileBtn.style.backgroundImage = `url(${localAvatarUrl})`;
-                profilePicCircle.style.backgroundImage = `url(${localAvatarUrl})`;
-                profileBtn.style.color = 'transparent';
-                profilePicCircle.style.color = 'transparent';
-            } else {
-                console.log('No avatar, using letter fallback for:', username);
-                const canvas = document.createElement('canvas');
-                const size = 100;
-                canvas.width = size;
-                canvas.height = size;
-                const ctx = canvas.getContext('2d');
-                ctx.beginPath();
-                ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-                ctx.fillStyle = '#c300ff';
-                ctx.fill();
-                ctx.font = 'bold 60px Arial';
-                ctx.fillStyle = '#fff';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(firstLetter, size / 2, size / 2);
-                const canvasUrl = canvas.toDataURL();
-                profileBtn.style.backgroundImage = `url(${canvasUrl})`;
-                profilePicCircle.style.backgroundImage = `url(${canvasUrl})`;
-                profileBtn.style.color = 'transparent';
-                profilePicCircle.style.color = 'transparent';
-            }
+            const canvas = document.createElement('canvas');
+            const size = 100;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#c300ff';
+            ctx.fill();
+            ctx.font = 'bold 60px Arial';
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(firstLetter, size / 2, size / 2);
+            const canvasUrl = canvas.toDataURL();
+            profileBtn.style.backgroundImage = `url(${canvasUrl})`;
+            profilePicCircle.style.backgroundImage = `url(${canvasUrl})`;
+            profileBtn.style.color = 'transparent';
+            profilePicCircle.style.color = 'transparent';
             profileBtn.style.backgroundSize = 'cover';
             profileBtn.style.border = '2px solid #c300ff';
             profilePicCircle.style.backgroundSize = 'cover';
@@ -755,14 +816,14 @@
         }
 
         // Save Profile to Firebase
-        async function saveProfile(username, avatarFile) {
+        async function saveProfile(username) {
             const now = Date.now();
             if (now - lastSaveTime < 500) {
                 console.log('Debouncing save');
                 return;
             }
             lastSaveTime = now;
-            console.log('Starting profile save: user=', auth.currentUser?.uid, 'username=', username, 'avatarFile=', !!avatarFile);
+            console.log('Starting profile save: user=', auth.currentUser?.uid, 'username=', username);
             const user = auth.currentUser;
             if (!user) {
                 console.error('No user logged in');
@@ -776,53 +837,17 @@
             }
             try {
                 const userDocRef = doc(db, 'users', user.uid);
-                let userData = { 
-                    username: username,
+                const userData = { 
+                    username,
                     avatarUrl: null 
                 };
-
-                if (avatarFile) {
-                    // Validate file
-                    const validTypes = ['image/png', 'image/jpeg'];
-                    const maxSize = 2 * 1024 * 1024; // 2MB
-                    if (!validTypes.includes(avatarFile.type)) {
-                        console.error('Invalid file type:', avatarFile.type);
-                        showMessage('Please upload a PNG or JPEG image', 'error');
-                        return;
-                    }
-                    if (avatarFile.size > maxSize) {
-                        console.error('File too large:', avatarFile.size);
-                        showMessage('Image must be under 2MB', 'error');
-                        return;
-                    }
-
-                    console.log('Uploading avatar: name=', avatarFile.name, 'size=', avatarFile.size, 'type=', avatarFile.type);
-                    const storageRef = ref(storage, `users/${user.uid}/avatar`);
-                    try {
-                        const uploadResult = await uploadBytes(storageRef, avatarFile);
-                        console.log('Upload successful:', uploadResult.metadata);
-                        const avatarUrl = await getDownloadURL(storageRef);
-                        console.log('Generated avatarUrl:', avatarUrl);
-                        userData.avatarUrl = avatarUrl;
-                        localAvatarUrl = null; // Clear local URL
-                    } catch (uploadError) {
-                        console.error('Avatar upload failed:', uploadError.code, uploadError.message);
-                        showMessage('Failed to upload avatar. Using local image.', 'error');
-                        // Fallback: Use local image
-                        localAvatarUrl = URL.createObjectURL(avatarFile);
-                        userData.avatarUrl = 'local';
-                    }
-                }
-
                 console.log('Saving to Firestore:', userData);
                 await setDoc(userDocRef, {
                     ...userData,
                     stats: { wins: 0, losses: 0, ties: 0 }
                 }, { merge: true });
-                console.log('Firestore save successful: user=', user.uid, 'avatarUrl=', userData.avatarUrl);
-
-                console.log('Updating UI: username=', username, 'avatarUrl=', userData.avatarUrl);
-                updateProfileUI(username, userData.avatarUrl);
+                console.log('Firestore save successful: user=', user.uid);
+                updateProfileUI(username, null);
                 showMessage('Profile updated!', 'success');
             } catch (error) {
                 console.error('Save profile error:', error.code, error.message);
@@ -839,15 +864,8 @@
         // Profile Picture Change
         profilePicInput?.addEventListener('change', async (e) => {
             console.log('Profile picture input changed');
-            const file = e.target.files[0];
-            if (file) {
-                console.log('Selected file: name=', file.name, 'size=', file.size, 'type=', file.type);
-                const username = usernameDisplay.textContent.trim() || 'Player';
-                await saveProfile(username, file);
-                profilePicInput.value = '';
-            } else {
-                console.log('No file selected');
-            }
+            showMessage('Profile picture upload not supported yet', 'error');
+            profilePicInput.value = '';
         });
 
         // Username Editing
@@ -868,7 +886,7 @@
                 usernameDisplay.textContent = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
                 return;
             }
-            await saveProfile(newUsername, null);
+            await saveProfile(newUsername);
         });
 
         usernameDisplay?.addEventListener('keydown', async (e) => {
@@ -892,10 +910,9 @@
                 console.log('Loading profile: user=', user.uid);
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
-                const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
-                console.log('Profile loaded: username=', username, 'avatarUrl=', avatarUrl);
+                console.log('Profile loaded: username=', username);
                 usernameDisplay.textContent = username;
-                updateProfileUI(username, avatarUrl);
+                updateProfileUI(username, null);
                 showContainer(profilePage);
             } catch (error) {
                 console.error('Profile page error:', error.code, error.message);
@@ -903,16 +920,59 @@
             }
         });
 
-        // Game History Button (Placeholder)
-        gameHistoryBtn?.addEventListener('click', () => {
+        // Game History Button
+        gameHistoryBtn?.addEventListener('click', async () => {
             console.log('Game history clicked');
-            showMessage('Game history not implemented yet', 'error');
+            const user = auth.currentUser;
+            if (!user) {
+                console.error('No user logged in');
+                showMessage('Please log in first', 'error');
+                showContainer(authContainer);
+                return;
+            }
+            try {
+                console.log('Loading game history: user=', user.uid);
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const stats = userDoc.exists() && userDoc.data().stats ? userDoc.data().stats : { wins: 0, losses: 0, ties: 0 };
+                console.log('Stats loaded:', stats);
+
+                const historyQuery = query(collection(db, `users/${user.uid}/gameHistory`));
+                const historyDocs = await getDocs(historyQuery);
+                console.log('Game history docs:', historyDocs.size);
+
+                historyTableBody.innerHTML = '';
+                historyDocs.forEach(doc => {
+                    const game = doc.data();
+                    const date = game.timestamp?.toDate ? game.timestamp.toDate() : new Date();
+                    const formattedDate = date.toLocaleString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formattedDate}</td>
+                        <td>${game.opponentUsername || 'Unknown'}</td>
+                        <td>${game.result.charAt(0).toUpperCase() + game.result.slice(1)}</td>
+                    `;
+                    historyTableBody.appendChild(row);
+                });
+
+                statsSummary.textContent = `Total Matches: Wins ${stats.wins}, Losses ${stats.losses}, Ties ${stats.ties}`;
+                showContainer(gameHistoryPage);
+            } catch (error) {
+                console.error('Game history error:', error.code, error.message);
+                showMessage(`Error loading game history: ${error.message}`, 'error');
+            }
         });
 
-        // Back to Dashboard from Profile
-        backToDashboardFromProfile?.addEventListener('click', () => {
-            console.log('Back to dashboard from profile clicked');
-            showContainer(dashboard);
+        // Back to Profile
+        backToProfile?.addEventListener('click', () => {
+            console.log('Back to profile clicked');
+            showContainer(profilePage);
         });
 
         // Toggle Auth Mode
@@ -1266,18 +1326,32 @@
                 const userDoc = await getDoc(userDocRef);
                 let stats = userDoc.data()?.stats || { wins: 0, losses: 0, ties: 0 };
                 console.log('Current stats:', stats);
+                let gameResult = '';
                 if (result === currentPlayer) {
                     showMessage('You won!', 'success');
                     stats.wins += 1;
+                    gameResult = 'win';
                 } else if (result === 'tie') {
                     showMessage('Game tied!', 'success');
                     stats.ties += 1;
+                    gameResult = 'tie';
                 } else {
                     showMessage(`${opponentUsername} won!`, 'error');
                     stats.losses += 1;
+                    gameResult = 'loss';
                 }
                 console.log('Updating stats to:', stats);
                 await updateDoc(userDocRef, { stats });
+
+                // Save to gameHistory
+                const gameHistoryRef = collection(db, `users/${user.uid}/gameHistory`);
+                await addDoc(gameHistoryRef, {
+                    opponentUsername: opponentUsername || 'Unknown',
+                    result: gameResult,
+                    timestamp: serverTimestamp()
+                });
+                console.log('Saved to gameHistory: opponent=', opponentUsername, 'result=', gameResult);
+
                 await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'finished', winner: result });
                 setTimeout(() => {
                     cleanupGame();
@@ -1338,10 +1412,8 @@
                     console.log('Fetching user data: user=', user.uid);
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
-                    const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
-                    console.log('Fetched user data: username=', username, 'avatarUrl=', avatarUrl);
-                    localAvatarUrl = null; // Reset local URL on login
-                    updateProfileUI(username, avatarUrl);
+                    console.log('Fetched user data: username=', username);
+                    updateProfileUI(username, null);
                 } catch (error) {
                     console.error('Fetch user data error:', error.code, error.message);
                     showMessage(`Error fetching user data: ${error.message}`, 'error');
@@ -1352,7 +1424,6 @@
                 userDisplay.textContent = '';
                 usernameDisplay.textContent = 'Set Username';
                 updateProfileUI('Player', null);
-                localAvatarUrl = null;
                 cleanupGame();
             }
         });
