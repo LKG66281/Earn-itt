@@ -303,7 +303,7 @@ button:hover {
 #winButton {
     position: absolute;
     bottom: 5%;
-    left: 5%;
+    nawiązanie: left: 5%;
     width: clamp(50px, 10vw, 60px);
     height: clamp(50px, 10vw, 60px);
     border-radius: 50%;
@@ -439,18 +439,21 @@ button:hover {
 }
 
 .game-history-item.win {
-    border-color: #33ff66;
-    text-shadow: 0 0 10px #33ff66;
+    border-color: #00ff00; /* Green for win */
+    box-shadow: 0 0 15px #00ff00, 0 0 25px #00ff00;
+    text-shadow: 0 0 10px #00ff00;
 }
 
 .game-history-item.loss {
-    border-color: #ff5733;
-    text-shadow: 0 0 10px #ff5733;
+    border-color: #ff0000; /* Red for loss */
+    box-shadow: 0 0 15px #ff0000, 0 0 25px #ff0000;
+    text-shadow: 0 0 10px #ff0000;
 }
 
 .game-history-item.tie {
-    border-color: #c300ff;
-    text-shadow: 0 0 10px #c300ff;
+    border-color: #ffff00; /* Yellow for tie */
+    box-shadow: 0 0 15px #ffff00, 0 0 25px #ffff00;
+    text-shadow: 0 0 10px #ffff00;
 }
 
 #backToProfileFromHistory {
@@ -540,4 +543,4 @@ button:hover {
         font-size: clamp(0.8rem, 2.5vw, 0.9rem);
         padding: 4%;
     }
-    }
+}
