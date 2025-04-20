@@ -1,417 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Firebase Auth</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            overflow: hidden;
-            background: linear-gradient(45deg, magenta, cyan, red, green, yellow);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        @keyframes gradientShift {
-            0% {background-position: 0% 50%;}
-            50% {background-position: 100% 50%;}
-            100% {background-position: 0% 50%;}
-        }
-
-        .container {
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-            text-align: center;
-            position: relative;
-            animation: pulseGlow 2s infinite alternate;
-            z-index: 10; /* Ensure it's above the background */
-        }
-
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); }
-            100% { box-shadow: 0 0 30px rgba(255, 0, 255, 0.7); }
-        }
-
-        h2 {
-            color: white;
-            text-shadow: 0 0 10px cyan;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            color: white;
-            text-shadow: 0 0 5px cyan;
-            margin-bottom: 5px;
-            text-align: left;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid cyan;
-            border-radius: 5px;
-            background-color: transparent;
-            color: white;
-            box-shadow: 0 0 5px cyan;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            border-color: magenta;
-            box-shadow: 0 0 10px magenta;
-            outline: none;
-        }
-
-        button {
-            background-color: #222;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            box-shadow: 0 0 10px yellow;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, cyan, magenta, yellow, transparent);
-            transition: left 2s linear infinite;
-            z-index: -1;
-        }
-
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px white;
-        }
-
-        .link-btn {
-            background: none;
-            border: none;
-            color: white;
-            text-shadow: 0 0 5px cyan;
-            cursor: pointer;
-            margin-top: 10px;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .link-btn:hover {
-            color: magenta;
-        }
-
-        #message-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
-            text-align: center;
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-
-        .success {
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
-            text-shadow: 0 0 5px green;
-            border: 1px solid green;
-        }
-
-        .error {
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
-            text-shadow: 0 0 5px red;
-            border: 1px solid red;
-        }
-
-        #dashboard {
-            color: white;
-            text-shadow: 0 0 10px cyan;
-        }
-
-        #dashboard button {
-            margin-top: 20px;
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neon Firebase Authentication</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+  <style>
+    /* Neon Theme CSS */
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(-45deg, magenta, cyan, red, green, yellow);
+      background-size: 400% 400%;
+      animation: gradientBG 10s infinite;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .container {
+      padding: 20px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 15px magenta, 0 0 25px cyan;
+    }
+    .form-group input {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      color: white;
+      outline: none;
+      text-shadow: 0 0 3px cyan, 0 0 3px magenta;
+      transition: box-shadow 0.2s;
+    }
+    .form-group input:focus {
+      box-shadow: 0 0 10px magenta, 0 0 20px cyan;
+    }
+    .button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      background: linear-gradient(90deg, magenta, cyan);
+      color: white;
+      text-shadow: 0 0 3px white;
+      font-weight: bold;
+      cursor: pointer;
+      animation: glowButton 2s linear infinite;
+    }
+    .button:hover {
+      transform: scale(1.1);
+    }
+    @keyframes glowButton {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    #pop-up {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      border-radius: 10px;
+      background: black;
+      color: white;
+      text-align: center;
+      z-index: 10;
+      display: none;
+    }
+    #pop-up.success { color: green; }
+    #pop-up.error { color: red; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div id="signup-form">
-            <h2>Sign Up</h2>
-            <div class="form-group">
-                <label for="signup-username">Username:</label>
-                <input type="text" id="signup-username">
-            </div>
-            <div class="form-group">
-                <label for="signup-email">Email:</label>
-                <input type="email" id="signup-email">
-            </div>
-            <div class="form-group">
-                <label for="signup-password">Password:</label>
-                <input type="password" id="signup-password">
-            </div>
-            <button id="signup-button">Sign Up</button>
-            <p><a href="#" id="toggle-login" class="link-btn">Already have an account? Login</a></p>
+  <div class="container">
+    <h2 style="color:cyan; text-align:center;">Neon Firebase Authentication</h2>
+    <div id="form-container">
+      <form id="signup-form" style="display:none;">
+        <div class="form-group">
+          <input type="text" id="signup-username" placeholder="Username">
+          <input type="email" id="signup-email" placeholder="Email">
+          <input type="password" id="signup-password" placeholder="Password">
         </div>
-
-        <div id="login-form" class="hidden">
-            <h2>Login</h2>
-            <div class="form-group">
-                <label for="login-email">Email:</label>
-                <input type="email" id="login-email">
-            </div>
-            <div class="form-group">
-                <label for="login-password">Password:</label>
-                <input type="password" id="login-password">
-            </div>
-            <button id="login-button">Login</button>
-            <p><a href="#" id="forgot-password" class="link-btn">Forgot Password?</a></p>
-            <p><a href="#" id="toggle-signup" class="link-btn">Need an account? Sign Up</a></p>
+        <button class="button" id="signup-button">Sign Up</button>
+        <p style="color:white; text-align:center;">Already have an account? <a href="#" id="toggle-login">Login</a></p>
+      </form>
+      <form id="login-form">
+        <div class="form-group">
+          <input type="email" id="login-email" placeholder="Email">
+          <input type="password" id="login-password" placeholder="Password">
         </div>
-
-        <div id="dashboard" class="hidden">
-            <h2>Dashboard</h2>
-            <p>Username: <span id="dashboard-username"></span></p>
-            <p>Email: <span id="dashboard-email"></span></p>
-            <button id="logout-button">Logout</button>
-        </div>
-
-        <div id="message-box" class="hidden"></div>
+        <button class="button" id="login-button">Login</button>
+        <p style="color:white; text-align:center;">Need an account? <a href="#" id="toggle-signup">Sign Up</a></p>
+        <p style="text-align:center;"><a href="#" id="forgot-password" style="color:cyan;">Forgot Password?</a></p>
+      </form>
+      <div id="dashboard" style="display:none;">
+        <h3>Welcome, <span id="user-name"></span>!</h3>
+        <p>Email: <span id="user-email"></span></p>
+        <button class="button" id="logout-button">Logout</button>
+      </div>
     </div>
+  </div>
+  <div id="pop-up"></div>
+  <script>
+    // Firebase Initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyAol2UzQWdFPyTeWhlfK7HTXxMpsuXnSFk",
+      authDomain: "final-78170.firebaseapp.com",
+      projectId: "final-78170",
+      storageBucket: "final-78170.appspot.com",
+      messagingSenderId: "374288155367",
+      appId: "1:374288155367:web:94a49f3b204dfa2efc5842",
+      measurementId: "G-9GM80JWP3C"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.getAuth();
+    const db = firebase.getFirestore();
 
-    <script>
-        // Firebase configuration (KEEP THIS SECURE IN PRODUCTION!)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAol2UzQWdFPyTeWhlfK7HTXxMpsuXnSFk",
-            authDomain: "final-78170.firebaseapp.com",
-            projectId: "final-78170",
-            storageBucket: "final-78170.firebasestorage.app",
-            messagingSenderId: "374288155367",
-            appId: "1:374288155367:web:94a49f3b204dfa2efc5842",
-            measurementId: "G-9GM80JWP3C"
-        };
+    // Utility Functions
+    const showMessage = (message, success = true) => {
+      const popUp = document.getElementById('pop-up');
+      popUp.className = success ? 'success' : 'error';
+      popUp.textContent = message;
+      popUp.style.display = 'block';
+      setTimeout(() => popUp.style.display = 'none', 3000);
+    };
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+    // Toggle Forms
+    document.getElementById('toggle-signup').addEventListener('click', () => {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('signup-form').style.display = 'block';
+    });
+    document.getElementById('toggle-login').addEventListener('click', () => {
+      document.getElementById('signup-form').style.display = 'none';
+      document.getElementById('login-form').style.display = 'block';
+    });
 
-        // Get DOM elements
-        const signupForm = document.getElementById('signup-form');
-        const loginForm = document.getElementById('login-form');
-        const dashboard = document.getElementById('dashboard');
-        const signupButton = document.getElementById('signup-button');
-        const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button');
-        const forgotPasswordLink = document.getElementById('forgot-password');
-        const toggleLoginLink = document.getElementById('toggle-login');
-        const toggleSignupLink = document.getElementById('toggle-signup');
-        const messageBox = document.getElementById('message-box');
-        const dashboardUsername = document.getElementById('dashboard-username');
-        const dashboardEmail = document.getElementById('dashboard-email');
-        const signupUsernameInput = document.getElementById('signup-username');
-        const signupEmailInput = document.getElementById('signup-email');
-        const signupPasswordInput = document.getElementById('signup-password');
-        const loginEmailInput = document.getElementById('login-email');
-        const loginPasswordInput = document.getElementById('login-password');
-
-        // Function to show a message
-        function showMessage(message, type = 'info') {
-            messageBox.textContent = message;
-            messageBox.className = type;
-            messageBox.classList.remove('hidden');
-            messageBox.style.opacity = 1;
-            setTimeout(() => {
-                messageBox.style.opacity = 0;
-                setTimeout(() => {
-                    messageBox.classList.add('hidden');
-                }, 500);
-            }, 3000);
-        }
-
-        // Function to update UI based on authentication state
-        function updateUI(user) {
-            if (user) {
-                signupForm.classList.add('hidden');
-                loginForm.classList.add('hidden');
-                dashboard.classList.remove('hidden');
-                dashboardUsername.textContent = user.displayName || 'N/A';
-                dashboardEmail.textContent = user.email;
-            } else {
-                signupForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
-                dashboard.classList.add('hidden');
-            }
-        }
-
-        // Event listeners after DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded');
-
-            // Toggle between signup and login forms
-            toggleLoginLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                signupForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-                console.log('Toggle to Login clicked');
-            });
-
-            toggleSignupLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                loginForm.classList.add('hidden');
-                signupForm.classList.remove('hidden');
-                console.log('Toggle to Sign Up clicked');
-            });
-
-            // Sign up with username check
-            signupButton.addEventListener('click', async () => {
-                console.log('Sign Up clicked');
-                const username = signupUsernameInput.value.trim();
-                const email = signupEmailInput.value;
-                const password = signupPasswordInput.value;
-
-                if (!username || !email || !password) {
-                    showMessage('Please fill in all fields.', 'error');
-                    return;
-                }
-
-                try {
-                    // Check if username exists
-                    const usernameSnapshot = await db.collection('users').where('username', '==', username).get();
-                    if (!usernameSnapshot.empty) {
-                        showMessage('Username already exists. Please choose another.', 'error');
-                        return;
-                    }
-
-                    // Create user
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    const user = userCredential.user;
-
-                    // Update display name with username
-                    await user.updateProfile({ displayName: username });
-
-                    // Send email verification
-                    await user.sendEmailVerification();
-                    showMessage('Account created! Please verify your email address.', 'success');
-
-                    // Store user data in Firestore
-                    await db.collection('users').doc(user.uid).set({
-                        username: username,
-                        email: email,
-                        creationTime: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    // Optionally, redirect or update UI after signup (user needs to verify email first to login)
-                    signupForm.reset();
-                } catch (error) {
-                    console.error('Error signing up:', error.message);
-                    showMessage(`Error signing up: ${error.message}`, 'error');
-                }
-            });
-
-            // Login
-            loginButton.addEventListener('click', async () => {
-                console.log('Login clicked');
-                const email = loginEmailInput.value;
-                const password = loginPasswordInput.value;
-
-                if (!email || !password) {
-                    showMessage('Please enter your email and password.', 'error');
-                    return;
-                }
-
-                try {
-                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    const user = userCredential.user;
-                    if (user.emailVerified) {
-                        updateUI(user);
-                        loginForm.reset();
-                        console.log('Logged in successfully!');
-                    } else {
-                        showMessage('Please verify your email address before logging in.', 'error');
-                        await auth.signOut(); // Prevent unverified login
-                    }
-                } catch (error) {
-                    console.error('Error logging in:', error.message);
-                    showMessage(`Error logging in: ${error.message}`, 'error');
-                }
-            });
-
-            // Forgot password
-            forgotPasswordLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                const email = prompt('Please enter the email address associated with your account:');
-                if (email) {
-                    auth.sendPasswordResetEmail(email)
-                        .then(() => {
-                            showMessage('Password reset email sent!', 'success');
-                            console.log('Password reset email sent!');
-                        })
-                        .catch((error) => {
-                            console.error('Error sending password reset email:', error.message);
-                            showMessage(`Error sending reset email: ${error.message}`, 'error');
-                        });
-                }
-                console.log('Forgot Password clicked');
-            });
-
-            // Logout
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    await auth.signOut();
-                    updateUI(null);
-                    console.log('Logged out successfully!');
-                    showMessage('Logged out successfully!', 'success');
-                } catch (error) {
-                    console.error('Error logging out:', error.message);
-                    showMessage(`Error logging out: ${error.message}`, 'error');
-                }
-                console.log('Logout clicked');
-            });
-
-            // Listen for authentication state changes
-            auth.onAuthStateChanged((user) => {
-                updateUI(user);
-                console.log('Auth state changed:', user);
-            });
+    // Signup
+    document.getElementById('signup-button').addEventListener('click', async (event) => {
+      event.preventDefault();
+      const username = document.getElementById('signup-username').value;
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+      try {
+        const userQuery = await firebase.getDocs(firebase.query(
+          firebase.collection(db, 'users'),
+          firebase.where('username', '==', username)
+        ));
+        if (!userQuery.empty) throw new Error('Username already exists');
+        const userCredential = await firebase.createUserWithEmailAndPassword(auth, email, password);
+        await firebase.sendEmailVerification(userCredential.user);
+        await firebase.setDoc(firebase.doc(db, 'users', userCredential.user.uid), {
+          username, email, createdAt: new Date().toISOString()
         });
-    </script>
-</body>
-  </html>
+        showMessage('Signup successful! Verify your email.', true);
+      } catch (error) {
+        showMessage(error.message, false);
+      }
+    });
+
+    // Login
+    document.getElementById('login-button').addEventListener('click', async (event) => {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      try {
+        const userCredential = await firebase.signInWithEmailAndPassword(auth, email, password);
+        if (!userCredential.user.emailVerified) {
+          await firebase.signOut(auth);
+          throw new Error('Email not verified. Please check your inbox.');
+        }
+        const userDoc = await firebase.getDoc(firebase.doc(db, 'users', userCredential.user.uid));
+        document.getElementById('user-name').textContent = userDoc.data().username;
+        document.getElementById('user-email').textContent = userDoc.data().email;
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        showMessage('Login successful!', true);
+      } catch (error) {
+        showMessage(error.message, false);
+      }
+    });
+
+    // Forgot Password
+    document.getElementById('forgot-password').addEventListener('click', async (event) => {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value;
+      try {
+        await firebase.sendPassword
