@@ -30,6 +30,7 @@
       text-align: center;
       position: relative;
       animation: glowPulse 4s infinite alternate;
+      z-index: 1;
     }
 
     @keyframes glowPulse {
@@ -90,12 +91,31 @@
       padding: 12px;
       border: none;
       border-radius: 8px;
-      background: linear-gradient(45deg, #ff00ff, #00ffff);
+      background: #1a1a1a;
       color: #fff;
       font-size: 16px;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s;
+      z-index: 1;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #ff00ff, #00ffff, transparent);
+      transition: left 0.5s;
+      z-index: -1;
+    }
+
+    button:hover::before {
+      left: 100%;
     }
 
     button:hover {
@@ -110,7 +130,8 @@
       margin-top: 10px;
       display: inline-block;
       text-decoration: none;
-      transition: color 0.3s;
+      transition: color 0.3s, text-shadow 0.3s;
+      z-index: 1;
     }
 
     .toggle-link:hover, .forgot-password:hover {
@@ -157,16 +178,16 @@
         <input type="text" id="username" placeholder="Username" required>
         <input type="email" id="email" placeholder="Email" required>
         <input type="password" id="password" placeholder="Password" required>
-        <button id="authButton" onclick="handleAuth()">Sign Up</button>
-        <a class="forgot-password" onclick="forgotPassword()">Forgot Password?</a>
-        <a class="toggle-link" onclick="toggleForm()">Already have an account? Login</a>
+        <button id="authButton">Sign Up</button>
+        <a class="forgot-password" id="forgotPassword">Forgot Password?</a>
+        <a class="toggle-link" id="toggleLink">Already have an account? Login</a>
       </div>
     </div>
     <!-- Dashboard Section -->
     <div id="dashboard">
       <h1>Welcome, <span id="usernameDisplay"></span>!</h1>
       <p>Email: <span id="emailDisplay"></span></p>
-      <button onclick="logout()">Logout</button>
+      <button id="logoutButton">Logout</button>
     </div>
     <div id="messageBox" class="message-box"></div>
   </div>
@@ -216,8 +237,8 @@
       document.getElementById("formTitle").textContent = isSignup ? "Sign Up" : "Login";
       document.getElementById("authButton").textContent = isSignup ? "Sign Up" : "Login";
       document.getElementById("username").style.display = isSignup ? "block" : "none";
-      document.querySelector(".toggle-link").textContent = isSignup ? "Already have an account? Login" : "Need an account? Sign Up";
-      document.querySelector(".forgot-password").style.display = isSignup ? "none" : "inline-block";
+      document.getElementById("toggleLink").textContent = isSignup ? "Already have an account? Login" : "Need an account? Sign Up";
+      document.getElementById("forgotPassword").style.display = isSignup ? "none" : "inline-block";
     }
 
     // Check Username Availability
@@ -306,6 +327,12 @@
         showMessage(error.message, "error");
       }
     }
+
+    // Event Listeners
+    document.getElementById("authButton").addEventListener("click", handleAuth);
+    document.getElementById("toggleLink").addEventListener("click", toggleForm);
+    document.getElementById("forgotPassword").addEventListener("click", forgotPassword);
+    document.getElementById("logoutButton").addEventListener("click", logout);
 
     // Auth State Listener
     auth.onAuthStateChanged(async (user) => {
