@@ -1,102 +1,507 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Tic-Tac-Toe</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Auth System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96c93d);
+      background-size: 400%;
+      animation: colorChange 10s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    @keyframes colorChange {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 300px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #ff6b6b;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #e55a5a;
+    }
+
+    .message-box {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .message-box.success {
+      background: #4caf50;
+      color: white;
+      display: block;
+    }
+
+    .message-box.error {
+      background: #f44336;
+      color: white;
+      display: block;
+    }
+
+    #dashboard, #auth {
+      display: none;
+    }
+
+    #dashboard.active, #auth.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <!-- Auth Container -->
-    <div class="container" id="authContainer">
-        <h2 id="formTitle">Sign Up</h2>
-        <div class="input-box">
-            <input type="email" id="email" placeholder="Email" required>
-        </div>
-        <div class="input-box">
-            <input type="password" id="password" placeholder="Password" required>
-        </div>
-        <button id="authButton">Sign Up</button>
-        <span class="toggle-text" id="toggleAuth">Already have an account? Login</span>
+  <div class="container">
+    <!-- Authentication Section -->
+    <div id="auth" class="active">
+      <h1>Login / Signup</h1>
+      <div class="form-container">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="signup()">Sign Up</button>
+        <button onclick="login()">Login</button>
+      </div>
     </div>
-
-    <!-- Dashboard -->
-    <div class="container dashboard" id="dashboard">
-        <div class="balance-box">₹0</div>
-        <button class="circle-btn" id="profileBtn">Pro</button>
-        <button class="circle-btn" id="walletBtn">W</button>
-        <button class="circle-btn" id="friendsBtn">Fr</button>
-        <button class="circle-btn" id="tournamentsBtn">To</button>
-        <button class="circle-btn" id="tasksBtn">T</button>
-        <button class="circle-btn play-btn" id="playButton">Play</button>
-        <button class="circle-btn win-btn" id="winButton">Win</button>
-        <div class="dashboard-center">
-            <h2>Welcome, <span id="userDisplay"></span></h2>
-            <div id="verifyEmailPrompt" style="display: none;">
-                <p style="color: #ff5733; text-shadow: 0 0 5px #ff5733; margin-bottom: 5%;">
-                    Please verify your email to play. Check your inbox!
-                </p>
-                <button id="resendVerification">Resend Verification Email</button>
-            </div>
-            <button id="logoutButton">Logout</button>
-        </div>
+    <!-- Dashboard Section -->
+    <div id="dashboard">
+      <h1>Welcome, <span id="usernameDisplay"></span>!</h1>
+      <p>Email: <span id="emailDisplay"></span></p>
+      <button onclick="logout()">Logout</button>
     </div>
+    <div id="messageBox" class="message-box"></div>
+  </div>
 
-    <!-- Profile Page -->
-    <div class="container profile-page" id="profilePage">
-        <h2>Profile</h2>
-        <div class="profile-content">
-            <div id="profilePicCircle" class="profile-pic-circle"></div>
-            <input type="file" id="profilePicInput" accept="image/png,image/jpeg">
-            <div class="username-container">
-                <span id="usernameDisplay" class="username-display" contenteditable="false">Set Username</span>
-                <span class="edit-icon">✏</span>
-            </div>
-        </div>
-        <button class="game-history-btn" id="gameHistoryBtn">Game History</button>
-        <button id="backToDashboardFromProfile">Back to Dashboard</button>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxUwcTWRApLE7F_LHMXHOrmoQVWabfpgA",
+      authDomain: "future-4a5bb.firebaseapp.com",
+      projectId: "future-4a5bb",
+      storageBucket: "future-4a5bb.firebasestorage.app",
+      messagingSenderId: "769026893150",
+      appId: "1:769026893150:web:a45882a2d5336b58d09bcf",
+      measurementId: "G-C13FSB81CT"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Custom Message Box
+    function showMessage(message, type) {
+      const messageBox = document.getElementById("messageBox");
+      messageBox.textContent = message;
+      messageBox.className = `message-box ${type}`;
+      setTimeout(() => {
+        messageBox.style.display = "none";
+      }, 3000);
+    }
+
+    // Toggle between Auth and Dashboard
+    function toggleView(showAuth) {
+      document.getElementById("auth").className = showAuth ? "active" : "";
+      document.getElementById("dashboard").className = showAuth ? "" : "active";
+    }
+
+    // Check Username Availability
+    async function isUsernameTaken(username) {
+      const query = await db.collection("users").where("username", "==", username).get();
+      return !query.empty;
+    }
+
+    // Signup Function
+    async function signup() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const username = document.getElementById("username").value;
+
+      if (!username || !email || !password) {
+        showMessage("All fields are required!", "error");
+        return;
+      }
+
+      try {
+        // Check if username is taken
+        if (await isUsernameTaken(username)) {
+          showMessage("Username is already taken!", "error");
+          return;
+        }
+
+        // Create user
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        // Save username to Firestore
+        await db.collection("users").doc(user.uid).set({
+          username: username,
+          email: email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Send email verification
+        await user.sendEmailVerification();
+        showMessage("Signup successful! Please verify your email.", "success");
+      } catch (error) {
+        showMessage(error.message, "error");
+      }
+    }
+
+    // Login Function
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          showMessage("Please verify your email before logging in!", "error");
+          await auth.signOut();
+          return;
+        }
+
+        showMessage("Login successful!", "success");
+      } catch (error) {
+        showMessage(error.message, "error");
+      }
+    }
+
+    // Logout Function
+    async function logout() {
+      try {
+        await auth.signOut();
+        showMessage("Logged out successfully!", "success");
+        toggleView(true);
+      } catch (error) {
+        showMessage(error.message, "error");
+      }
+    }
+
+    // Auth State Listener
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        if (!user.emailVerified) {
+          showMessage("Please verify your email!", "error");
+          await auth.signOut();
+          toggleView(true);
+          return;
+        }
+
+        try {
+          const userDoc = await db.collection("users").doc(user.uid).get();
+          if (userDoc.exists) {
+            document.getElementById("usernameDisplay").textContent = userDoc.data().username;
+            document.getElementById("emailDisplay").textContent = user.email;
+            toggleView(false);
+          }
+        } catch (error) {
+          showMessage("Error fetching user data!", "error");
+        }
+      } else {
+        toggleView(true);
+      }
+    });
+  </script>
+</body>
+    </html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Auth System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96c93d);
+      background-size: 400%;
+      animation: colorChange 10s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    @keyframes colorChange {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 300px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #ff6b6b;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #e55a5a;
+    }
+
+    .message-box {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .message-box.success {
+      background: #4caf50;
+      color: white;
+      display: block;
+    }
+
+    .message-box.error {
+      background: #f44336;
+      color: white;
+      display: block;
+    }
+
+    #dashboard, #auth {
+      display: none;
+    }
+
+    #dashboard.active, #auth.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Authentication Section -->
+    <div id="auth" class="active">
+      <h1>Login / Signup</h1>
+      <div class="form-container">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="signup()">Sign Up</button>
+        <button onclick="login()">Login</button>
+      </div>
     </div>
-
-    <!-- Game History Page -->
-    <div class="container game-history-page" id="gameHistoryPage">
-        <h2>Game History</h2>
-        <div id="gameHistoryList"></div>
-        <button id="backToProfileFromHistory">Back to Profile</button>
+    <!-- Dashboard Section -->
+    <div id="dashboard">
+      <h1>Welcome, <span id="usernameDisplay"></span>!</h1>
+      <p>Email: <span id="emailDisplay"></span></p>
+      <button onclick="logout()">Logout</button>
     </div>
+    <div id="messageBox" class="message-box"></div>
+  </div>
 
-    <!-- Game Page -->
-    <div class="container game-page" id="gamePage">
-        <h2>Play Tic-Tac-Toe</h2>
-        <button id="playRandom">Play with Random Player</button>
-        <button id="backToDashboard">Back to Dashboard</button>
-    </div>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
 
-    <!-- Game Room -->
-    <div class="container game-room" id="gameRoom">
-        <h2>Tic-Tac-Toe</h2>
-        <p class="room-id" id="roomIdDisplay"></p>
-        <p class="status" id="gameStatus">Waiting for opponent...</p>
-        <p id="playersDisplay"></p>
-        <div class="game-board" id="gameBoard">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
-        </div>
-        <button id="leaveRoom">Leave Room</button>
-    </div>
+  <script>
+    // Firebase Configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAol2UzQWdFPyTeWhlfK7HTXxMpsuXnSFk",
+  authDomain: "final-78170.firebaseapp.com",
+  projectId: "final-78170",
+  storageBucket: "final-78170.firebasestorage.app",
+  messagingSenderId: "374288155367",
+  appId: "1:374288155367:web:94a49f3b204dfa2efc5842",
+  measurementId: "G-9GM80JWP3C"
+};
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    <!-- Waiting Area -->
-    <div class="container waiting-area" id="waitingArea">
-        <h2>Matchmaking</h2>
-        <p>Searching for opponent...</p>
-    </div>
+    // Custom Message Box
+    function showMessage(message, type) {
+      const messageBox = document.getElementById("messageBox");
+      messageBox.textContent = message;
+      messageBox.className = `message-box ${type}`;
+      setTimeout(() => {
+        messageBox.style.display = "none";
+      }, 3000);
+    }
 
-    <script type="module" src="script.js"></script>
+    // Toggle between Auth and Dashboard
+    function toggleView(showAuth) {
+      document.getElementById("auth").className = showAuth ? "active" : "";
+      document.getElementById("dashboard").className = showAuth ? "" : "active";
+    }
+
+    // Check Username Availability
+    async function isUsernameTaken(username) {
+      const query = await db.collection("users").where("username", "==", username).get();
+      return !query.empty;
+    }
+
+    // Signup Function
+    async function signup() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const username = document.getElementById("username").value;
+
+      if (!username || !email || !password) {
+        showMessage("All fields are required!", "error");
+        return;
+      }
+
+      try {
+        // Check if username is taken
+        if (await isUsernameTaken(username)) {
+          showMessage("Username is already taken!", "error");
+          return;
+        }
+
+        // Create user
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        // Save username to Firestore
+        await db.collection("users").doc(user.uid).set({
+          username: username,
+          email: email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Send email verification
+        await user.sendEmailVerification();
+        showMessage("Signup successful! Please verify your email.", "success");
+      } catch (error) {
+        showMessage(error.message, "error");
+      }
+    }
+
+    // Login Function
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          showMessage("Please verify your email before logging in!", "error");
+          await auth.signOut();
+          return;
+        }
+
+        showMessage("Login successful!", "success");
+      } catch (error) {
+        showMessage(error.message, "error");
+      }
+    }
+
+    // Logout Function
+    async function logout() {
+      try {
+        await auth.signOut();
+        showMessage("Logged out successfully!", "success");
+        toggleView(true);
+      } catch (error) {
+        showMessage(error.message, "error");
+      }
+    }
+
+    // Auth State Listener
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        if (!user.emailVerified) {
+          showMessage("Please verify your email!", "error");
+          await auth.signOut();
+          toggleView(true);
+          return;
+        }
+
+        try {
+          const userDoc = await db.collection("users").doc(user.uid).get();
+          if (userDoc.exists) {
+            document.getElementById("usernameDisplay").textContent = userDoc.data().username;
+            document.getElementById("emailDisplay").textContent = user.email;
+            toggleView(false);
+          }
+        } catch (error) {
+          showMessage("Error fetching user data!", "error");
+        }
+      } else {
+        toggleView(true);
+      }
+    });
+  </script>
 </body>
 </html>
