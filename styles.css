@@ -1,0 +1,489 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(45deg, #0a001a, #001933, #1a000a);
+    background-size: 400%;
+    animation: bgGlow 15s ease infinite;
+    overflow-x: hidden;
+}
+
+@keyframes bgGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 400% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.container {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 5%;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(195, 0, 255, 0.8), 0 0 50px rgba(0, 230, 230, 0.8);
+    width: min(90%, 500px);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+h2 {
+    color: #c300ff;
+    text-shadow: 0 0 15px #c300ff, 0 0 25px #00e6e6;
+    margin-bottom: 5%;
+    font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+.input-box {
+    margin-bottom: 5%;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+input[type="text"], input[type="file"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 3%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    outline: none;
+    border-radius: 25px;
+    color: #fff;
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    box-shadow: 0 0 10px rgba(0, 230, 230, 0.6);
+    transition: box-shadow 0.3s ease;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+input:focus {
+    box-shadow: 0 0 25px #c300ff, 0 0 35px #00e6e6;
+}
+
+button {
+    width: 100%;
+    padding: 3%;
+    background: linear-gradient(45deg, #c300ff, #00e6e6);
+    background-size: 200%;
+    border: none;
+    border-radius: 5px;
+    color: #000;
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    cursor: pointer;
+    text-shadow: 0 0 5px #fff;
+    box-shadow: 0 0 15px rgba(195, 0, 255, 0.8);
+    transition: all 0.3s ease;
+    margin-bottom: 3%;
+    animation: pulseButton 2s infinite;
+}
+
+@keyframes pulseButton {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 200% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+button:hover {
+    box-shadow: 0 0 35px #c300ff, 0 0 55px #00e6e6;
+    color: #fff;
+}
+
+.toggle-text {
+    color: #00e6e6;
+    cursor: pointer;
+    margin-top: 3%;
+    display: inline-block;
+    text-shadow: 0 0 5px #00e6e6;
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+}
+
+.toggle-text:hover {
+    text-decoration: underline;
+    text-shadow: 0 0 15px #c300ff;
+}
+
+.message {
+    position: fixed;
+    top: 5%;
+    right: 5%;
+    padding: 3%;
+    border-radius: 5px;
+    color: #fff;
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.message.success {
+    background: #33ff66;
+    text-shadow: 0 0 5px #33ff66;
+}
+
+.message.error {
+    background: #ff5733;
+    text-shadow: 0 0 5px #ff5733;
+}
+
+.dashboard, .game-page, .game-room, .waiting-area, .profile-page {
+    display: none;
+    color: #fff;
+}
+
+.play-btn {
+    background: linear-gradient(45deg, #ff5733, #c300ff);
+    box-shadow: 0 0 15px rgba(255, 87, 51, 0.8);
+}
+
+.play-btn:hover {
+    box-shadow: 0 0 35px #ff5733, 0 0 55px #c300ff;
+}
+
+.circle-btn {
+    width: clamp(50px, 10vw, 60px);
+    height: clamp(50px, 10vw, 60px);
+    border-radius: 50%;
+    background: linear-gradient(45deg, #c300ff, #00e6e6, #ff5733);
+    background-size: 300%;
+    border: none;
+    color: #fff;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(195, 0, 255, 0.8), 0 0 30px rgba(0, 230, 230, 0.8);
+    animation: pulseButton 3s infinite;
+    transition: all 0.3s ease;
+}
+
+.circle-btn:hover {
+    box-shadow: 0 0 40px #c300ff, 0 0 60px #00e6e6;
+    transform: scale(1.1);
+}
+
+.win-btn {
+    background: linear-gradient(45deg, #33ff66, #c300ff);
+    box-shadow: 0 0 15px rgba(51, 255, 102, 0.8);
+}
+
+.win-btn:hover {
+    box-shadow: 0 0 35px #33ff66, 0 0 55px #c300ff;
+}
+
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 30%);
+    gap: 2%;
+    margin: 5% auto;
+    width: 90%;
+}
+
+.cell {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid #00e6e6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(2rem, 8vw, 3rem);
+    color: #fff;
+    cursor: pointer;
+    text-shadow: 0 0 15px #00e6e6;
+    transition: all 0.3s ease;
+}
+
+.cell:hover {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 25px #c300ff;
+}
+
+.cell.x {
+    color: #c300ff;
+    text-shadow: 0 0 20px #c300ff;
+}
+
+.cell.o {
+    color: #33ff66;
+    text-shadow: 0 0 20px #33ff66;
+}
+
+.room-id {
+    color: #ff5733;
+    text-shadow: 0 0 5px #ff5733;
+    margin-bottom: 5%;
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+}
+
+.status {
+    color: #fff;
+    margin-bottom: 5%;
+    text-shadow: 0 0 5px #00e6e6;
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+}
+
+.waiting-area p {
+    color: #c300ff;
+    text-shadow: 0 0 15px #c300ff;
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Dashboard Layout */
+.dashboard {
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#profileBtn {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    background: none;
+    background-size: cover;
+    color: transparent;
+    border: 2px solid #c300ff;
+}
+
+#walletBtn {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+}
+
+.balance-box {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #ff5733;
+    border-radius: 10px;
+    padding: 2%;
+    width: clamp(100px, 25vw, 150px);
+    color: #ff5733;
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+    font-weight: bold;
+    text-shadow: 0 0 15px #ff5733;
+    box-shadow: 0 0 25px rgba(255, 87, 51, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#playButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(100px, 20vw, 120px);
+    border-radius: 50%;
+}
+
+#winButton {
+    position: absolute;
+    bottom: 5%;
+    left: 5%;
+    width: clamp(50px, 10vw, 60px);
+    height: clamp(50px, 10vw, 60px);
+    border-radius: 50%;
+}
+
+#friendsBtn {
+    position: absolute;
+    bottom: 5%;
+    left: 30%;
+}
+
+#tournamentsBtn {
+    position: absolute;
+    bottom: 5%;
+    right: 30%;
+}
+
+#tasksBtn {
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+}
+
+.dashboard-center {
+    width: 80%;
+    margin: 20% auto 10% auto;
+}
+
+/* Profile Page */
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5%;
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 3%;
+}
+
+.profile-pic-circle {
+    width: clamp(80px, 20vw, 100px);
+    height: clamp(80px, 20vw, 100px);
+    border-radius: 50%;
+    border: 2px solid #c300ff;
+    margin-bottom: 3%;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 0 20px rgba(195, 0, 255, 0.8);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: transparent;
+}
+
+.username-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5%;
+}
+
+.username-display {
+    color: #00e6e6;
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+    text-shadow: 0 0 10px #00e6e6;
+    cursor: pointer;
+    padding: 2%;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.username-display:hover {
+    background: rgba(195, 0, 255, 0.2);
+}
+
+.edit-icon {
+    color: #00e6e6;
+    margin-left: 2%;
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
+    text-shadow: 0 0 5px #00e6e6;
+    cursor: pointer;
+}
+
+.game-history-btn {
+    background: linear-gradient(45deg, #ff5733, #c300ff);
+    width: 80%;
+    padding: 3%;
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(255, 87, 51, 0.8);
+}
+
+.game-history-btn:hover {
+    box-shadow: 0 0 35px #ff5733, 0 0 55px #c300ff;
+}
+
+#backToDashboardFromProfile {
+    width: 80%;
+    margin-top: 3%;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 8%;
+        width: 95%;
+    }
+    h2 {
+        font-size: clamp(1.2rem, 4.5vw, 1.5rem);
+    }
+    button, input {
+        padding: 4%;
+        font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+    }
+    .game-board {
+        width: 95%;
+        grid-template-columns: repeat(3, 31%);
+        gap: 1%;
+    }
+    .cell {
+        font-size: clamp(1.5rem, 6vw, 2rem);
+    }
+    .circle-btn, #playButton, #winButton {
+        width: clamp(40px, 8vw, 50px);
+        height: clamp(40px, 8vw, 50px);
+        font-size: clamp(0.8rem, 2.5vw, 1rem);
+    }
+    .balance-box {
+        width: clamp(80px, 20vw, 120px);
+        padding: 3%;
+        font-size: clamp(0.8rem, 3vw, 1rem);
+    }
+    #profileBtn {
+        top: 3%;
+        right: 3%;
+    }
+    #walletBtn {
+        top: 3%;
+        left: 3%;
+    }
+    .balance-box {
+        top: 15%;
+    }
+    #playButton {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    #winButton {
+        bottom: 3%;
+        left: 3%;
+    }
+    #friendsBtn {
+        bottom: 3%;
+        left: 28%;
+    }
+    #tournamentsBtn {
+        bottom: 3%;
+        right: 28%;
+    }
+    #tasksBtn {
+        bottom: 3%;
+        right: 3%;
+    }
+    .dashboard-center {
+        margin: 25% auto 15% auto;
+    }
+    .profile-pic-circle {
+        width: clamp(60px, 15vw, 80px);
+        height: clamp(60px, 15vw, 80px);
+    }
+    .username-display {
+        font-size: clamp(0.8rem, 3vw, 1rem);
+    }
+    .edit-icon {
+        font-size: clamp(0.7rem, 2vw, 0.9rem);
+    }
+    .profile-content {
+        margin-top: 5%;
+    }
+  }
