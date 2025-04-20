@@ -141,7 +141,7 @@
             text-shadow: 0 0 5px #ff5733;
         }
 
-        .dashboard, .game-page, .game-room, .waiting-area, .profile-page, .game-history-page, .friends-page {
+        .dashboard, .game-page, .game-room, .waiting-area, .profile-page {
             display: none;
             color: #fff;
         }
@@ -186,15 +186,6 @@
 
         .win-btn:hover {
             box-shadow: 0 0 35px #33ff66, 0 0 55px #c300ff;
-        }
-
-        .friends-btn {
-            background: linear-gradient(45deg, #00e6e6, #ff5733);
-            box-shadow: 0 0 15px rgba(0, 230, 230, 0.8);
-        }
-
-        .friends-btn:hover {
-            box-shadow: 0 0 35px #00e6e6, 0 0 55px #ff5733;
         }
 
         .game-board {
@@ -424,153 +415,6 @@
             margin-top: 3%;
         }
 
-        /* Game History Page */
-        .game-history-page {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 5%;
-        }
-
-        .history-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 5%;
-        }
-
-        .history-box {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 4%;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .history-box.win {
-            border: 2px solid #33ff66;
-            box-shadow: 0 0 15px #33ff66, 0 0 25px #33ff66;
-        }
-
-        .history-box.loss-tie {
-            border: 2px solid #ff5733;
-            box-shadow: 0 0 15px #ff5733, 0 0 25px #ff5733;
-        }
-
-        .history-box:hover {
-            transform: scale(1.05);
-        }
-
-        .history-box p {
-            color: #fff;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            text-shadow: 0 0 5px #00e6e6;
-            margin-bottom: 2%;
-        }
-
-        .stats-summary {
-            margin-bottom: 5%;
-            color: #33ff66;
-            font-size: clamp(1rem, 3.5vw, 1.2rem);
-            text-shadow: 0 0 10px #33ff66;
-        }
-
-        #backToProfile {
-            width: 80%;
-            background: linear-gradient(45deg, #c300ff, #ff5733);
-        }
-
-        #backToProfile:hover {
-            box-shadow: 0 0 35px #c300ff, 0 0 55px #ff5733;
-        }
-
-        /* Friends Page */
-        .friends-page {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 5%;
-        }
-
-        .tabs {
-            display: flex;
-            width: 100%;
-            margin-bottom: 5%;
-            gap: 2%;
-        }
-
-        .tab-btn {
-            flex: 1;
-            background: linear-gradient(45deg, #c300ff, #ff5733);
-            border-radius: 5px;
-            padding: 3%;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(195, 0, 255, 0.8);
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(45deg, #00e6e6, #33ff66);
-            box-shadow: 0 0 20px rgba(0, 230, 230, 0.8);
-        }
-
-        .tab-btn:hover {
-            box-shadow: 0 0 25px #c300ff;
-        }
-
-        .tab-content {
-            width: 100%;
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .friends-list, #searchResults, #friendRequests {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .friend-box, .result-box, .request-box {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 4%;
-            border: 2px solid #33ff66;
-            box-shadow: 0 0 15px #33ff66;
-            transition: transform 0.3s ease;
-        }
-
-        .friend-box:hover, .result-box:hover, .request-box:hover {
-            transform: scale(1.05);
-        }
-
-        .friend-box p, .result-box p, .request-box p {
-            color: #fff;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            text-shadow: 0 0 5px #00e6e6;
-            margin-bottom: 2%;
-        }
-
-        .action-btn {
-            width: 80%;
-            margin: 2% auto;
-            background: linear-gradient(45deg, #ff5733, #c300ff);
-            box-shadow: 0 0 10px rgba(255, 87, 51, 0.8);
-        }
-
-        .action-btn:hover {
-            box-shadow: 0 0 25px #ff5733;
-        }
-
-        #searchFriend, #backToDashboardFromFriends {
-            width: 80%;
-            margin: 3% auto;
-        }
-
         @media (max-width: 600px) {
             .container {
                 padding: 8%;
@@ -591,7 +435,7 @@
             .cell {
                 font-size: clamp(1.5rem, 6vw, 2rem);
             }
-            .circle-btn, #playButton, #winButton, #friendsBtn {
+            .circle-btn, #playButton, #winButton {
                 width: clamp(40px, 8vw, 50px);
                 height: clamp(40px, 8vw, 50px);
                 font-size: clamp(0.8rem, 2.5vw, 1rem);
@@ -649,24 +493,6 @@
             .profile-content {
                 margin-top: 5%;
             }
-            .history-box p, .friend-box p, .result-box p, .request-box p {
-                font-size: clamp(0.8rem, 2vw, 0.9rem);
-                margin-bottom: 3%;
-            }
-            .history-container, .friends-list, #searchResults, #friendRequests {
-                gap: 10px;
-            }
-            .stats-summary {
-                font-size: clamp(0.8rem, 3vw, 1rem);
-            }
-            .tabs {
-                flex-direction: column;
-                gap: 5px;
-            }
-            .tab-btn {
-                width: 100%;
-                padding: 4%;
-            }
         }
     </style>
 </head>
@@ -680,9 +506,6 @@
         <div class="input-box">
             <input type="password" id="password" placeholder="Password" required>
         </div>
-        <div class="input-box">
-            <input type="text" id="username" placeholder="Username" required>
-        </div>
         <button id="authButton">Sign Up</button>
         <span class="toggle-text" id="toggleAuth">Already have an account? Login</span>
     </div>
@@ -692,7 +515,7 @@
         <div class="balance-box">₹0</div>
         <button class="circle-btn" id="profileBtn">Pro</button>
         <button class="circle-btn" id="walletBtn">W</button>
-        <button class="circle-btn friends-btn" id="friendsBtn">Fr</button>
+        <button class="circle-btn" id="friendsBtn">Fr</button>
         <button class="circle-btn" id="tournamentsBtn">To</button>
         <button class="circle-btn" id="tasksBtn">T</button>
         <button class="circle-btn play-btn" id="playButton">Play</button>
@@ -721,39 +544,7 @@
             </div>
         </div>
         <button class="game-history-btn" id="gameHistoryBtn">Game History</button>
-        <button id="backToDashboardFromProfile">Go to Dashboard</button>
-    </div>
-
-    <!-- Game History Page -->
-    <div class="container game-history-page" id="gameHistoryPage">
-        <h2>Game History</h2>
-        <div class="history-container" id="historyContainer"></div>
-        <div class="stats-summary" id="statsSummary"></div>
-        <button id="backToProfile">Go to Profile</button>
-    </div>
-
-    <!-- Friends Page -->
-    <div class="container friends-page" id="friendsPage">
-        <h2>Friends</h2>
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="friends">Friends</button>
-            <button class="tab-btn" data-tab="add-friend">Add Friend</button>
-            <button class="tab-btn" data-tab="requests">Friend Requests</button>
-        </div>
-        <div class="tab-content active" id="friendsTab">
-            <div class="friends-list" id="friendsList"></div>
-        </div>
-        <div class="tab-content" id="addFriendTab">
-            <div class="input-box">
-                <input type="text" id="friendSearch" placeholder="Enter username">
-            </div>
-            <button id="searchFriend">Search</button>
-            <div id="searchResults"></div>
-        </div>
-        <div class="tab-content" id="requestsTab">
-            <div id="friendRequests"></div>
-        </div>
-        <button id="backToDashboardFromFriends">Go to Dashboard</button>
+        <button id="backToDashboardFromProfile">Back to Dashboard</button>
     </div>
 
     <!-- Game Page -->
@@ -811,8 +602,7 @@
             addDoc, 
             query, 
             where, 
-            getDocs, 
-            serverTimestamp 
+            getDocs 
         } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
         import { 
             getStorage, 
@@ -840,15 +630,13 @@
             console.log('Firebase initialized successfully');
         } catch (error) {
             console.error('Firebase initialization error:', error);
-            showMessage('Failed to initialize Firebase. Check console and verify configuration.', 'error');
+            alert('Failed to initialize Firebase. Check console and verify configuration.');
         }
 
         // DOM Elements
         const authContainer = document.getElementById('authContainer');
         const dashboard = document.getElementById('dashboard');
         const profilePage = document.getElementById('profilePage');
-        const gameHistoryPage = document.getElementById('gameHistoryPage');
-        const friendsPage = document.getElementById('friendsPage');
         const gamePage = document.getElementById('gamePage');
         const gameRoom = document.getElementById('gameRoom');
         const waitingArea = document.getElementById('waitingArea');
@@ -857,19 +645,14 @@
         const toggleAuth = document.getElementById('toggleAuth');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const usernameInput = document.getElementById('username');
         const userDisplay = document.getElementById('userDisplay');
         const usernameDisplay = document.getElementById('usernameDisplay');
         const profilePicCircle = document.getElementById('profilePicCircle');
         const profilePicInput = document.getElementById('profilePicInput');
         const gameHistoryBtn = document.getElementById('gameHistoryBtn');
         const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
-        const historyContainer = document.getElementById('historyContainer');
-        const statsSummary = document.getElementById('statsSummary');
-        const backToProfile = document.getElementById('backToProfile');
         const playButton = document.getElementById('playButton');
         const winButton = document.getElementById('winButton');
-        const friendsBtn = document.getElementById('friendsBtn');
         const logoutButton = document.getElementById('logoutButton');
         const playRandom = document.getElementById('playRandom');
         const backToDashboard = document.getElementById('backToDashboard');
@@ -881,20 +664,11 @@
         const verifyEmailPrompt = document.getElementById('verifyEmailPrompt');
         const resendVerification = document.getElementById('resendVerification');
         const profileBtn = document.getElementById('profileBtn');
-        const friendsTab = document.getElementById('friendsTab');
-        const addFriendTab = document.getElementById('addFriendTab');
-        const requestsTab = document.getElementById('requestsTab');
-        const friendsList = document.getElementById('friendsList');
-        const friendSearch = document.getElementById('friendSearch');
-        const searchFriend = document.getElementById('searchFriend');
-        const searchResults = document.getElementById('searchResults');
-        const friendRequests = document.getElementById('friendRequests');
-        const backToDashboardFromFriends = document.getElementById('backToDashboardFromFriends');
 
         // Initialize container visibility
         function initializeContainers() {
             console.log('Initializing containers');
-            const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, gamePage, gameRoom, waitingArea];
+            const containers = [authContainer, dashboard, profilePage, gamePage, gameRoom, waitingArea];
             containers.forEach(c => c && (c.style.display = 'none'));
             authContainer.style.display = 'block';
         }
@@ -906,6 +680,7 @@
         let opponentUsername = null;
         let unsubscribeRoom = null;
         let lastSaveTime = 0;
+        let localAvatarUrl = null;
 
         // Show Message
         function showMessage(message, type) {
@@ -924,7 +699,7 @@
         // Show/Hide Containers
         function showContainer(container) {
             console.log(`Showing container: ${container?.id || 'unknown'}`);
-            const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, gamePage, gameRoom, waitingArea];
+            const containers = [authContainer, dashboard, profilePage, gamePage, gameRoom, waitingArea];
             containers.forEach(c => c && (c.style.display = 'none'));
             container.style.display = 'block';
         }
@@ -937,25 +712,40 @@
                 return;
             }
             const firstLetter = username.charAt(0).toUpperCase() || 'P';
-            const canvas = document.createElement('canvas');
-            const size = 100;
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext('2d');
-            ctx.beginPath();
-            ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-            ctx.fillStyle = '#c300ff';
-            ctx.fill();
-            ctx.font = 'bold 60px Arial';
-            ctx.fillStyle = '#fff';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(firstLetter, size / 2, size / 2);
-            const canvasUrl = canvas.toDataURL();
-            profileBtn.style.backgroundImage = `url(${canvasUrl})`;
-            profilePicCircle.style.backgroundImage = `url(${canvasUrl})`;
-            profileBtn.style.color = 'transparent';
-            profilePicCircle.style.color = 'transparent';
+            if (avatarUrl && avatarUrl !== 'local') {
+                console.log('Setting profile picture:', avatarUrl);
+                profileBtn.style.backgroundImage = `url(${avatarUrl})`;
+                profilePicCircle.style.backgroundImage = `url(${avatarUrl})`;
+                profileBtn.style.color = 'transparent';
+                profilePicCircle.style.color = 'transparent';
+            } else if (avatarUrl === 'local' && localAvatarUrl) {
+                console.log('Using local avatar URL:', localAvatarUrl);
+                profileBtn.style.backgroundImage = `url(${localAvatarUrl})`;
+                profilePicCircle.style.backgroundImage = `url(${localAvatarUrl})`;
+                profileBtn.style.color = 'transparent';
+                profilePicCircle.style.color = 'transparent';
+            } else {
+                console.log('No avatar, using letter fallback for:', username);
+                const canvas = document.createElement('canvas');
+                const size = 100;
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+                ctx.fillStyle = '#c300ff';
+                ctx.fill();
+                ctx.font = 'bold 60px Arial';
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(firstLetter, size / 2, size / 2);
+                const canvasUrl = canvas.toDataURL();
+                profileBtn.style.backgroundImage = `url(${canvasUrl})`;
+                profilePicCircle.style.backgroundImage = `url(${canvasUrl})`;
+                profileBtn.style.color = 'transparent';
+                profilePicCircle.style.color = 'transparent';
+            }
             profileBtn.style.backgroundSize = 'cover';
             profileBtn.style.border = '2px solid #c300ff';
             profilePicCircle.style.backgroundSize = 'cover';
@@ -964,55 +754,15 @@
             usernameDisplay.textContent = username;
         }
 
-        // Check Username Availability
-        async function checkUsernameAvailability(username) {
-            console.log(`Checking username availability: ${username}`);
-            if (!username || typeof username !== 'string' || username.trim() === '') {
-                return { available: false, message: 'Username cannot be empty' };
-            }
-            const normalizedUsername = username.toLowerCase().trim();
-            const usernameDoc = await getDoc(doc(db, 'usernames', normalizedUsername));
-            if (usernameDoc.exists()) {
-                return { available: false, message: 'Username is already taken' };
-            }
-            return { available: true };
-        }
-
-        // Save Username
-        async function saveUsername(userId, username) {
-            console.log(`Saving username for user ${userId}: ${username}`);
-            const normalizedUsername = username.toLowerCase().trim();
-            const check = await checkUsernameAvailability(username);
-            if (!check.available) {
-                throw new Error(check.message);
-            }
-            const usernameRef = doc(db, 'usernames', normalizedUsername);
-            await setDoc(usernameRef, {
-                userId,
-                createdAt: serverTimestamp()
-            });
-        }
-
-        // Delete Username
-        async function deleteUsername(userId, username) {
-            console.log(`Deleting username for user ${userId}: ${username}`);
-            const normalizedUsername = username.toLowerCase().trim();
-            const usernameRef = doc(db, 'usernames', normalizedUsername);
-            const usernameDoc = await getDoc(usernameRef);
-            if (usernameDoc.exists() && usernameDoc.data().userId === userId) {
-                await deleteDoc(usernameRef);
-            }
-        }
-
         // Save Profile to Firebase
-        async function saveProfile(username, oldUsername = null) {
+        async function saveProfile(username, avatarFile) {
             const now = Date.now();
             if (now - lastSaveTime < 500) {
                 console.log('Debouncing save');
                 return;
             }
             lastSaveTime = now;
-            console.log('Starting profile save: user=', auth.currentUser?.uid, 'username=', username);
+            console.log('Starting profile save: user=', auth.currentUser?.uid, 'username=', username, 'avatarFile=', !!avatarFile);
             const user = auth.currentUser;
             if (!user) {
                 console.error('No user logged in');
@@ -1026,21 +776,53 @@
             }
             try {
                 const userDocRef = doc(db, 'users', user.uid);
-                const userData = { 
-                    username,
+                let userData = { 
+                    username: username,
                     avatarUrl: null 
                 };
-                console.log('Saving to Firestore:', userData);
-                await saveUsername(user.uid, username);
-                if (oldUsername && oldUsername !== username) {
-                    await deleteUsername(user.uid, oldUsername);
+
+                if (avatarFile) {
+                    // Validate file
+                    const validTypes = ['image/png', 'image/jpeg'];
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+                    if (!validTypes.includes(avatarFile.type)) {
+                        console.error('Invalid file type:', avatarFile.type);
+                        showMessage('Please upload a PNG or JPEG image', 'error');
+                        return;
+                    }
+                    if (avatarFile.size > maxSize) {
+                        console.error('File too large:', avatarFile.size);
+                        showMessage('Image must be under 2MB', 'error');
+                        return;
+                    }
+
+                    console.log('Uploading avatar: name=', avatarFile.name, 'size=', avatarFile.size, 'type=', avatarFile.type);
+                    const storageRef = ref(storage, `users/${user.uid}/avatar`);
+                    try {
+                        const uploadResult = await uploadBytes(storageRef, avatarFile);
+                        console.log('Upload successful:', uploadResult.metadata);
+                        const avatarUrl = await getDownloadURL(storageRef);
+                        console.log('Generated avatarUrl:', avatarUrl);
+                        userData.avatarUrl = avatarUrl;
+                        localAvatarUrl = null; // Clear local URL
+                    } catch (uploadError) {
+                        console.error('Avatar upload failed:', uploadError.code, uploadError.message);
+                        showMessage('Failed to upload avatar. Using local image.', 'error');
+                        // Fallback: Use local image
+                        localAvatarUrl = URL.createObjectURL(avatarFile);
+                        userData.avatarUrl = 'local';
+                    }
                 }
+
+                console.log('Saving to Firestore:', userData);
                 await setDoc(userDocRef, {
                     ...userData,
                     stats: { wins: 0, losses: 0, ties: 0 }
                 }, { merge: true });
-                console.log('Firestore save successful: user=', user.uid);
-                updateProfileUI(username, null);
+                console.log('Firestore save successful: user=', user.uid, 'avatarUrl=', userData.avatarUrl);
+
+                console.log('Updating UI: username=', username, 'avatarUrl=', userData.avatarUrl);
+                updateProfileUI(username, userData.avatarUrl);
                 showMessage('Profile updated!', 'success');
             } catch (error) {
                 console.error('Save profile error:', error.code, error.message);
@@ -1057,8 +839,15 @@
         // Profile Picture Change
         profilePicInput?.addEventListener('change', async (e) => {
             console.log('Profile picture input changed');
-            showMessage('Profile picture upload not supported yet', 'error');
-            profilePicInput.value = '';
+            const file = e.target.files[0];
+            if (file) {
+                console.log('Selected file: name=', file.name, 'size=', file.size, 'type=', file.type);
+                const username = usernameDisplay.textContent.trim() || 'Player';
+                await saveProfile(username, file);
+                profilePicInput.value = '';
+            } else {
+                console.log('No file selected');
+            }
         });
 
         // Username Editing
@@ -1079,9 +868,7 @@
                 usernameDisplay.textContent = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
                 return;
             }
-            const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-            const oldUsername = userDoc.exists() ? userDoc.data().username : null;
-            await saveProfile(newUsername, oldUsername);
+            await saveProfile(newUsername, null);
         });
 
         usernameDisplay?.addEventListener('keydown', async (e) => {
@@ -1105,9 +892,10 @@
                 console.log('Loading profile: user=', user.uid);
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
-                console.log('Profile loaded: username=', username);
+                const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
+                console.log('Profile loaded: username=', username, 'avatarUrl=', avatarUrl);
                 usernameDisplay.textContent = username;
-                updateProfileUI(username, null);
+                updateProfileUI(username, avatarUrl);
                 showContainer(profilePage);
             } catch (error) {
                 console.error('Profile page error:', error.code, error.message);
@@ -1115,337 +903,15 @@
             }
         });
 
+        // Game History Button (Placeholder)
+        gameHistoryBtn?.addEventListener('click', () => {
+            console.log('Game history clicked');
+            showMessage('Game history not implemented yet', 'error');
+        });
+
         // Back to Dashboard from Profile
         backToDashboardFromProfile?.addEventListener('click', () => {
             console.log('Back to dashboard from profile clicked');
-            showContainer(dashboard);
-        });
-
-        // Game History Button
-        gameHistoryBtn?.addEventListener('click', async () => {
-            console.log('Game history clicked');
-            const user = auth.currentUser;
-            if (!user) {
-                console.error('No user logged in');
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            try {
-                console.log('Loading game history: user=', user.uid);
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const stats = userDoc.exists() && userDoc.data().stats ? userDoc.data().stats : { wins: 0, losses: 0, ties: 0 };
-                console.log('Stats loaded:', stats);
-
-                const historyQuery = query(collection(db, `users/${user.uid}/gameHistory`));
-                const historyDocs = await getDocs(historyQuery);
-                console.log('Game history docs:', historyDocs.size);
-
-                historyContainer.innerHTML = '';
-                historyDocs.forEach(doc => {
-                    const game = doc.data();
-                    const date = game.timestamp?.toDate ? game.timestamp.toDate() : new Date();
-                    const formattedDate = date.toLocaleString('en-US', {
-                        month: 'long',
-                        day: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false
-                    });
-                    const box = document.createElement('div');
-                    box.className = `history-box ${game.result === 'win' ? 'win' : 'loss-tie'}`;
-                    box.innerHTML = `
-                        <p>Opponent: ${game.opponentUsername || 'Unknown'}</p>
-                        <p>Result: ${game.result.charAt(0).toUpperCase() + game.result.slice(1)}</p>
-                        <p>Time: ${formattedDate}</p>
-                    `;
-                    historyContainer.appendChild(box);
-                });
-
-                statsSummary.textContent = `Total Matches: Wins ${stats.wins}, Losses ${stats.losses}, Ties ${stats.ties}`;
-                showContainer(gameHistoryPage);
-            } catch (error) {
-                console.error('Game history error:', error.code, error.message);
-                showMessage(`Error loading game history: ${error.message}`, 'error');
-            }
-        });
-
-        // Back to Profile
-        backToProfile?.addEventListener('click', () => {
-            console.log('Back to profile clicked');
-            showContainer(profilePage);
-        });
-
-        // Friends Button
-        friendsBtn?.addEventListener('click', async () => {
-            console.log('Friends button clicked');
-            const user = auth.currentUser;
-            if (!user) {
-                console.error('No user logged in');
-                showMessage('Please log in first', 'error');
-                showContainer(authContainer);
-                return;
-            }
-            try {
-                console.log('Loading friends page: user=', user.uid);
-                showContainer(friendsPage);
-                loadFriendsTab();
-            } catch (error) {
-                console.error('Friends page error:', error.code, error.message);
-                showMessage(`Error loading friends: ${error.message}`, 'error');
-            }
-        });
-
-        // Tab Switching
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                console.log(`Tab clicked: ${btn.dataset.tab}`);
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(`${btn.dataset.tab}Tab`).classList.add('active');
-                if (btn.dataset.tab === 'friends') loadFriendsTab();
-                else if (btn.dataset.tab === 'add-friend') loadAddFriendTab();
-                else if (btn.dataset.tab === 'requests') loadRequestsTab();
-            });
-        });
-
-        // Load Friends Tab
-        async function loadFriendsTab() {
-            console.log('Loading friends tab');
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in first', 'error');
-                return;
-            }
-            try {
-                friendsList.innerHTML = '';
-                const friendsQuery = query(collection(db, `users/${user.uid}/friends`));
-                const friendsDocs = await getDocs(friendsQuery);
-                if (friendsDocs.empty) {
-                    friendsList.innerHTML = '<p style="color: #ff5733; text-shadow: 0 0 5px #ff5733;">No friends yet.</p>';
-                    return;
-                }
-                friendsDocs.forEach(doc => {
-                    const friend = doc.data();
-                    const friendBox = document.createElement('div');
-                    friendBox.className = 'friend-box';
-                    friendBox.innerHTML = `
-                        <p>Username: ${friend.username}</p>
-                        <button class="action-btn" data-friend-id="${doc.id}" data-username="${friend.username}">Remove Friend</button>
-                    `;
-                    friendsList.appendChild(friendBox);
-                });
-
-                // Remove Friend
-                friendsList.querySelectorAll('.action-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        console.log(`Remove friend clicked: ${btn.dataset.friendId}`);
-                        try {
-                            const friendId = btn.dataset.friendId;
-                            const friendUsername = btn.dataset.username;
-                            const friendDoc = await getDoc(doc(db, 'usernames', friendUsername.toLowerCase()));
-                            if (friendDoc.exists()) {
-                                const friendUserId = friendDoc.data().userId;
-                                await deleteDoc(doc(db, `users/${user.uid}/friends`, friendId));
-                                await deleteDoc(doc(db, `users/${friendUserId}/friends`, user.uid));
-                                showMessage(`Removed ${friendUsername} from friends`, 'success');
-                                loadFriendsTab();
-                            }
-                        } catch (error) {
-                            console.error('Remove friend error:', error);
-                            showMessage(`Error removing friend: ${error.message}`, 'error');
-                        }
-                    });
-                });
-            } catch (error) {
-                console.error('Load friends error:', error);
-                showMessage(`Error loading friends: ${error.message}`, 'error');
-            }
-        }
-
-        // Load Add Friend Tab
-        async function loadAddFriendTab() {
-            console.log('Loading add friend tab');
-            searchResults.innerHTML = '';
-            friendSearch.value = '';
-        }
-
-        // Search Friend
-        searchFriend?.addEventListener('click', async () => {
-            console.log('Search friend clicked');
-            const searchTerm = friendSearch.value.trim();
-            if (!searchTerm) {
-                showMessage('Please enter a username', 'error');
-                return;
-            }
-            try {
-                const usernameDoc = await getDoc(doc(db, 'usernames', searchTerm.toLowerCase()));
-                if (!usernameDoc.exists()) {
-                    searchResults.innerHTML = '<p style="color: #ff5733; text-shadow: 0 0 5px #ff5733;">User not found.</p>';
-                    return;
-                }
-                const user = auth.currentUser;
-                const foundUserId = usernameDoc.data().userId;
-                if (foundUserId === user.uid) {
-                    searchResults.innerHTML = '<p style="color: #ff5733; text-shadow: 0 0 5px #ff5733;">You cannot add yourself.</p>';
-                    return;
-                }
-                const friendDoc = await getDoc(doc(db, `users/${user.uid}/friends`, foundUserId));
-                if (friendDoc.exists()) {
-                    searchResults.innerHTML = '<p style="color: #ff5733; text-shadow: 0 0 5px #ff5733;">Already friends.</p>';
-                    return;
-                }
-                const outgoingRequestQuery = query(
-                    collection(db, `users/${user.uid}/friendRequests`),
-                    where('toUserId', '==', foundUserId),
-                    where('status', '==', 'pending')
-                );
-                const incomingRequestQuery = query(
-                    collection(db, `users/${user.uid}/friendRequests`),
-                    where('fromUserId', '==', foundUserId),
-                    where('status', '==', 'pending')
-                );
-                const [outgoingDocs, incomingDocs] = await Promise.all([
-                    getDocs(outgoingRequestQuery),
-                    getDocs(incomingRequestQuery)
-                ]);
-                if (!outgoingDocs.empty) {
-                    searchResults.innerHTML = '<p style="color: #ff5733; text-shadow: 0 0 5px #ff5733;">Request already sent.</p>';
-                    return;
-                }
-                if (!incomingDocs.empty) {
-                    searchResults.innerHTML = '<p style="color: #ff5733; text-shadow: 0 0 5px #ff5733;">Check pending requests.</p>';
-                    return;
-                }
-                searchResults.innerHTML = '';
-                const resultBox = document.createElement('div');
-                resultBox.className = 'result-box';
-                resultBox.innerHTML = `
-                    <p>Username: ${searchTerm}</p>
-                    <button class="action-btn" data-user-id="${foundUserId}" data-username="${searchTerm}">Send Friend Request</button>
-                `;
-                searchResults.appendChild(resultBox);
-
-                // Send Friend Request
-                resultBox.querySelector('.action-btn').addEventListener('click', async () => {
-                    console.log(`Send friend request to: ${searchTerm}`);
-                    try {
-                        const userDoc = await getDoc(doc(db, 'users', user.uid));
-                        const fromUsername = userDoc.data().username;
-                        const requestData = {
-                            fromUserId: user.uid,
-                            fromUsername,
-                            toUserId: foundUserId,
-                            toUsername: searchTerm,
-                            status: 'pending',
-                            createdAt: serverTimestamp()
-                        };
-                        const requestRef = await addDoc(collection(db, `users/${foundUserId}/friendRequests`), requestData);
-                        await setDoc(doc(db, `users/${user.uid}/friendRequests`, requestRef.id), requestData);
-                        showMessage(`Friend request sent to ${searchTerm}!`, 'success');
-                        searchResults.innerHTML = '';
-                        friendSearch.value = '';
-                    } catch (error) {
-                        console.error('Send friend request error:', error);
-                        showMessage(`Error sending request: ${error.message}`, 'error');
-                    }
-                });
-            } catch (error) {
-                console.error('Search friend error:', error);
-                showMessage(`Error searching user: ${error.message}`, 'error');
-            }
-        });
-
-        // Load Friend Requests Tab
-        async function loadRequestsTab() {
-            console.log('Loading friend requests tab');
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Please log in first', 'error');
-                return;
-            }
-            try {
-                friendRequests.innerHTML = '';
-                const requestsQuery = query(
-                    collection(db, `users/${user.uid}/friendRequests`),
-                    where('toUserId', '==', user.uid),
-                    where('status', '==', 'pending')
-                );
-                const requestsDocs = await getDocs(requestsQuery);
-                if (requestsDocs.empty) {
-                    friendRequests.innerHTML = '<p style="color: #ff5733; text-shadow: 0 0 5px #ff5733;">No pending requests.</p>';
-                    return;
-                }
-                requestsDocs.forEach(doc => {
-                    const request = doc.data();
-                    const requestBox = document.createElement('div');
-                    requestBox.className = 'request-box';
-                    requestBox.innerHTML = `
-                        <p>From: ${request.fromUsername}</p>
-                        <button class="action-btn accept-btn" data-request-id="${doc.id}" data-from-id="${request.fromUserId}" data-from-username="${request.fromUsername}">Accept</button>
-                        <button class="action-btn reject-btn" data-request-id="${doc.id}" data-from-id="${request.fromUserId}" data-from-username="${request.fromUsername}">Reject</button>
-                    `;
-                    friendRequests.appendChild(requestBox);
-                });
-
-                // Accept Request
-                friendRequests.querySelectorAll('.accept-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        console.log(`Accept request: ${btn.dataset.requestId}`);
-                        try {
-                            const requestId = btn.dataset.requestId;
-                            const fromId = btn.dataset.fromId;
-                            const fromUsername = btn.dataset.fromUsername;
-                            const userDoc = await getDoc(doc(db, 'users', user.uid));
-                            const toUsername = userDoc.data().username;
-                            await setDoc(doc(db, `users/${user.uid}/friends`, fromId), {
-                                username: fromUsername,
-                                addedAt: serverTimestamp()
-                            });
-                            await setDoc(doc(db, `users/${fromId}/friends`, user.uid), {
-                                username: toUsername,
-                                addedAt: serverTimestamp()
-                            });
-                            await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'accepted' });
-                            await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'accepted' });
-                            showMessage(`You are now friends with ${fromUsername}!`, 'success');
-                            loadRequestsTab();
-                        } catch (error) {
-                            console.error('Accept request error:', error);
-                            showMessage(`Error accepting request: ${error.message}`, 'error');
-                        }
-                    });
-                });
-
-                // Reject Request
-                friendRequests.querySelectorAll('.reject-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        console.log(`Reject request: ${btn.dataset.requestId}`);
-                        try {
-                            const requestId = btn.dataset.requestId;
-                            const fromId = btn.dataset.fromId;
-                            const fromUsername = btn.dataset.fromUsername;
-                            await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'rejected' });
-                            await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'rejected' });
-                            showMessage(`Rejected request from ${fromUsername}`, 'success');
-                            loadRequestsTab();
-                        } catch (error) {
-                            console.error('Reject request error:', error);
-                            showMessage(`Error rejecting request: ${error.message}`, 'error');
-                        }
-                    });
-                });
-            } catch (error) {
-                console.error('Load requests error:', error);
-                showMessage(`Error loading requests: ${error.message}`, 'error');
-            }
-        }
-
-        // Back to Dashboard from Friends
-        backToDashboardFromFriends?.addEventListener('click', () => {
-            console.log('Back to dashboard from friends clicked');
             showContainer(dashboard);
         });
 
@@ -1456,8 +922,6 @@
             formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
             authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
             toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
-            usernameInput.style.display = isSignUp ? 'block' : 'none';
-            usernameInput.parentElement.style.display = isSignUp ? 'block' : 'none';
         });
 
         // Authentication Handler
@@ -1465,27 +929,15 @@
             console.log('Auth button clicked');
             const email = emailInput?.value;
             const password = passwordInput?.value;
-            const username = isSignUp ? usernameInput?.value : null;
             if (!email || !password) {
                 console.error('Email or password missing');
                 showMessage('Please enter email and password', 'error');
                 return;
             }
-            if (isSignUp && !username) {
-                console.error('Username missing');
-                showMessage('Please enter a username', 'error');
-                return;
-            }
             try {
                 if (isSignUp) {
-                    const check = await checkUsernameAvailability(username);
-                    if (!check.available) {
-                        showMessage(check.message, 'error');
-                        return;
-                    }
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     await sendEmailVerification(userCredential.user);
-                    await saveProfile(username);
                     showMessage('Sign Up Successful! Please verify your email.', 'success');
                 } else {
                     await signInWithEmailAndPassword(auth, email, password);
@@ -1493,7 +945,6 @@
                 }
                 emailInput.value = '';
                 passwordInput.value = '';
-                usernameInput.value = '';
             } catch (error) {
                 console.error('Auth error:', error.code, error.message);
                 showMessage(`Error: ${error.message}`, 'error');
@@ -1633,238 +1084,290 @@
                 const existingEntries = await getDocs(q);
                 console.log('Existing matchmaking entries:', existingEntries.size);
 
-                const opponentDocs = existingEntries.docs.filter(doc => doc.id !== matchmakingId);
-                if (opponentDocs.length > 0) {
-                    const opponentDoc = opponentDocs[0];
-                    const opponentData = opponentDoc.data();
-                    console.log('Found opponent:', opponentData.userId);
+                const opponentDocs = existingEntries.docs.filter(doc => {
+                    const data = doc.data();
+                    return data.userId !== user.uid && (now - data.timestamp) < 20000;
+                });
+                console.log('Filtered opponent entries:', opponentDocs.length);
 
+                if (opponentDocs.length > 0 && !isPaired) {
+                    const opponentDoc = opponentDocs[0];
+                    const opponent = opponentDoc.data();
+                    console.log('Found opponent:', opponent.username);
+                    isPaired = true;
                     const roomData = {
                         player1: user.uid,
                         player1Username: username,
-                        player2: opponentData.userId,
-                        player2Username: opponentData.username,
+                        player2: opponent.userId,
+                        player2Username: opponent.username,
                         board: ['', '', '', '', '', '', '', '', ''],
-                        currentTurn: 'X',
+                        turn: 'X',
                         status: 'active',
-                        createdAt: serverTimestamp()
+                        createdAt: Date.now()
                     };
                     const roomRef = await addDoc(collection(db, 'rooms'), roomData);
                     currentRoomId = roomRef.id;
-                    console.log('Created room:', currentRoomId);
+                    currentPlayer = 'X';
+                    opponentUsername = opponent.username;
 
                     await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
                         status: 'paired',
-                        roomId: currentRoomId,
-                        playerSymbol: 'X',
+                        roomId: roomRef.id,
+                        playerSymbol: 'O',
                         opponentUsername: username
                     });
 
-                    await updateDoc(doc(db, 'matchmaking', matchmakingId), {
-                        status: 'paired',
-                        roomId: currentRoomId,
-                        playerSymbol: 'O',
-                        opponentUsername: opponentData.username
-                    });
+                    await deleteDoc(doc(db, 'matchmaking', matchmakingId));
+                    unsubscribeMatch();
+                    showContainer(gameRoom);
+                    roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
+                    listenToRoom(roomRef.id, username);
+                    showMessage('Opponent found! Game started.', 'success');
+                } else {
+                    for (const doc of existingEntries.docs) {
+                        if ((now - doc.data().timestamp) >= 20000) {
+                            console.log('Deleting stale entry:', doc.id);
+                            await deleteDoc(doc(db, 'matchmaking', doc.id));
+                        }
+                    }
+                    setTimeout(() => {
+                        if (!isPaired) {
+                            console.log('Matchmaking timeout, isPaired:', isPaired);
+                            unsubscribeMatch();
+                            if (matchmakingId) {
+                                deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
+                            }
+                            showContainer(gamePage);
+                            showMessage('No opponent found. Try again later.', 'error');
+                        }
+                    }, 20000);
                 }
             } catch (error) {
-                console.error('Matchmaking error:', error);
-                showMessage('Failed to find opponent. Please try again.', 'error');
+                console.error('Play random error:', error.code, error.message);
+                showMessage('Matchmaking failed. Please try again.', 'error');
                 if (matchmakingId) {
-                    await deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
+                    deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
                 }
                 showContainer(gamePage);
             }
         });
 
-        // Listen to Game Room
+        // Check Winner
+        function checkWinner(board) {
+            console.log('Checking winner for board:', board);
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            for (const pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+                    return board[a];
+                }
+            }
+            if (board.every(cell => cell !== '')) {
+                return 'tie';
+            }
+            return null;
+        }
+
+        // Listen to Room Updates
         function listenToRoom(roomId, username) {
             console.log(`Listening to room: ${roomId}`);
-            const roomRef = doc(db, 'rooms', roomId);
-            unsubscribeRoom = onSnapshot(roomRef, async snapshot => {
+            if (unsubscribeRoom) unsubscribeRoom();
+            unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), async snapshot => {
+                console.log('Room snapshot received');
                 if (!snapshot.exists()) {
-                    console.log('Room deleted or does not exist');
-                    showContainer(gamePage);
-                    showMessage('Game room closed.', 'error');
-                    cleanupRoom();
+                    showMessage('Room closed', 'error');
+                    cleanupGame();
                     return;
                 }
                 const data = snapshot.data();
-                console.log('Room data:', data);
-                updateGameBoard(data.board);
-                playersDisplay.textContent = `You (${username}) vs ${opponentUsername}`;
-                gameStatus.textContent = data.status === 'active' ? 
-                    (data.currentTurn === currentPlayer ? 'Your turn!' : `Waiting for ${opponentUsername}'s move...`) : 
-                    data.status;
-
-                if (data.status !== 'active') {
-                    await handleGameEnd(data.status, username);
+                console.log('Room data:', data, 'Current player:', currentPlayer);
+                if (data.status === 'active' && data.player1 && data.player2) {
+                    let winner = data.winner || checkWinner(data.board);
+                    if (winner && !data.winner) {
+                        await updateDoc(doc(db, 'rooms', roomId), { winner, status: 'finished' });
+                    }
+                    if (gameStatus) {
+                        if (data.turn === currentPlayer) {
+                            gameStatus.textContent = 'Your turn';
+                        } else {
+                            gameStatus.textContent = `Opponent's turn (${data.turn})`;
+                        }
+                    }
+                    if (playersDisplay) playersDisplay.textContent = `${data.player1Username} (X) vs ${data.player2Username} (O)`;
+                    opponentUsername = currentPlayer === 'X' ? data.player2Username : data.player1Username;
+                    renderBoard(data.board);
+                    if (winner) {
+                        await handleGameEnd(winner, username);
+                    }
                 }
             }, error => {
                 console.error('Room listener error:', error);
-                showMessage('Error in game room. Returning to game page.', 'error');
-                cleanupRoom();
-                showContainer(gamePage);
+                showMessage(`Room error: ${error.message}`, 'error');
             });
         }
 
-        // Update Game Board
-        function updateGameBoard(board) {
-            console.log('Updating game board:', board);
-            const cells = gameBoard.querySelectorAll('.cell');
+        // Render Tic-Tac-Toe Board
+        function renderBoard(board) {
+            console.log('Rendering board:', board);
+            const cells = gameBoard?.querySelectorAll('.cell') || [];
             cells.forEach((cell, index) => {
                 cell.textContent = board[index];
                 cell.className = 'cell';
-                if (board[index] === 'X') {
-                    cell.classList.add('x');
-                } else if (board[index] === 'O') {
-                    cell.classList.add('o');
-                }
+                if (board[index] === 'X') cell.classList.add('x');
+                if (board[index] === 'O') cell.classList.add('o');
             });
         }
 
-        // Handle Game Move
-        gameBoard.addEventListener('click', async (e) => {
-            const cell = e.target.closest('.cell');
-            if (!cell) return;
+        // Handle Cell Click
+        gameBoard.addEventListener('click', async e => {
+            console.log('Game board clicked');
+            const cell = e.target;
+            if (!cell.classList.contains('cell') || !currentRoomId) return;
             const index = cell.dataset.index;
-            console.log(`Cell clicked: ${index}`);
-            const user = auth.currentUser;
-            if (!user || !currentRoomId || !currentPlayer) {
-                console.error('Invalid game state');
-                showMessage('Game state error.', 'error');
-                return;
-            }
             try {
-                const roomRef = doc(db, 'rooms', currentRoomId);
-                const roomDoc = await getDoc(roomRef);
-                if (!roomDoc.exists()) {
-                    console.log('Room does not exist');
-                    showMessage('Game room closed.', 'error');
-                    cleanupRoom();
-                    showContainer(gamePage);
+                const roomDoc = await getDoc(doc(db, 'rooms', currentRoomId));
+                const data = roomDoc.data();
+                if (!data) {
+                    showMessage('Room not found', 'error');
                     return;
                 }
-                const data = roomDoc.data();
-                if (data.status !== 'active' || data.currentTurn !== currentPlayer || data.board[index] !== '') {
-                    console.log('Invalid move');
+                if (data.board[index] !== '' || data.winner || data.status !== 'active') return;
+                if ((currentPlayer === 'X' && data.turn !== 'X') || (currentPlayer === 'O' && data.turn !== 'O')) {
+                    showMessage('Not your turn!', 'error');
                     return;
                 }
                 const newBoard = [...data.board];
                 newBoard[index] = currentPlayer;
                 const newTurn = currentPlayer === 'X' ? 'O' : 'X';
-                await updateDoc(roomRef, {
+                await updateDoc(doc(db, 'rooms', currentRoomId), {
                     board: newBoard,
-                    currentTurn: newTurn
+                    turn: newTurn
                 });
-                console.log('Move submitted:', newBoard);
             } catch (error) {
-                console.error('Move error:', error);
-                showMessage('Error making move.', 'error');
+                console.error('Cell click error:', error);
+                showMessage(`Error: ${error.message}`, 'error');
             }
         });
 
         // Handle Game End
-        async function handleGameEnd(status, username) {
-            console.log(`Game ended: ${status}`);
+        async function handleGameEnd(result, username) {
+            console.log(`Game ended: ${result}, Current player: ${currentPlayer}, Username: ${username}`);
             const user = auth.currentUser;
-            if (!user) return;
+            if (!user || !currentRoomId) {
+                console.log('No user or roomId, skipping stats update');
+                return;
+            }
             try {
                 const userDocRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userDocRef);
-                const stats = userDoc.exists() && userDoc.data().stats ? userDoc.data().stats : { wins: 0, losses: 0, ties: 0 };
-                let result = 'tie';
-                if (status === `${currentPlayer} wins`) {
-                    result = 'win';
+                let stats = userDoc.data()?.stats || { wins: 0, losses: 0, ties: 0 };
+                console.log('Current stats:', stats);
+                if (result === currentPlayer) {
+                    showMessage('You won!', 'success');
                     stats.wins += 1;
-                } else if (status.includes('wins') && !status.includes(currentPlayer)) {
-                    result = 'loss';
-                    stats.losses += 1;
-                } else {
+                } else if (result === 'tie') {
+                    showMessage('Game tied!', 'success');
                     stats.ties += 1;
+                } else {
+                    showMessage(`${opponentUsername} won!`, 'error');
+                    stats.losses += 1;
                 }
-                await setDoc(userDocRef, { stats }, { merge: true });
-                await addDoc(collection(db, `users/${user.uid}/gameHistory`), {
-                    opponentUsername,
-                    result,
-                    timestamp: serverTimestamp()
-                });
-                showMessage(`Game Over! Result: ${result.charAt(0).toUpperCase() + result.slice(1)}`, result === 'win' ? 'success' : 'error');
-                cleanupRoom();
-                showContainer(gamePage);
+                console.log('Updating stats to:', stats);
+                await updateDoc(userDocRef, { stats });
+                await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'finished', winner: result });
+                setTimeout(() => {
+                    cleanupGame();
+                    showContainer(dashboard);
+                }, 2000);
             } catch (error) {
-                console.error('Game end error:', error);
-                showMessage('Error processing game result.', 'error');
+                console.error('Game end error:', error.code, error.message);
+                showMessage(`Error updating stats: ${error.message}`, 'error');
             }
         }
 
-        // Cleanup Room
-        function cleanupRoom() {
-            console.log('Cleaning up room');
+        // Cleanup Game
+        function cleanupGame() {
+            console.log('Cleaning up game');
+            if (currentRoomId) {
+                updateDoc(doc(db, 'rooms', currentRoomId), { status: 'closed' }).catch(error => {
+                    console.error('Cleanup error:', error);
+                });
+                currentRoomId = null;
+            }
             if (unsubscribeRoom) {
                 unsubscribeRoom();
                 unsubscribeRoom = null;
             }
-            currentRoomId = null;
             currentPlayer = null;
             opponentUsername = null;
+            if (gameBoard) {
+                gameBoard.querySelectorAll('.cell').forEach(cell => {
+                    cell.textContent = '';
+                    cell.className = 'cell';
+                });
+            }
+            if (gameStatus) gameStatus.textContent = 'Waiting for opponent...';
+            if (roomIdDisplay) roomIdDisplay.textContent = '';
+            if (playersDisplay) playersDisplay.textContent = '';
+            if (auth.currentUser) {
+                showContainer(dashboard);
+            } else {
+                showContainer(authContainer);
+            }
         }
 
         // Leave Room
-        leaveRoom.addEventListener('click', async () => {
+        leaveRoom.addEventListener('click', () => {
             console.log('Leave room clicked');
-            if (!currentRoomId) {
-                console.log('No active room');
-                showContainer(gamePage);
-                return;
-            }
-            try {
-                const roomRef = doc(db, 'rooms', currentRoomId);
-                await updateDoc(roomRef, { status: 'abandoned' });
-                cleanupRoom();
-                showContainer(gamePage);
-                showMessage('You left the game.', 'error');
-            } catch (error) {
-                console.error('Leave room error:', error);
-                showMessage('Error leaving game.', 'error');
-                cleanupRoom();
-                showContainer(gamePage);
+            showMessage('Left room', 'success');
+            cleanupGame();
+        });
+
+        // Auth State Listener
+        onAuthStateChanged(auth, async user => {
+            console.log('Auth state changed:', user ? `User: ${user.uid}` : 'No user');
+            if (user) {
+                showContainer(dashboard);
+                verifyEmailPrompt.style.display = user.emailVerified ? 'none' : 'block';
+                playButton.style.display = user.emailVerified ? 'block' : 'none';
+                try {
+                    console.log('Fetching user data: user=', user.uid);
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
+                    const avatarUrl = userDoc.exists() && userDoc.data().avatarUrl ? userDoc.data().avatarUrl : null;
+                    console.log('Fetched user data: username=', username, 'avatarUrl=', avatarUrl);
+                    localAvatarUrl = null; // Reset local URL on login
+                    updateProfileUI(username, avatarUrl);
+                } catch (error) {
+                    console.error('Fetch user data error:', error.code, error.message);
+                    showMessage(`Error fetching user data: ${error.message}`, 'error');
+                    updateProfileUI('Player', null);
+                }
+            } else {
+                showContainer(authContainer);
+                userDisplay.textContent = '';
+                usernameDisplay.textContent = 'Set Username';
+                updateProfileUI('Player', null);
+                localAvatarUrl = null;
+                cleanupGame();
             }
         });
 
         // Logout
         logoutButton.addEventListener('click', async () => {
-            console.log('Logout clicked');
+            console.log('Logout button clicked');
             try {
                 await signOut(auth);
                 showMessage('Logged out successfully!', 'success');
                 showContainer(authContainer);
-                initializeContainers();
+                cleanupGame();
             } catch (error) {
-                console.error('Logout error:', error);
-                showMessage(`Error: ${error.message}`, 'error');
-            }
-        });
-
-        // Auth State Listener
-        onAuthStateChanged(auth, async user => {
-            console.log('Auth state changed:', user ? user.uid : 'No user');
-            if (user) {
-                try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
-                    console.log('User data loaded: username=', username);
-                    updateProfileUI(username, null);
-                    verifyEmailPrompt.style.display = user.emailVerified ? 'none' : 'block';
-                    showContainer(dashboard);
-                } catch (error) {
-                    console.error('User data load error:', error);
-                    showMessage('Error loading user data.', 'error');
-                    await signOut(auth);
-                    showContainer(authContainer);
-                }
-            } else {
-                initializeContainers();
+                console.error('Logout error:', error.code, error.message);
+                showMessage(`Logout failed: ${error.message}`, 'error');
             }
         });
     </script>
