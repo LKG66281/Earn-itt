@@ -134,7 +134,7 @@ button:hover {
     text-shadow: 0 0 5px #ff5733;
 }
 
-.dashboard, .game-page, .game-room, .waiting-area, .profile-page {
+.dashboard, .game-page, .game-room, .waiting-area, .profile-page, .game-history-page {
     display: none;
     color: #fff;
 }
@@ -408,6 +408,56 @@ button:hover {
     margin-top: 3%;
 }
 
+/* Game History Page */
+.game-history-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5%;
+}
+
+#gameHistoryList {
+    width: 100%;
+    margin-bottom: 5%;
+}
+
+.game-history-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid #00e6e6;
+    border-radius: 5px;
+    padding: 3%;
+    margin-bottom: 3%;
+    color: #fff;
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    text-shadow: 0 0 5px #00e6e6;
+    transition: all 0.3s ease;
+}
+
+.game-history-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px #c300ff;
+}
+
+.game-history-item.win {
+    border-color: #33ff66;
+    text-shadow: 0 0 10px #33ff66;
+}
+
+.game-history-item.loss {
+    border-color: #ff5733;
+    text-shadow: 0 0 10px #ff5733;
+}
+
+.game-history-item.tie {
+    border-color: #c300ff;
+    text-shadow: 0 0 10px #c300ff;
+}
+
+#backToProfileFromHistory {
+    width: 80%;
+    margin-top: 3%;
+}
+
 @media (max-width: 600px) {
     .container {
         padding: 8%;
@@ -486,4 +536,8 @@ button:hover {
     .profile-content {
         margin-top: 5%;
     }
-  }
+    .game-history-item {
+        font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        padding: 4%;
+    }
+    }
