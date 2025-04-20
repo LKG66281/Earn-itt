@@ -21,8 +21,7 @@ import {
     query, 
     where, 
     getDocs,
-    orderBy,
-    runTransaction
+    orderBy // Added for game history sorting
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { 
     getStorage, 
@@ -59,7 +58,7 @@ try {
 const authContainer = document.getElementById('authContainer');
 const dashboard = document.getElementById('dashboard');
 const profilePage = document.getElementById('profilePage');
-const gameHistoryPage = document.getElementById('gameHistoryPage');
+const gameHistoryPage = document.getElementById('gameHistoryPage'); // Added for game history
 const gamePage = document.getElementById('gamePage');
 const gameRoom = document.getElementById('gameRoom');
 const waitingArea = document.getElementById('waitingArea');
@@ -74,8 +73,8 @@ const profilePicCircle = document.getElementById('profilePicCircle');
 const profilePicInput = document.getElementById('profilePicInput');
 const gameHistoryBtn = document.getElementById('gameHistoryBtn');
 const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
-const backToProfileFromHistory = document.getElementById('backToProfileFromHistory');
-const gameHistoryList = document.getElementById('gameHistoryList');
+const backToProfileFromHistory = document.getElementById('backToProfileFromHistory'); // Added for game history
+const gameHistoryList = document.getElementById('gameHistoryList'); // Added for game history
 const playButton = document.getElementById('playButton');
 const winButton = document.getElementById('winButton');
 const logoutButton = document.getElementById('logoutButton');
@@ -98,8 +97,6 @@ let opponentUsername = null;
 let unsubscribeRoom = null;
 let lastSaveTime = 0;
 let localAvatarUrl = null;
-let matchmakingId = null;
-let unsubscribeMatch = null;
 
 // Utility Functions
 function showMessage(message, type) {
@@ -117,7 +114,7 @@ function showMessage(message, type) {
 
 function showContainer(container) {
     console.log(`Showing container: ${container?.id || 'unknown'}`);
-    const containers = [authContainer, dashboard, profilePage, gameHistoryPage, gamePage, gameRoom, waitingArea];
+    const containers = [authContainer, dashboard, profilePage, gameHistoryPage, gamePage, gameRoom, waitingArea]; // Added gameHistoryPage
     containers.forEach(c => c && (c.style.display = 'none'));
     container.style.display = 'block';
 }
@@ -503,19 +500,18 @@ playRandom.addEventListener('click', async () => {
         return;
     }
     console.log('Starting matchmaking for user:', user.uid);
+    let matchmakingId = null;
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         const username = userDoc.data()?.username || 'Player';
         showContainer(waitingArea);
 
-        // Clean up existing matchmaking entries for the user
         const userEntries = await getDocs(query(collection(db, 'matchmaking'), where('userId', '==', user.uid)));
         for (const entry of userEntries.docs) {
-            console.log('Deleting stale matchmaking entry:', entry.id);
+            console.log('Deleting stale entry:', entry.id);
             await deleteDoc(doc(db, 'matchmaking', entry.id));
         }
 
-        // Create a new matchmaking entry
         const matchmakingData = {
             userId: user.uid,
             username,
@@ -526,128 +522,112 @@ playRandom.addEventListener('click', async () => {
         matchmakingId = matchmakingRef.id;
         console.log('Added to matchmaking pool:', matchmakingId);
 
-        // Listen for matchmaking updates
-        unsubscribeMatch = onSnapshot(doc(db, 'matchmaking', matchmakingId), async (snapshot) => {
+        let isPaired = false;
+        const unsubscribeMatch = onSnapshot(doc(db, 'matchmaking', matchmakingId), async snapshot => {
             if (!snapshot.exists()) {
-                console.log('Matchmaking entry deleted unexpectedly');
-                if (unsubscribeMatch) unsubscribeMatch();
-                showContainer(gamePage);
-                showMessage('Matchmaking canceled.', 'error');
+                if (!isPaired) {
+                    console.log('Matchmaking entry deleted unexpectedly');
+                    showContainer(gamePage);
+                    showMessage('Matchmaking canceled.', 'error');
+                }
                 return;
             }
             const data = snapshot.data();
             console.log('Matchmaking entry updated:', data);
             if (data.status === 'paired' && data.roomId) {
-                console.log('Paired successfully, joining room:', data.roomId);
+                isPaired = true;
                 currentRoomId = data.roomId;
-                currentPlayer = data.playerSymbol;
+                currentPlayer = data.playerSymbol || 'O';
                 opponentUsername = data.opponentUsername;
-                if (unsubscribeMatch) unsubscribeMatch();
                 await deleteDoc(doc(db, 'matchmaking', matchmakingId));
+                unsubscribeMatch();
                 showContainer(gameRoom);
                 roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
                 listenToRoom(currentRoomId, username);
                 showMessage('Opponent found! Game started.', 'success');
             }
-        }, (error) => {
+        }, error => {
             console.error('Matchmaking listener error:', error);
             showMessage('Matchmaking failed. Please try again.', 'error');
-            cleanupMatchmaking();
+            if (matchmakingId) {
+                deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
+            }
+            unsubscribeMatch();
+            showContainer(gamePage);
         });
 
-        // Try to pair with an existing player
-        await runTransaction(db, async (transaction) => {
-            const q = query(
-                collection(db, 'matchmaking'),
-                where('status', '==', 'waiting'),
-                where('userId', '!=', user.uid)
-            );
-            const existingEntries = await getDocs(q);
-            const now = Date.now();
-            let paired = false;
+        const now = Date.now();
+        const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
+        const existingEntries = await getDocs(q);
+        console.log('Existing matchmaking entries:', existingEntries.size);
 
-            // Clean up stale entries (older than 30 seconds)
+        const opponentDocs = existingEntries.docs.filter(doc => {
+            const data = doc.data();
+            return data.userId !== user.uid && (now - data.timestamp) < 20000;
+        });
+        console.log('Filtered opponent entries:', opponentDocs.length);
+
+        if (opponentDocs.length > 0 && !isPaired) {
+            const opponentDoc = opponentDocs[0];
+            const opponent = opponentDoc.data();
+            console.log('Found opponent:', opponent.username);
+            isPaired = true;
+            const roomData = {
+                player1: user.uid,
+                player1Username: username,
+                player2: opponent.userId,
+                player2Username: opponent.username,
+                board: ['', '', '', '', '', '', '', '', ''],
+                turn: 'X',
+                status: 'active',
+                createdAt: Date.now()
+            };
+            const roomRef = await addDoc(collection(db, 'rooms'), roomData);
+            currentRoomId = roomRef.id;
+            currentPlayer = 'X';
+            opponentUsername = opponent.username;
+
+            await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
+                status: 'paired',
+                roomId: roomRef.id,
+                playerSymbol: 'O',
+                opponentUsername: username
+            });
+
+            await deleteDoc(doc(db, 'matchmaking', matchmakingId));
+            unsubscribeMatch();
+            showContainer(gameRoom);
+            roomIdDisplay.textContent = `Room ID: ${roomRef.id}`;
+            listenToRoom(roomRef.id, username);
+            showMessage('Opponent found! Game started.', 'success');
+        } else {
             for (const doc of existingEntries.docs) {
-                const data = doc.data();
-                if (now - data.timestamp > 30000) {
-                    console.log('Deleting stale matchmaking entry:', doc.id);
-                    transaction.delete(doc.ref);
+                if ((now - doc.data().timestamp) >= 20000) {
+                    console.log('Deleting stale entry:', doc.id);
+                    await deleteDoc(doc(db, 'matchmaking', doc.id));
                 }
             }
-
-            // Find an opponent
-            const opponentDocs = existingEntries.docs.filter(doc => doc.id !== matchmakingId && now - doc.data().timestamp <= 30000);
-            if (opponentDocs.length > 0) {
-                const opponentDoc = opponentDocs[0];
-                const opponentData = opponentDoc.data();
-                console.log('Found opponent:', opponentData.username);
-
-                // Create a new game room
-                const roomData = {
-                    player1: user.uid,
-                    player1Username: username,
-                    player2: opponentData.userId,
-                    player2Username: opponentData.username,
-                    board: ['', '', '', '', '', '', '', '', ''],
-                    turn: 'X',
-                    status: 'active',
-                    createdAt: Date.now()
-                };
-                const roomRef = await addDoc(collection(db, 'rooms'), roomData);
-                console.log('Created room:', roomRef.id);
-
-                // Update both matchmaking entries
-                transaction.update(doc(db, 'matchmaking', matchmakingId), {
-                    status: 'paired',
-                    roomId: roomRef.id,
-                    playerSymbol: 'X',
-                    opponentUsername: opponentData.username
-                });
-                transaction.update(doc(db, 'matchmaking', opponentDoc.id), {
-                    status: 'paired',
-                    roomId: roomRef.id,
-                    playerSymbol: 'O',
-                    opponentUsername: username
-                });
-
-                paired = true;
-            }
-
-            if (!paired) {
-                console.log('No opponent found, waiting for match');
-            }
-        });
-
-        // Set a timeout to cancel matchmaking if no match is found
-        setTimeout(() => {
-            if (!currentRoomId && matchmakingId) {
-                console.log('Matchmaking timeout');
-                if (unsubscribeMatch) unsubscribeMatch();
-                deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
-                showContainer(gamePage);
-                showMessage('No opponent found. Try again later.', 'error');
-                matchmakingId = null;
-            }
-        }, 30000);
+            setTimeout(() => {
+                if (!isPaired) {
+                    console.log('Matchmaking timeout, isPaired:', isPaired);
+                    unsubscribeMatch();
+                    if (matchmakingId) {
+                        deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
+                    }
+                    showContainer(gamePage);
+                    showMessage('No opponent found. Try again later.', 'error');
+                }
+            }, 20000);
+        }
     } catch (error) {
         console.error('Play random error:', error.code, error.message);
         showMessage('Matchmaking failed. Please try again.', 'error');
-        cleanupMatchmaking();
+        if (matchmakingId) {
+            deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
+        }
+        showContainer(gamePage);
     }
 });
-
-function cleanupMatchmaking() {
-    console.log('Cleaning up matchmaking');
-    if (unsubscribeMatch) {
-        unsubscribeMatch();
-        unsubscribeMatch = null;
-    }
-    if (matchmakingId) {
-        deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => console.error('Cleanup error:', err));
-        matchmakingId = null;
-    }
-    showContainer(gamePage);
-}
 
 function checkWinner(board) {
     console.log('Checking winner for board:', board);
