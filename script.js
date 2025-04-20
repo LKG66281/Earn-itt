@@ -20,7 +20,8 @@ import {
     addDoc, 
     query, 
     where, 
-    getDocs 
+    getDocs,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { 
     getStorage, 
@@ -57,6 +58,7 @@ try {
 const authContainer = document.getElementById('authContainer');
 const dashboard = document.getElementById('dashboard');
 const profilePage = document.getElementById('profilePage');
+const gameHistoryPage = document.getElementById('gameHistoryPage');
 const gamePage = document.getElementById('gamePage');
 const gameRoom = document.getElementById('gameRoom');
 const waitingArea = document.getElementById('waitingArea');
@@ -71,6 +73,8 @@ const profilePicCircle = document.getElementById('profilePicCircle');
 const profilePicInput = document.getElementById('profilePicInput');
 const gameHistoryBtn = document.getElementById('gameHistoryBtn');
 const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
+const backToProfileFromHistory = document.getElementById('backToProfileFromHistory');
+const gameHistoryList = document.getElementById('gameHistoryList');
 const playButton = document.getElementById('playButton');
 const winButton = document.getElementById('winButton');
 const logoutButton = document.getElementById('logoutButton');
@@ -110,9 +114,14 @@ function showMessage(message, type) {
 
 function showContainer(container) {
     console.log(`Showing container: ${container?.id || 'unknown'}`);
-    const containers = [authContainer, dashboard, profilePage, gamePage, gameRoom, waitingArea];
+    const containers = [authContainer, dashboard, profilePage, gameHistoryPage, gamePage, gameRoom, waitingArea];
     containers.forEach(c => c && (c.style.display = 'none'));
-    container.style.display = 'block';
+    if (container) {
+        container.style.display = 'block';
+    } else {
+        console.error('Attempted to show undefined container');
+        showContainer(authContainer);
+    }
 }
 
 function initializeContainers() {
@@ -375,9 +384,84 @@ profileBtn?.addEventListener('click', async () => {
     }
 });
 
-gameHistoryBtn?.addEventListener('click', () => {
-    console.log('Game history clicked');
-    showMessage('Game history not implemented yet', 'error');
+// Game History Functions
+async function loadGameHistory() {
+    console.log('Loading game history');
+    if (!gameHistoryList || !gameHistoryPage) {
+        console.error('Game history elements not found: gameHistoryList=', !!gameHistoryList, 'gameHistoryPage=', !!gameHistoryPage);
+        showMessage('Game history page not available. Check HTML setup.', 'error');
+        return;
+    }
+    const user = auth.currentUser;
+    if (!user) {
+        console.error('No user logged in');
+        showMessage('Please log in first', 'error');
+        showContainer(authContainer);
+        return;
+    }
+    try {
+        const historyQuery = query(
+            collection(db, `users/${user.uid}/gameHistory`),
+            orderBy('timestamp', 'desc')
+        );
+        const historySnapshot = await getDocs(historyQuery);
+        gameHistoryList.innerHTML = '';
+        if (historySnapshot.empty) {
+            console.log('No game history found');
+            gameHistoryList.innerHTML = '<p>No games played yet.</p>';
+            return;
+        }
+        console.log(`Found ${historySnapshot.size} game history entries`);
+        historySnapshot.forEach(doc => {
+            const data = doc.data();
+            const gameItem = document.createElement('div');
+            gameItem.className = `game-history-item ${data.result.toLowerCase()}`;
+            const date = new Date(data.timestamp).toLocaleString();
+            gameItem.innerHTML = `
+                <p>Opponent: ${data.opponentUsername}</p>
+                <p>Result: ${data.result.charAt(0).toUpperCase() + data.result.slice(1)}</p>
+                <p>Date: ${date}</p>
+            `;
+            gameHistoryList.appendChild(gameItem);
+        });
+    } catch (error) {
+        console.error('Load game history error:', error.code, error.message);
+        showMessage(`Error loading game history: ${error.message}`, 'error');
+        gameHistoryList.innerHTML = '<p>Failed to load game history.</p>';
+    }
+}
+
+gameHistoryBtn?.addEventListener('click', async () => {
+    console.log('Game history button clicked');
+    if (!gameHistoryPage) {
+        console.error('Game history page not found');
+        showMessage('Game history page not available. Check HTML setup.', 'error');
+        return;
+    }
+    const user = auth.currentUser;
+    if (!user) {
+        console.error('No user logged in');
+        showMessage('Please log in first', 'error');
+        showContainer(authContainer);
+        return;
+    }
+    try {
+        await loadGameHistory();
+        showContainer(gameHistoryPage);
+    } catch (error) {
+        console.error('Game history page error:', error.code, error.message);
+        showMessage(`Error loading game history: ${error.message}`, 'error');
+    }
+});
+
+backToProfileFromHistory?.addEventListener('click', () => {
+    console.log('Back to profile from history clicked');
+    if (!profilePage) {
+        console.error('Profile page not found');
+        showMessage('Profile page not available. Check HTML setup.', 'error');
+        return;
+    }
+    showContainer(profilePage);
 });
 
 backToDashboardFromProfile?.addEventListener('click', () => {
@@ -674,18 +758,39 @@ async function handleGameEnd(result, username) {
         const userDoc = await getDoc(userDocRef);
         let stats = userDoc.data()?.stats || { wins: 0, losses: 0, ties: 0 };
         console.log('Current stats:', stats);
+
+        let gameResult;
         if (result === currentPlayer) {
             showMessage('You won!', 'success');
             stats.wins += 1;
+            gameResult = 'win';
         } else if (result === 'tie') {
             showMessage('Game tied!', 'success');
             stats.ties += 1;
+            gameResult = 'tie';
         } else {
             showMessage(`${opponentUsername} won!`, 'error');
             stats.losses += 1;
+            gameResult = 'loss';
         }
         console.log('Updating stats to:', stats);
         await updateDoc(userDocRef, { stats });
+
+        // Save to game history
+        try {
+            const gameHistoryRef = collection(db, `users/${user.uid}/gameHistory`);
+            await addDoc(gameHistoryRef, {
+                opponentUsername: opponentUsername || 'Unknown',
+                result: gameResult,
+                timestamp: Date.now(),
+                roomId: currentRoomId
+            });
+            console.log('Game history saved: result=', gameResult, 'opponent=', opponentUsername);
+        } catch (historyError) {
+            console.error('Game history save error:', historyError.code, historyError.message);
+            showMessage('Failed to save game history.', 'error');
+        }
+
         await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'finished', winner: result });
         setTimeout(() => {
             cleanupGame();
