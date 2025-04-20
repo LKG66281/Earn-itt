@@ -1,322 +1,417 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Neon Firebase Auth</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      sendEmailVerification,
-      sendPasswordResetEmail,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      getDoc,
-      collection,
-      query,
-      where,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAol2UzQWdFPyTeWhlfK7HTXxMpsuXnSFk",
-      authDomain: "final-78170.firebaseapp.com",
-      projectId: "final-78170",
-      storageBucket: "final-78170.firebasestorage.app",
-      messagingSenderId: "374288155367",
-      appId: "1:374288155367:web:94a49f3b204dfa2efc5842",
-      measurementId: "G-9GM80JWP3C"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const toggleLink = document.getElementById("toggle");
-      const formTitle = document.getElementById("form-title");
-      const authForm = document.getElementById("auth-form");
-      const forgotPassword = document.getElementById("forgot-password");
-      const dashboard = document.getElementById("dashboard");
-      const logoutBtn = document.getElementById("logout");
-      const showUsername = document.getElementById("show-username");
-      const showEmail = document.getElementById("show-email");
-
-      const popup = document.getElementById("popup");
-      const popupText = document.getElementById("popup-text");
-
-      let isSignup = true;
-
-      const showMessage = (msg, success = true) => {
-        popupText.textContent = msg;
-        popup.style.background = success ? "rgba(0, 255, 0, 0.3)" : "rgba(255, 0, 0, 0.3)";
-        popup.style.color = success ? "#0f0" : "#f00";
-        popup.style.display = "block";
-        popup.classList.add("fade-in");
-        setTimeout(() => {
-          popup.classList.remove("fade-in");
-          popup.classList.add("fade-out");
-          setTimeout(() => {
-            popup.style.display = "none";
-            popup.classList.remove("fade-out");
-          }, 500);
-        }, 3000);
-      };
-
-      const updateForm = () => {
-        isSignup = !isSignup;
-        formTitle.textContent = isSignup ? "Sign Up" : "Login";
-        toggleLink.textContent = isSignup
-          ? "Already have an account? Login"
-          : "Need an account? Sign Up";
-        document.getElementById("username-field").style.display = isSignup ? "block" : "none";
-        forgotPassword.style.display = isSignup ? "none" : "block";
-      };
-
-      toggleLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        updateForm();
-      });
-
-      forgotPassword.addEventListener("click", async (e) => {
-        e.preventDefault();
-        const email = document.getElementById("email").value;
-        if (!email) return showMessage("Please enter your email to reset password", false);
-        try {
-          await sendPasswordResetEmail(auth, email);
-          showMessage("Password reset email sent!");
-        } catch (err) {
-          showMessage(err.message, false);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Firebase Auth</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(45deg, magenta, cyan, red, green, yellow);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-      });
 
-      authForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const username = document.getElementById("username").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
-
-        if (isSignup) {
-          if (!username || !email || !password) return showMessage("Fill in all fields", false);
-
-          // Check for unique username
-          const q = query(collection(db, "users"), where("username", "==", username));
-          const snapshot = await getDocs(q);
-          if (!snapshot.empty) return showMessage("Username already taken", false);
-
-          try {
-            const userCred = await createUserWithEmailAndPassword(auth, email, password);
-            await setDoc(doc(db, "users", userCred.user.uid), {
-              username,
-              email,
-              createdAt: new Date().toISOString()
-            });
-            await sendEmailVerification(userCred.user);
-            showMessage("Verification email sent. Please verify to login.");
-            authForm.reset();
-            updateForm();
-          } catch (err) {
-            showMessage(err.message, false);
-          }
-        } else {
-          try {
-            const loginUser = await signInWithEmailAndPassword(auth, email, password);
-            if (!loginUser.user.emailVerified) {
-              showMessage("Please verify your email before logging in", false);
-              await signOut(auth);
-            }
-          } catch (err) {
-            showMessage(err.message, false);
-          }
+        @keyframes gradientShift {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
         }
-      });
 
-      logoutBtn.addEventListener("click", async () => {
-        await signOut(auth);
-      });
-
-      onAuthStateChanged(auth, async (user) => {
-        if (user && user.emailVerified) {
-          const docSnap = await getDoc(doc(db, "users", user.uid));
-          const data = docSnap.data();
-          showUsername.textContent = data?.username || "Unknown";
-          showEmail.textContent = user.email;
-          dashboard.style.display = "block";
-          document.getElementById("auth-container").style.display = "none";
-        } else {
-          dashboard.style.display = "none";
-          document.getElementById("auth-container").style.display = "block";
+        .container {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            text-align: center;
+            position: relative;
+            animation: pulseGlow 2s infinite alternate;
+            z-index: 10; /* Ensure it's above the background */
         }
-      });
-    });
-  </script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(-45deg, magenta, cyan, yellow, red, green);
-      background-size: 400% 400%;
-      animation: bgShift 20s ease infinite;
-      color: white;
-      overflow: hidden;
-    }
 
-    @keyframes bgShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); }
+            100% { box-shadow: 0 0 30px rgba(255, 0, 255, 0.7); }
+        }
 
-    .container {
-      max-width: 400px;
-      margin: 8vh auto;
-      background: #111;
-      border-radius: 20px;
-      padding: 2rem;
-      text-align: center;
-      box-shadow: 0 0 20px cyan;
-      position: relative;
-    }
+        h2 {
+            color: white;
+            text-shadow: 0 0 10px cyan;
+            margin-bottom: 20px;
+        }
 
-    h2 {
-      margin-bottom: 1rem;
-      color: white;
-      text-shadow: 0 0 8px cyan;
-    }
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-    input {
-      width: 100%;
-      padding: 0.75rem;
-      margin: 0.5rem 0;
-      border: none;
-      background: transparent;
-      border-bottom: 2px solid cyan;
-      color: white;
-      outline: none;
-      transition: border-color 0.3s;
-    }
+        label {
+            display: block;
+            color: white;
+            text-shadow: 0 0 5px cyan;
+            margin-bottom: 5px;
+            text-align: left;
+        }
 
-    input:focus {
-      border-color: magenta;
-    }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid cyan;
+            border-radius: 5px;
+            background-color: transparent;
+            color: white;
+            box-shadow: 0 0 5px cyan;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
 
-    button {
-      width: 100%;
-      padding: 0.75rem;
-      background: #111;
-      border: none;
-      color: white;
-      font-weight: bold;
-      position: relative;
-      cursor: pointer;
-      overflow: hidden;
-      margin-top: 1rem;
-      border-radius: 8px;
-    }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: magenta;
+            box-shadow: 0 0 10px magenta;
+            outline: none;
+        }
 
-    button::before {
-      content: "";
-      position: absolute;
-      top: 0; left: -100%;
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(to right, magenta, cyan, magenta);
-      transition: left 0.5s linear;
-      z-index: 0;
-    }
+        button {
+            background-color: #222;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            box-shadow: 0 0 10px yellow;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-    button:hover::before {
-      left: 100%;
-    }
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, cyan, magenta, yellow, transparent);
+            transition: left 2s linear infinite;
+            z-index: -1;
+        }
 
-    button:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 10px magenta;
-    }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px white;
+        }
 
-    button span {
-      position: relative;
-      z-index: 1;
-    }
+        .link-btn {
+            background: none;
+            border: none;
+            color: white;
+            text-shadow: 0 0 5px cyan;
+            cursor: pointer;
+            margin-top: 10px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
 
-    a {
-      color: cyan;
-      cursor: pointer;
-      display: inline-block;
-      margin-top: 1rem;
-    }
+        .link-btn:hover {
+            color: magenta;
+        }
 
-    a:hover {
-      color: magenta;
-    }
+        #message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            text-align: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
 
-    #popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 1.5rem 2rem;
-      border-radius: 10px;
-      background: rgba(0, 255, 0, 0.3);
-      color: #0f0;
-      display: none;
-      font-weight: bold;
-      text-shadow: 0 0 5px currentColor;
-    }
+        .success {
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+            text-shadow: 0 0 5px green;
+            border: 1px solid green;
+        }
 
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
+        .error {
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+            text-shadow: 0 0 5px red;
+            border: 1px solid red;
+        }
 
-    .fade-out {
-      animation: fadeOut 0.5s ease-out;
-    }
+        #dashboard {
+            color: white;
+            text-shadow: 0 0 10px cyan;
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
+        #dashboard button {
+            margin-top: 20px;
+        }
 
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to   { opacity: 0; }
-    }
-
-    #dashboard {
-      display: none;
-      text-align: center;
-      margin-top: 10vh;
-    }
-  </style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div id="popup"><span id="popup-text"></span></div>
+    <div class="container">
+        <div id="signup-form">
+            <h2>Sign Up</h2>
+            <div class="form-group">
+                <label for="signup-username">Username:</label>
+                <input type="text" id="signup-username">
+            </div>
+            <div class="form-group">
+                <label for="signup-email">Email:</label>
+                <input type="email" id="signup-email">
+            </div>
+            <div class="form-group">
+                <label for="signup-password">Password:</label>
+                <input type="password" id="signup-password">
+            </div>
+            <button id="signup-button">Sign Up</button>
+            <p><a href="#" id="toggle-login" class="link-btn">Already have an account? Login</a></p>
+        </div>
 
-  <div id="auth-container" class="container">
-    <h2 id="form-title">Sign Up</h2>
-    <form id="auth-form">
-      <input type="text" id="username" placeholder="Username" required autocomplete="off" style="display:block;" />
-      <input type="email" id="email" placeholder="Email" required autocomplete="off" />
-      <input type="password" id="password" placeholder="Password" required autocomplete="off" />
-      <button type="submit"><span>Submit</span></button>
-    </form>
-    <a id="toggle">Already have an account? Login</a><br/>
-    <a id="forgot-password" style="display:none;">Forgot Password?</a>
-  </div>
+        <div id="login-form" class="hidden">
+            <h2>Login</h2>
+            <div class="form-group">
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password">
+            </div>
+            <button id="login-button">Login</button>
+            <p><a href="#" id="forgot-password" class="link-btn">Forgot Password?</a></p>
+            <p><a href="#" id="toggle-signup" class="link-btn">Need an account? Sign Up</a></p>
+        </div>
 
-  <div id="dashboard" class="container">
-    <h2>Welcome!</h2>
-    <p><strong>Username:</strong> <span id="show-username"></span></p>
-    <p><strong>Email:</strong> <span id="show-email"></span></p>
-    <button id="logout"><span>Logout</span></button>
-  </div>
+        <div id="dashboard" class="hidden">
+            <h2>Dashboard</h2>
+            <p>Username: <span id="dashboard-username"></span></p>
+            <p>Email: <span id="dashboard-email"></span></p>
+            <button id="logout-button">Logout</button>
+        </div>
+
+        <div id="message-box" class="hidden"></div>
+    </div>
+
+    <script>
+        // Firebase configuration (KEEP THIS SECURE IN PRODUCTION!)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAol2UzQWdFPyTeWhlfK7HTXxMpsuXnSFk",
+            authDomain: "final-78170.firebaseapp.com",
+            projectId: "final-78170",
+            storageBucket: "final-78170.firebasestorage.app",
+            messagingSenderId: "374288155367",
+            appId: "1:374288155367:web:94a49f3b204dfa2efc5842",
+            measurementId: "G-9GM80JWP3C"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Get DOM elements
+        const signupForm = document.getElementById('signup-form');
+        const loginForm = document.getElementById('login-form');
+        const dashboard = document.getElementById('dashboard');
+        const signupButton = document.getElementById('signup-button');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const forgotPasswordLink = document.getElementById('forgot-password');
+        const toggleLoginLink = document.getElementById('toggle-login');
+        const toggleSignupLink = document.getElementById('toggle-signup');
+        const messageBox = document.getElementById('message-box');
+        const dashboardUsername = document.getElementById('dashboard-username');
+        const dashboardEmail = document.getElementById('dashboard-email');
+        const signupUsernameInput = document.getElementById('signup-username');
+        const signupEmailInput = document.getElementById('signup-email');
+        const signupPasswordInput = document.getElementById('signup-password');
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
+
+        // Function to show a message
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = type;
+            messageBox.classList.remove('hidden');
+            messageBox.style.opacity = 1;
+            setTimeout(() => {
+                messageBox.style.opacity = 0;
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                }, 500);
+            }, 3000);
+        }
+
+        // Function to update UI based on authentication state
+        function updateUI(user) {
+            if (user) {
+                signupForm.classList.add('hidden');
+                loginForm.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                dashboardUsername.textContent = user.displayName || 'N/A';
+                dashboardEmail.textContent = user.email;
+            } else {
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+                dashboard.classList.add('hidden');
+            }
+        }
+
+        // Event listeners after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+
+            // Toggle between signup and login forms
+            toggleLoginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                console.log('Toggle to Login clicked');
+            });
+
+            toggleSignupLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                console.log('Toggle to Sign Up clicked');
+            });
+
+            // Sign up with username check
+            signupButton.addEventListener('click', async () => {
+                console.log('Sign Up clicked');
+                const username = signupUsernameInput.value.trim();
+                const email = signupEmailInput.value;
+                const password = signupPasswordInput.value;
+
+                if (!username || !email || !password) {
+                    showMessage('Please fill in all fields.', 'error');
+                    return;
+                }
+
+                try {
+                    // Check if username exists
+                    const usernameSnapshot = await db.collection('users').where('username', '==', username).get();
+                    if (!usernameSnapshot.empty) {
+                        showMessage('Username already exists. Please choose another.', 'error');
+                        return;
+                    }
+
+                    // Create user
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+
+                    // Update display name with username
+                    await user.updateProfile({ displayName: username });
+
+                    // Send email verification
+                    await user.sendEmailVerification();
+                    showMessage('Account created! Please verify your email address.', 'success');
+
+                    // Store user data in Firestore
+                    await db.collection('users').doc(user.uid).set({
+                        username: username,
+                        email: email,
+                        creationTime: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Optionally, redirect or update UI after signup (user needs to verify email first to login)
+                    signupForm.reset();
+                } catch (error) {
+                    console.error('Error signing up:', error.message);
+                    showMessage(`Error signing up: ${error.message}`, 'error');
+                }
+            });
+
+            // Login
+            loginButton.addEventListener('click', async () => {
+                console.log('Login clicked');
+                const email = loginEmailInput.value;
+                const password = loginPasswordInput.value;
+
+                if (!email || !password) {
+                    showMessage('Please enter your email and password.', 'error');
+                    return;
+                }
+
+                try {
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    if (user.emailVerified) {
+                        updateUI(user);
+                        loginForm.reset();
+                        console.log('Logged in successfully!');
+                    } else {
+                        showMessage('Please verify your email address before logging in.', 'error');
+                        await auth.signOut(); // Prevent unverified login
+                    }
+                } catch (error) {
+                    console.error('Error logging in:', error.message);
+                    showMessage(`Error logging in: ${error.message}`, 'error');
+                }
+            });
+
+            // Forgot password
+            forgotPasswordLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const email = prompt('Please enter the email address associated with your account:');
+                if (email) {
+                    auth.sendPasswordResetEmail(email)
+                        .then(() => {
+                            showMessage('Password reset email sent!', 'success');
+                            console.log('Password reset email sent!');
+                        })
+                        .catch((error) => {
+                            console.error('Error sending password reset email:', error.message);
+                            showMessage(`Error sending reset email: ${error.message}`, 'error');
+                        });
+                }
+                console.log('Forgot Password clicked');
+            });
+
+            // Logout
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    updateUI(null);
+                    console.log('Logged out successfully!');
+                    showMessage('Logged out successfully!', 'success');
+                } catch (error) {
+                    console.error('Error logging out:', error.message);
+                    showMessage(`Error logging out: ${error.message}`, 'error');
+                }
+                console.log('Logout clicked');
+            });
+
+            // Listen for authentication state changes
+            auth.onAuthStateChanged((user) => {
+                updateUI(user);
+                console.log('Auth state changed:', user);
+            });
+        });
+    </script>
 </body>
-</html>
+  </html>
