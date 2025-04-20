@@ -303,7 +303,7 @@ button:hover {
 #winButton {
     position: absolute;
     bottom: 5%;
-    nawiązanie: left: 5%;
+    left: 5%;
     width: clamp(50px, 10vw, 60px);
     height: clamp(50px, 10vw, 60px);
     border-radius: 50%;
