@@ -994,7 +994,7 @@ async function checkUsernameAvailability(username) {
         return { available: false, message: 'Username cannot be empty' };
     }
     const normalizedUsername = username.toLowerCase().trim();
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(normalizedUsername)) {
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username.trim())) {
         return { available: false, message: 'Username must be 3-20 characters, letters, numbers, or underscores only' };
     }
     const usernameDoc = await getDoc(doc(db, 'usernames', normalizedUsername));
