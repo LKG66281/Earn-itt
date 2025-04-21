@@ -20,8 +20,7 @@ import {
     query, 
     where, 
     getDocs, 
-    serverTimestamp,
-    runTransaction 
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { 
     getStorage, 
@@ -125,7 +124,7 @@ function showMessage(message, type) {
     msgDiv.style.opacity = '1';
     setTimeout(() => {
         msgDiv.style.opacity = '0';
-        setTimeout(() => msgDiv.remove(), 300);
+        setTimeout(() => msgDiv.remove(), 500);
     }, 3000);
 }
 
@@ -137,7 +136,6 @@ function showContainer(container) {
     if (container === gamePage) {
         playRandom.disabled = false;
     }
-    showMessage(`Navigated to ${container.id}`, 'success');
 }
 
 // Update Profile UI
@@ -158,10 +156,10 @@ function updateProfileUI(username, avatarUrl) {
         const ctx = canvas.getContext('2d');
         ctx.beginPath();
         ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-        ctx.fillStyle = '#ff004d';
+        ctx.fillStyle = '#ff0066';
         ctx.fill();
-        ctx.font = 'bold 60px Impact';
-        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 60px Orbitron';
+        ctx.fillStyle = '#e0e7ff';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(firstLetter, size / 2, size / 2);
@@ -172,9 +170,9 @@ function updateProfileUI(username, avatarUrl) {
     profileBtn.style.color = 'transparent';
     profilePicCircle.style.color = 'transparent';
     profileBtn.style.backgroundSize = 'cover';
-    profileBtn.style.border = '3px solid #ff004d';
+    profileBtn.style.border = '3px solid #00ddeb';
     profilePicCircle.style.backgroundSize = 'cover';
-    profilePicCircle.style.border = '3px solid #ff004d';
+    profilePicCircle.style.border = '3px solid #00ddeb';
     userDisplay.textContent = username;
     usernameDisplay.textContent = username;
     showMessage('Profile UI updated', 'success');
@@ -184,10 +182,14 @@ function updateProfileUI(username, avatarUrl) {
 async function updateBalanceUI() {
     const user = auth.currentUser;
     if (user) {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        const coins = userDoc.exists() ? userDoc.data().coins || 0 : 0;
-        document.querySelector('.balance-box').textContent = `₹${coins}`;
-        showMessage('Balance updated', 'success');
+        try {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const coins = userDoc.exists() ? userDoc.data().coins || 0 : 0;
+            document.querySelector('.balance-box').textContent = `₹${coins}`;
+            showMessage('Balance updated', 'success');
+        } catch (error) {
+            showMessage(`Error updating balance: ${error.message}`, 'error');
+        }
     }
 }
 
@@ -199,11 +201,15 @@ async function checkUsernameAvailability(username) {
     if (!/^[a-zA-Z0-9_]{3,20}$/.test(username.trim())) {
         return { available: false, message: 'Username must be 3-20 characters, letters, numbers, or underscores only' };
     }
-    const usernameDoc = await getDoc(doc(db, 'usernames', username.toLowerCase().trim()));
-    if (usernameDoc.exists()) {
-        return { available: false, message: 'Username is already taken' };
+    try {
+        const usernameDoc = await getDoc(doc(db, 'usernames', username.toLowerCase().trim()));
+        if (usernameDoc.exists()) {
+            return { available: false, message: 'Username is already taken' };
+        }
+        return { available: true };
+    } catch (error) {
+        return { available: false, message: `Error checking username: ${error.message}` };
     }
-    return { available: true };
 }
 
 // Save Username
@@ -213,12 +219,16 @@ async function saveUsername(userId, username) {
     if (!check.available) {
         throw new Error(check.message);
     }
-    const usernameRef = doc(db, 'usernames', normalizedUsername);
-    await setDoc(usernameRef, {
-        userId,
-        createdAt: serverTimestamp()
-    });
-    showMessage('Username saved', 'success');
+    try {
+        const usernameRef = doc(db, 'usernames', normalizedUsername);
+        await setDoc(usernameRef, {
+            userId,
+            createdAt: serverTimestamp()
+        });
+        showMessage('Username saved', 'success');
+    } catch (error) {
+        throw new Error(`Error saving username: ${error.message}`);
+    }
 }
 
 // Delete Username
@@ -427,7 +437,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         if (btn.dataset.tab === 'friends') loadFriendsTab();
         else if (btn.dataset.tab === 'add-friend') loadAddFriendTab();
         else if (btn.dataset.tab === 'requests') loadRequestsTab();
-        showMessage(`Switched to ${btn.dataset.tab} tab`, 'success');
     });
 });
 
@@ -445,7 +454,7 @@ async function loadFriendsTab() {
         unsubscribe = onSnapshot(friendsQuery, (snapshot) => {
             friendsList.innerHTML = '';
             if (snapshot.empty) {
-                friendsList.innerHTML = '<p style="color: #ff004d; text-shadow: 0 0 10px #ff004d;">No friends yet.</p>';
+                friendsList.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">No friends yet.</p>';
                 return;
             }
             snapshot.forEach(doc => {
@@ -500,18 +509,18 @@ searchFriend?.addEventListener('click', async () => {
     try {
         const usernameDoc = await getDoc(doc(db, 'usernames', searchTerm.toLowerCase()));
         if (!usernameDoc.exists()) {
-            searchResults.innerHTML = '<p style="color: #ff004d; text-shadow: 0 0 10px #ff004d;">User not found.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">User not found.</p>';
             return;
         }
         const user = auth.currentUser;
         const foundUserId = usernameDoc.data().userId;
         if (foundUserId === user.uid) {
-            searchResults.innerHTML = '<p style="color: #ff004d; text-shadow: 0 0 10px #ff004d;">You cannot add yourself.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">You cannot add yourself.</p>';
             return;
         }
         const friendDoc = await getDoc(doc(db, `users/${user.uid}/friends`, foundUserId));
         if (friendDoc.exists()) {
-            searchResults.innerHTML = '<p style="color: #ff004d; text-shadow: 0 0 10px #ff004d;">Already friends.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">Already friends.</p>';
             return;
         }
         const outgoingRequestQuery = query(
@@ -529,11 +538,11 @@ searchFriend?.addEventListener('click', async () => {
             getDocs(incomingRequestQuery)
         ]);
         if (!outgoingDocs.empty) {
-            searchResults.innerHTML = '<p style="color: #ff004d; text-shadow: 0 0 10px #ff004d;">Request already sent.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">Request already sent.</p>';
             return;
         }
         if (!incomingDocs.empty) {
-            searchResults.innerHTML = '<p style="color: #ff004d; text-shadow: 0 0 10px #ff004d;">Check pending requests.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">Check pending requests.</p>';
             return;
         }
         searchResults.innerHTML = '';
@@ -587,7 +596,7 @@ async function loadRequestsTab() {
         );
         const requestsDocs = await getDocs(requestsQuery);
         if (requestsDocs.empty) {
-            friendRequests.innerHTML = '<p style="color: #ff004d; text-shadow: 0 0 10px #ff004d;">No pending requests.</p>';
+            friendRequests.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">No pending requests.</p>';
             return;
         }
         requestsDocs.forEach(doc => {
@@ -763,8 +772,9 @@ playRandom.addEventListener('click', async () => {
         playRandom.disabled = false;
         return;
     }
-    showContainer(waitingArea); // Show waiting area immediately
+    showContainer(waitingArea);
     let matchmakingId = null;
+    let unsubscribeMatch = null;
     const timeout = setTimeout(async () => {
         if (matchmakingId) {
             await deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
@@ -772,79 +782,37 @@ playRandom.addEventListener('click', async () => {
             showContainer(gamePage);
             playRandom.disabled = false;
         }
+        if (unsubscribeMatch) unsubscribeMatch();
     }, 30000);
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         const username = userDoc.data()?.username || 'Player';
 
-        // Clean up any existing matchmaking entries for this user
+        // Clean up existing matchmaking entries
         const userEntries = await getDocs(query(collection(db, 'matchmaking'), where('userId', '==', user.uid)));
         for (const entry of userEntries.docs) {
             await deleteDoc(doc(db, 'matchmaking', entry.id)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
         }
 
-        // Start matchmaking transaction
-        await runTransaction(db, async (transaction) => {
-            const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'), orderBy('timestamp'));
-            const existingEntries = await getDocs(q);
-            const opponentDocs = existingEntries.docs.filter(doc => doc.data().userId !== user.uid);
-
-            if (opponentDocs.length > 0) {
-                const opponentDoc = opponentDocs[0];
-                const opponentData = opponentDoc.data();
-                const roomData = {
-                    player1: user.uid,
-                    player1Username: username,
-                    player2: opponentData.userId,
-                    player2Username: opponentData.username,
-                    board: ['', '', '', '', '', '', '', '', ''],
-                    currentTurn: 'X',
-                    status: 'active',
-                    createdAt: serverTimestamp()
-                };
-                const roomRef = doc(collection(db, 'rooms'));
-                transaction.set(roomRef, roomData);
-                transaction.update(doc(db, 'matchmaking', opponentDoc.id), {
-                    status: 'paired',
-                    roomId: roomRef.id,
-                    playerSymbol: 'X',
-                    opponentUsername: username
-                });
-                const matchmakingRef = doc(collection(db, 'matchmaking'));
-                matchmakingId = matchmakingRef.id;
-                transaction.set(matchmakingRef, {
-                    userId: user.uid,
-                    username,
-                    status: 'paired',
-                    roomId: roomRef.id,
-                    playerSymbol: 'O',
-                    opponentUsername: opponentData.username,
-                    timestamp: Date.now()
-                });
-                currentRoomId = roomRef.id;
-                currentPlayer = 'O';
-                opponentUsername = opponentData.username;
-            } else {
-                const matchmakingRef = doc(collection(db, 'matchmaking'));
-                matchmakingId = matchmakingRef.id;
-                transaction.set(matchmakingRef, {
-                    userId: user.uid,
-                    username,
-                    status: 'waiting',
-                    timestamp: Date.now()
-                });
-            }
+        // Create matchmaking entry
+        const matchmakingRef = doc(collection(db, 'matchmaking'));
+        matchmakingId = matchmakingRef.id;
+        await setDoc(matchmakingRef, {
+            userId: user.uid,
+            username,
+            status: 'waiting',
+            timestamp: serverTimestamp()
         });
+        showMessage('Looking for an opponent...', 'success');
 
         // Listen for matchmaking updates
-        const matchmakingDocRef = doc(db, 'matchmaking', matchmakingId);
-        const unsubscribeMatch = onSnapshot(matchmakingDocRef, async (snapshot) => {
+        unsubscribeMatch = onSnapshot(matchmakingRef, async (snapshot) => {
             if (!snapshot.exists()) {
                 showMessage('Matchmaking canceled.', 'error');
                 showContainer(gamePage);
                 playRandom.disabled = false;
-                unsubscribeMatch();
                 clearTimeout(timeout);
+                unsubscribeMatch();
                 return;
             }
             const data = snapshot.data();
@@ -852,7 +820,7 @@ playRandom.addEventListener('click', async () => {
                 currentRoomId = data.roomId;
                 currentPlayer = data.playerSymbol;
                 opponentUsername = data.opponentUsername;
-                await deleteDoc(matchmakingDocRef).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
+                await deleteDoc(matchmakingRef).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
                 unsubscribeMatch();
                 clearTimeout(timeout);
                 showContainer(gameRoom);
@@ -865,11 +833,43 @@ playRandom.addEventListener('click', async () => {
             if (matchmakingId) {
                 deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
             }
-            unsubscribeMatch();
             clearTimeout(timeout);
             showContainer(gamePage);
             playRandom.disabled = false;
+            unsubscribeMatch();
         });
+
+        // Check for available opponents
+        const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'), where('userId', '!=', user.uid));
+        const opponentSnapshot = await getDocs(q);
+        if (!opponentSnapshot.empty) {
+            const opponentDoc = opponentSnapshot.docs[0];
+            const opponentData = opponentDoc.data();
+            const roomRef = doc(collection(db, 'rooms'));
+            const roomData = {
+                player1: user.uid,
+                player1Username: username,
+                player2: opponentData.userId,
+                player2Username: opponentData.username,
+                board: ['', '', '', '', '', '', '', '', ''],
+                currentTurn: 'X',
+                status: 'active',
+                createdAt: serverTimestamp()
+            };
+            await setDoc(roomRef, roomData);
+            await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
+                status: 'paired',
+                roomId: roomRef.id,
+                playerSymbol: 'X',
+                opponentUsername: username
+            });
+            await updateDoc(matchmakingRef, {
+                status: 'paired',
+                roomId: roomRef.id,
+                playerSymbol: 'O',
+                opponentUsername: opponentData.username
+            });
+        }
     } catch (error) {
         showMessage(`Matchmaking error: ${error.message}`, 'error');
         if (matchmakingId) {
@@ -878,6 +878,7 @@ playRandom.addEventListener('click', async () => {
         clearTimeout(timeout);
         showContainer(gamePage);
         playRandom.disabled = false;
+        if (unsubscribeMatch) unsubscribeMatch();
     }
 });
 
