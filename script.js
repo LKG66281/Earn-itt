@@ -774,6 +774,7 @@ playRandom.addEventListener('click', async () => {
     showContainer(waitingArea);
     let matchmakingId = null;
     let unsubscribeMatch = null;
+
     const timeout = setTimeout(async () => {
         if (matchmakingId) {
             await deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
@@ -812,7 +813,7 @@ playRandom.addEventListener('click', async () => {
                 showContainer(gamePage);
                 playRandom.disabled = false;
                 clearTimeout(timeout);
-                unsubscribeMatch();
+                if (unsubscribeMatch) unsubscribeMatch();
                 return;
             }
             const data = snapshot.data();
@@ -821,7 +822,7 @@ playRandom.addEventListener('click', async () => {
                 currentPlayer = data.playerSymbol;
                 opponentUsername = data.opponentUsername;
                 await deleteDoc(matchmakingRef).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
-                unsubscribeMatch();
+                if (unsubscribeMatch) unsubscribeMatch();
                 clearTimeout(timeout);
                 showContainer(gameRoom);
                 roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
@@ -837,14 +838,13 @@ playRandom.addEventListener('click', async () => {
         const findOpponent = async (retryCount = 0) => {
             try {
                 const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
-                const opponentSnapshot = await getDocs(q);
-                // Filter out current user client-side
-                const validOpponents = opponentSnapshot.docs.filter(doc => doc.data().userId !== user.uid);
+                const snapshot = await getDocs(q);
+                const validOpponents = snapshot.docs.filter(doc => doc.data().userId !== user.uid);
                 if (validOpponents.length > 0) {
-                    // Pick a random opponent
-                    const randomIndex = Math.floor(Math.random() * validOpponents.length);
-                    const opponentDoc = validOpponents[randomIndex];
+                    const opponentDoc = validOpponents[0]; // Pick first available opponent
                     const opponentData = opponentDoc.data();
+
+                    // Create game room
                     const roomRef = doc(collection(db, 'rooms'));
                     const roomData = {
                         player1: user.uid,
@@ -857,6 +857,8 @@ playRandom.addEventListener('click', async () => {
                         createdAt: serverTimestamp()
                     };
                     await setDoc(roomRef, roomData);
+
+                    // Update both players' matchmaking entries
                     await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
                         status: 'paired',
                         roomId: roomRef.id,
@@ -869,15 +871,13 @@ playRandom.addEventListener('click', async () => {
                         playerSymbol: 'O',
                         opponentUsername: opponentData.username
                     });
-                } else if (retryCount < 3) {
+                } else if (retryCount < 5) {
                     setTimeout(() => findOpponent(retryCount + 1), 2000);
+                } else {
+                    // Timeout will handle cleanup
                 }
             } catch (error) {
-                if (error.code === 'permission-denied') {
-                    showMessage('Matchmaking failed: Check Firestore rules', 'error');
-                } else {
-                    showMessage(`Matchmaking error: ${error.message}`, 'error');
-                }
+                showMessage(`Matchmaking error: ${error.message}`, 'error');
                 cleanupMatchmaking();
             }
         };
