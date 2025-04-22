@@ -20,8 +20,7 @@ import {
     query, 
     where, 
     getDocs, 
-    serverTimestamp,
-    orderBy
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { 
     getStorage, 
@@ -77,7 +76,6 @@ const historyContainer = document.getElementById('historyContainer');
 const statsSummary = document.getElementById('statsSummary');
 const backToProfile = document.getElementById('backToProfile');
 const playButton = document.getElementById('playButton');
-const winButton = document.getElementById('winButton');
 const friendsBtn = document.getElementById('friendsBtn');
 const logoutButton = document.getElementById('logoutButton');
 const playRandom = document.getElementById('playRandom');
@@ -838,15 +836,14 @@ playRandom.addEventListener('click', async () => {
         // Check for available opponents
         const findOpponent = async (retryCount = 0) => {
             try {
-                const q = query(
-                    collection(db, 'matchmaking'),
-                    where('status', '==', 'waiting'),
-                    where('userId', '!=', user.uid),
-                    orderBy('timestamp', 'asc')
-                );
+                const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
                 const opponentSnapshot = await getDocs(q);
-                if (!opponentSnapshot.empty) {
-                    const opponentDoc = opponentSnapshot.docs[0];
+                // Filter out current user client-side
+                const validOpponents = opponentSnapshot.docs.filter(doc => doc.data().userId !== user.uid);
+                if (validOpponents.length > 0) {
+                    // Pick a random opponent
+                    const randomIndex = Math.floor(Math.random() * validOpponents.length);
+                    const opponentDoc = validOpponents[randomIndex];
                     const opponentData = opponentDoc.data();
                     const roomRef = doc(collection(db, 'rooms'));
                     const roomData = {
@@ -876,9 +873,7 @@ playRandom.addEventListener('click', async () => {
                     setTimeout(() => findOpponent(retryCount + 1), 2000);
                 }
             } catch (error) {
-                if (error.code === 'failed-precondition') {
-                    showMessage('Matchmaking failed: Check Firestore index for matchmaking collection', 'error');
-                } else if (error.code === 'permission-denied') {
+                if (error.code === 'permission-denied') {
                     showMessage('Matchmaking failed: Check Firestore rules', 'error');
                 } else {
                     showMessage(`Matchmaking error: ${error.message}`, 'error');
