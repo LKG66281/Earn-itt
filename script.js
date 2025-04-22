@@ -20,7 +20,8 @@ import {
     query, 
     where, 
     getDocs, 
-    serverTimestamp
+    serverTimestamp,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { 
     getStorage, 
@@ -778,12 +779,13 @@ playRandom.addEventListener('click', async () => {
     const timeout = setTimeout(async () => {
         if (matchmakingId) {
             await deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
-            showMessage('No opponent found. Try again.', 'error');
-            showContainer(gamePage);
-            playRandom.disabled = false;
         }
+        showMessage('No opponent found. Try again.', 'error');
+        showContainer(gamePage);
+        playRandom.disabled = false;
         if (unsubscribeMatch) unsubscribeMatch();
     }, 30000);
+
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         const username = userDoc.data()?.username || 'Player';
@@ -830,50 +832,69 @@ playRandom.addEventListener('click', async () => {
             }
         }, (error) => {
             showMessage(`Matchmaking listener error: ${error.message}`, 'error');
-            if (matchmakingId) {
-                deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
-            }
-            clearTimeout(timeout);
-            showContainer(gamePage);
-            playRandom.disabled = false;
-            unsubscribeMatch();
+            cleanupMatchmaking();
         });
 
         // Check for available opponents
-        const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'), where('userId', '!=', user.uid));
-        const opponentSnapshot = await getDocs(q);
-        if (!opponentSnapshot.empty) {
-            const opponentDoc = opponentSnapshot.docs[0];
-            const opponentData = opponentDoc.data();
-            const roomRef = doc(collection(db, 'rooms'));
-            const roomData = {
-                player1: user.uid,
-                player1Username: username,
-                player2: opponentData.userId,
-                player2Username: opponentData.username,
-                board: ['', '', '', '', '', '', '', '', ''],
-                currentTurn: 'X',
-                status: 'active',
-                createdAt: serverTimestamp()
-            };
-            await setDoc(roomRef, roomData);
-            await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
-                status: 'paired',
-                roomId: roomRef.id,
-                playerSymbol: 'X',
-                opponentUsername: username
-            });
-            await updateDoc(matchmakingRef, {
-                status: 'paired',
-                roomId: roomRef.id,
-                playerSymbol: 'O',
-                opponentUsername: opponentData.username
-            });
-        }
+        const findOpponent = async (retryCount = 0) => {
+            try {
+                const q = query(
+                    collection(db, 'matchmaking'),
+                    where('status', '==', 'waiting'),
+                    where('userId', '!=', user.uid),
+                    orderBy('timestamp', 'asc')
+                );
+                const opponentSnapshot = await getDocs(q);
+                if (!opponentSnapshot.empty) {
+                    const opponentDoc = opponentSnapshot.docs[0];
+                    const opponentData = opponentDoc.data();
+                    const roomRef = doc(collection(db, 'rooms'));
+                    const roomData = {
+                        player1: user.uid,
+                        player1Username: username,
+                        player2: opponentData.userId,
+                        player2Username: opponentData.username,
+                        board: ['', '', '', '', '', '', '', '', ''],
+                        currentTurn: 'X',
+                        status: 'active',
+                        createdAt: serverTimestamp()
+                    };
+                    await setDoc(roomRef, roomData);
+                    await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
+                        status: 'paired',
+                        roomId: roomRef.id,
+                        playerSymbol: 'X',
+                        opponentUsername: username
+                    });
+                    await updateDoc(matchmakingRef, {
+                        status: 'paired',
+                        roomId: roomRef.id,
+                        playerSymbol: 'O',
+                        opponentUsername: opponentData.username
+                    });
+                } else if (retryCount < 3) {
+                    setTimeout(() => findOpponent(retryCount + 1), 2000);
+                }
+            } catch (error) {
+                if (error.code === 'failed-precondition') {
+                    showMessage('Matchmaking failed: Check Firestore index for matchmaking collection', 'error');
+                } else if (error.code === 'permission-denied') {
+                    showMessage('Matchmaking failed: Check Firestore rules', 'error');
+                } else {
+                    showMessage(`Matchmaking error: ${error.message}`, 'error');
+                }
+                cleanupMatchmaking();
+            }
+        };
+        await findOpponent();
     } catch (error) {
         showMessage(`Matchmaking error: ${error.message}`, 'error');
+        cleanupMatchmaking();
+    }
+
+    function cleanupMatchmaking() {
         if (matchmakingId) {
-            await deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
+            deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
         }
         clearTimeout(timeout);
         showContainer(gamePage);
@@ -1045,7 +1066,7 @@ logoutButton.addEventListener('click', async () => {
 });
 
 // Auth State Listener
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         try {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -1053,8 +1074,8 @@ onAuthStateChanged(auth, async user => {
             const avatarUrl = userDoc.exists() ? userDoc.data().avatarUrl : null;
             updateProfileUI(username, avatarUrl);
             await updateBalanceUI();
-            verifyEmailPrompt.style.display = user.emailVerified ? 'none' : 'block';
             showContainer(dashboard);
+            verifyEmailPrompt.style.display = user.emailVerified ? 'none' : 'block';
         } catch (error) {
             showMessage(`Error loading user data: ${error.message}`, 'error');
             showContainer(authContainer);
