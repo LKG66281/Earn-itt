@@ -1,28 +1,32 @@
 /* CSS Variables for Themes */
 :root {
-    --bg-color: #0a0a23; /* Dark theme background */
-    --text-color: #e0e7ff;
-    --primary-neon: #ff0066;
-    --secondary-neon: #00ddeb;
+    --bg-color: #0a0a23; /* Dark cosmic background */
+    --text-color: #ffffff;
+    --neon-pink: #ff007a;
+    --neon-cyan: #00f7ff;
+    --neon-lime: #39ff14;
+    --neon-orange: #ff6200;
     --glow-color: #ff00ff;
     --button-bg: #1a1a3d;
-    --button-border: #ff0066;
+    --button-border: #ff007a;
     --cell-bg: #0f0f2a;
-    --cell-border: #00ddeb;
-    --flame-shadow: 0 0 15px #ff4500, 0 0 30px #ff8c00;
+    --cell-border: #00f7ff;
+    --flame-shadow: 0 0 10px #ff6200, 0 0 20px #ff9500, 0 0 30px #ff4500;
 }
 
 [data-theme="light"] {
-    --bg-color: #e0e7ff;
-    --text-color: #0a0a23;
-    --primary-neon: #d81b60;
-    --secondary-neon: #00acc1;
+    --bg-color: #f0f4ff; /* Bright, clean background */
+    --text-color: #1a1a3d;
+    --neon-pink: #d5006d;
+    --neon-cyan: #00b7eb;
+    --neon-lime: #2ecc40;
+    --neon-orange: #e64a19;
     --glow-color: #f50057;
     --button-bg: #b0bec5;
-    --button-border: #d81b60;
-    --cell-bg: #cfd8dc;
-    --cell-border: #00acc1;
-    --flame-shadow: 0 0 15px #ff5722, 0 0 30px #ffc107;
+    --button-border: #d5006d;
+    --cell-bg: #e0e7ff;
+    --cell-border: #00b7eb;
+    --flame-shadow: 0 0 10px #ff5722, 0 0 20px #ffc107, 0 0 30px #f44336;
 }
 
 /* Global Styles */
@@ -41,45 +45,57 @@ body {
     align-items: center;
     min-height: 100vh;
     overflow-x: hidden;
-    animation: neonPulse 5s infinite alternate;
+    animation: cosmicPulse 6s infinite alternate;
 }
 
-/* Neon Pulse Animation */
-@keyframes neonPulse {
-    0% { background: var(--bg-color); }
-    50% { background: linear-gradient(45deg, var(--bg-color), #1a1a3d); }
-    100% { background: var(--bg-color); }
+/* Colorful Cosmic Background Animation */
+@keyframes cosmicPulse {
+    0% { background: linear-gradient(45deg, var(--bg-color), #1a1a3d); }
+    25% { background: linear-gradient(45deg, var(--bg-color), #2a2a5a); }
+    50% { background: linear-gradient(45deg, var(--bg-color), #3a3a77); }
+    75% { background: linear-gradient(45deg, var(--bg-color), #2a2a5a); }
+    100% { background: linear-gradient(45deg, var(--bg-color), #1a1a3d); }
 }
 
 /* Container Styling */
 .container {
-    background: rgba(10, 10, 35, 0.8);
-    border: 2px solid var(--primary-neon);
-    border-radius: 15px;
+    background: rgba(10, 10, 35, 0.85);
+    border: 3px solid var(--neon-pink);
+    border-radius: 12px;
     padding: 20px;
     max-width: 400px;
     width: 90%;
     text-align: center;
-    box-shadow: 0 0 20px var(--glow-color);
-    animation: glowShift 3s infinite alternate;
+    box-shadow: 0 0 25px var(--neon-cyan), 0 0 50px var(--neon-lime);
+    animation: neonGlow 2.5s infinite alternate;
 }
 
-@keyframes glowShift {
-    0% { box-shadow: 0 0 20px var(--primary-neon), 0 0 40px var(--secondary-neon); }
-    100% { box-shadow: 0 0 30px var(--secondary-neon), 0 0 50px var(--primary-neon); }
+@keyframes neonGlow {
+    0% { 
+        box-shadow: 0 0 15px var(--neon-pink), 0 0 30px var(--neon-cyan); 
+        border-color: var(--neon-pink);
+    }
+    50% { 
+        box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-lime); 
+        border-color: var(--neon-cyan);
+    }
+    100% { 
+        box-shadow: 0 0 25px var(--neon-lime), 0 0 50px var(--neon-pink); 
+        border-color: var(--neon-lime);
+    }
 }
 
 /* Headings */
 h2 {
-    color: var(--primary-neon);
-    text-shadow: 0 0 10px var(--glow-color);
+    color: var(--neon-cyan);
+    text-shadow: 0 0 8px var(--neon-lime), 0 0 15px var(--neon-pink);
     margin-bottom: 20px;
-    animation: textGlow 2s infinite alternate;
+    animation: textFlicker 3s infinite alternate;
 }
 
-@keyframes textGlow {
-    0% { text-shadow: 0 0 10px var(--primary-neon); }
-    100% { text-shadow: 0 0 20px var(--secondary-neon); }
+@keyframes textFlicker {
+    0% { text-shadow: 0 0 8px var(--neon-cyan), 0 0 15px var(--neon-pink); }
+    100% { text-shadow: 0 0 12px var(--neon-lime), 0 0 20px var(--neon-orange); }
 }
 
 /* Inputs */
@@ -89,7 +105,7 @@ input {
     padding: 10px;
     margin: 10px 0;
     background: var(--button-bg);
-    border: 2px solid var(--secondary-neon);
+    border: 2px solid var(--neon-cyan);
     border-radius: 5px;
     color: var(--text-color);
     font-size: 16px;
@@ -98,56 +114,64 @@ input {
 
 input:focus {
     outline: none;
-    border-color: var(--primary-neon);
+    border-color: var(--neon-orange);
     box-shadow: var(--flame-shadow);
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 /* Buttons */
 button, .action-btn, .tab-btn {
     background: var(--button-bg);
-    border: 2px solid var(--button-border);
+    border: 2px solid var(--neon-pink);
     color: var(--text-color);
     padding: 10px 20px;
-    margin: 10px;
+    margin: 8px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
     transition: all 0.3s;
     position: relative;
     overflow: hidden;
-    animation: buttonPulse 4s infinite;
+    animation: buttonVibe 3s infinite;
 }
 
 button:hover, .action-btn:hover, .tab-btn:hover {
-    background: var(--primary-neon);
-    border-color: #ff4500;
+    background: var(--neon-orange);
+    border-color: var(--neon-lime);
     box-shadow: var(--flame-shadow);
     transform: scale(1.1);
     color: #fff;
 }
 
-@keyframes buttonPulse {
-    0% { box-shadow: 0 0 10px var(--primary-neon); }
-    50% { box-shadow: 0 0 20px var(--secondary-neon); }
-    100% { box-shadow: 0 0 10px var(--primary-neon); }
+@keyframes buttonVibe {
+    0% { box-shadow: 0 0 8px var(--neon-pink); }
+    50% { box-shadow: 0 0 12px var(--neon-cyan); }
+    100% { box-shadow: 0 0 8px var(--neon-lime); }
 }
 
 /* Theme Toggle */
 .theme-toggle {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--primary-neon);
-    border: none;
-    padding: 10px 15px;
+    top: 10px;
+    right: 10px;
+    background: var(--neon-cyan);
+    border: 2px solid var(--neon-pink);
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 5px;
     z-index: 1000;
-    animation: none;
+    animation: togglePulse 2s infinite;
 }
 
 .theme-toggle:hover {
-    background: var(--secondary-neon);
+    background: var(--neon-lime);
+    border-color: var(--neon-orange);
     box-shadow: var(--flame-shadow);
+}
+
+@keyframes togglePulse {
+    0% { box-shadow: 0 0 5px var(--neon-cyan); }
+    100% { box-shadow: 0 0 10px var(--neon-pink); }
 }
 
 /* Profile Button and Picture */
@@ -156,16 +180,16 @@ button:hover, .action-btn:hover, .tab-btn:hover {
     height: 50px;
     border-radius: 50%;
     background-size: cover;
-    border: 3px solid var(--secondary-neon);
+    border: 3px solid var(--neon-lime);
     cursor: pointer;
     display: inline-block;
-    box-shadow: 0 0 15px var(--glow-color);
-    animation: profileGlow 3s infinite alternate;
+    box-shadow: 0 0 12px var(--neon-cyan);
+    animation: profileVibe 3s infinite alternate;
 }
 
-@keyframes profileGlow {
-    0% { box-shadow: 0 0 15px var(--primary-neon); }
-    100% { box-shadow: 0 0 25px var(--secondary-neon); }
+@keyframes profileVibe {
+    0% { box-shadow: 0 0 12px var(--neon-lime), 0 0 20px var(--neon-pink); }
+    100% { box-shadow: 0 0 18px var(--neon-cyan), 0 0 25px var(--neon-orange); }
 }
 
 /* Dashboard */
@@ -178,10 +202,10 @@ button:hover, .action-btn:hover, .tab-btn:hover {
 
 .balance-box {
     background: var(--button-bg);
-    border: 2px solid var(--primary-neon);
+    border: 2px solid var(--neon-cyan);
     padding: 5px 10px;
     border-radius: 5px;
-    box-shadow: 0 0 10px var(--glow-color);
+    box-shadow: 0 0 8px var(--neon-lime);
 }
 
 /* Game Board */
@@ -197,36 +221,36 @@ button:hover, .action-btn:hover, .tab-btn:hover {
     width: 80px;
     height: 80px;
     background: var(--cell-bg);
-    border: 2px solid var(--cell-border);
+    border: 2px solid var(--neon-lime);
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 36px;
     cursor: pointer;
     transition: all 0.3s;
-    animation: cellGlow 4s infinite alternate;
+    animation: cellPulse 4s infinite alternate;
 }
 
 .cell.x {
-    color: var(--primary-neon);
-    text-shadow: 0 0 10px var(--glow-color);
+    color: var(--neon-pink);
+    text-shadow: 0 0 10px var(--neon-cyan);
 }
 
 .cell.o {
-    color: var(--secondary-neon);
-    text-shadow: 0 0 10px var(--glow-color);
+    color: var(--neon-cyan);
+    text-shadow: 0 0 10px var(--neon-lime);
 }
 
 .cell:hover {
-    background: var(--primary-neon);
-    border-color: #ff4500;
+    background: var(--neon-pink);
+    border-color: var(--neon-orange);
     box-shadow: var(--flame-shadow);
     transform: scale(1.05);
 }
 
-@keyframes cellGlow {
-    0% { box-shadow: 0 0 10px var(--cell-border); }
-    100% { box-shadow: 0 0 20px var(--primary-neon); }
+@keyframes cellPulse {
+    0% { box-shadow: 0 0 8px var(--neon-lime); }
+    100% { box-shadow: 0 0 15px var(--neon-cyan); }
 }
 
 /* Tabs */
@@ -237,42 +261,46 @@ button:hover, .action-btn:hover, .tab-btn:hover {
 }
 
 .tab-btn.active {
-    background: var(--primary-neon);
-    border-color: var(--secondary-neon);
+    background: var(--neon-cyan);
+    border-color: var(--neon-lime);
     color: #fff;
 }
 
 /* History and Friends */
 .history-box, .friend-box, .result-box, .request-box {
     background: var(--button-bg);
-    border: 2px solid var(--primary-neon);
+    border: 2px solid var(--neon-pink);
     border-radius: 5px;
     padding: 10px;
     margin: 10px 0;
-    box-shadow: 0 0 10px var(--glow-color);
+    box-shadow: 0 0 8px var(--neon-cyan);
 }
 
 /* Messages */
 .message {
     position: fixed;
-    top: 80px;
-    right: 20px;
-    background: var(--primary-neon);
+    top: 60px;
+    right: 10px;
+    background: var(--neon-cyan);
     color: #fff;
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 5px;
-    box-shadow: 0 0 10px var(--glow-color);
+    border: 2px solid var(--neon-pink);
+    box-shadow: 0 0 10px var(--neon-lime);
     opacity: 0;
     transition: opacity 0.5s;
     z-index: 1000;
+    font-size: 14px;
 }
 
 .message.success {
-    background: var(--secondary-neon);
+    background: var(--neon-lime);
+    border-color: var(--neon-cyan);
 }
 
 .message.error {
-    background: #ff4500;
+    background: var(--neon-orange);
+    border-color: var(--neon-pink);
 }
 
 /* Responsive */
@@ -288,5 +316,9 @@ button:hover, .action-btn:hover, .tab-btn:hover {
         width: 60px;
         height: 60px;
         font-size: 28px;
+    }
+    .theme-toggle {
+        padding: 5px 10px;
+        font-size: 10px;
     }
 }
