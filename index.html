@@ -4,109 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Tic-Tac-Toe</title>
-    <!-- CSS will be added below -->
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Auth Container -->
-    <div class="container" id="authContainer">
+    <button id="themeToggle" class="theme-toggle">Toggle Theme</button>
+    <div id="authContainer" class="container">
         <h2 id="formTitle">Sign Up</h2>
-        <div class="input-box">
-            <input type="email" id="email" placeholder="Email" required>
-        </div>
-        <div class="input-box">
-            <input type="password" id="password" placeholder="Password" required>
-        </div>
-        <div class="input-box">
-            <input type="text" id="username" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <div class="username-wrapper">
+            <input type="text" id="username" placeholder="Username">
         </div>
         <button id="authButton">Sign Up</button>
-        <span class="toggle-text" id="toggleAuth">Already have an account? Login</span>
-    </div>
-
-    <!-- Dashboard -->
-    <div class="container dashboard" id="dashboard">
-        <div class="balance-box">₹0</div>
-        <button class="circle-btn" id="profileBtn">Pro</button>
-        <button class="circle-btn" id="walletBtn">W</button>
-        <button class="circle-btn friends-btn" id="friendsBtn">Fr</button>
-        <button class="circle-btn" id="tournamentsBtn">To</button>
-        <button class="circle-btn" id="tasksBtn">T</button>
-        <button class="circle-btn play-btn" id="playButton">Play</button>
-        <button class="circle-btn win-btn" id="winButton">Win</button>
-        <div class="dashboard-center">
-            <h2>Welcome, <span id="userDisplay"></span></h2>
-            <div id="verifyEmailPrompt" style="display: none;">
-                <p style="color: #ff5733; text-shadow: 0 0 5px #ff5733; margin-bottom: 5%;">
-                    Please verify your email to play. Check your inbox!
-                </p>
-                <button id="resendVerification">Resend Verification Email</button>
-            </div>
-            <button id="logoutButton">Logout</button>
+        <a id="toggleAuth">Already have an account? Login</a>
+        <div id="verifyEmailPrompt" style="display: none;">
+            <p>Please verify your email to continue.</p>
+            <button id="resendVerification">Resend Verification Email</button>
         </div>
     </div>
-
-    <!-- Profile Page -->
-    <div class="container profile-page" id="profilePage">
+    <div id="dashboard" class="container" style="display: none;">
+        <div class="dashboard-header">
+            <div id="profileBtn" class="profile-btn"></div>
+            <p id="userDisplay">Player</p>
+            <div class="balance-box">₹100</div>
+        </div>
+        <button id="playButton">Play</button>
+        <button id="gameHistoryBtn">Game History</button>
+        <button id="friendsBtn">Friends</button>
+        <button id="logoutButton">Logout</button>
+    </div>
+    <div id="profilePage" class="container" style="display: none;">
         <h2>Profile</h2>
-        <div class="profile-content">
-            <div id="profilePicCircle" class="profile-pic-circle"></div>
-            <input type="file" id="profilePicInput" accept="image/png,image/jpeg">
-            <div class="username-container">
-                <span id="usernameDisplay" class="username-display" contenteditable="false">Set Username</span>
-                <span class="edit-icon">✏</span>
-            </div>
-        </div>
-        <button class="game-history-btn" id="gameHistoryBtn">Game History</button>
-        <button id="backToDashboardFromProfile">Go to Dashboard</button>
+        <div id="profilePicCircle" class="profile-pic"></div>
+        <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
+        <p id="usernameDisplay" class="username-display">Player</p>
+        <button id="backToDashboardFromProfile">Back</button>
     </div>
-
-    <!-- Game History Page -->
-    <div class="container game-history-page" id="gameHistoryPage">
+    <div id="gameHistoryPage" class="container" style="display: none;">
         <h2>Game History</h2>
-        <div class="history-container" id="historyContainer"></div>
-        <div class="stats-summary" id="statsSummary"></div>
-        <button id="backToProfile">Go to Profile</button>
+        <p id="statsSummary">Total Matches: Wins 0, Losses 0, Ties 0</p>
+        <div id="historyContainer"></div>
+        <button id="backToProfile">Back</button>
     </div>
-
-    <!-- Friends Page -->
-    <div class="container friends-page" id="friendsPage">
+    <div id="friendsPage" class="container" style="display: none;">
         <h2>Friends</h2>
-        <div class="tabs">
+        <div class="tab-container">
             <button class="tab-btn active" data-tab="friends">Friends</button>
             <button class="tab-btn" data-tab="add-friend">Add Friend</button>
-            <button class="tab-btn" data-tab="requests">Friend Requests</button>
+            <button class="tab-btn" data-tab="requests">Requests</button>
         </div>
-        <div class="tab-content active" id="friendsTab">
-            <div class="friends-list" id="friendsList"></div>
-        </div>
-        <div class="tab-content" id="addFriendTab">
-            <div class="input-box">
-                <input type="text" id="friendSearch" placeholder="Enter username">
-            </div>
+        <div id="friendsTab" class="tab-content active"></div>
+        <div id="addFriendTab" class="tab-content">
+            <input type="text" id="friendSearch" placeholder="Search username">
             <button id="searchFriend">Search</button>
             <div id="searchResults"></div>
         </div>
-        <div class="tab-content" id="requestsTab">
+        <div id="requestsTab" class="tab-content">
             <div id="friendRequests"></div>
         </div>
-        <button id="backToDashboardFromFriends">Go to Dashboard</button>
+        <button id="backToDashboardFromFriends">Back</button>
     </div>
-
-    <!-- Game Page -->
-    <div class="container game-page" id="gamePage">
-        <h2>Play Tic-Tac-Toe</h2>
-        <button id="playRandom">Play with Random Player</button>
-        <button id="backToDashboard">Back to Dashboard</button>
+    <div id="gamePage" class="container" style="display: none;">
+        <h2>Game Lobby</h2>
+        <button id="playRandom">Play Random</button>
+        <button id="backToDashboard">Back</button>
     </div>
-
-    <!-- Game Room -->
-    <div class="container game-room" id="gameRoom">
-        <h2>Tic-Tac-Toe</h2>
-        <p class="room-id" id="roomIdDisplay"></p>
-        <p class="status" id="gameStatus">Waiting for opponent...</p>
-        <p id="playersDisplay"></p>
-        <div class="game-board" id="gameBoard">
+    <div id="waitingArea" class="container" style="display: none;">
+        <h2>Waiting for opponent...</h2>
+    </div>
+    <div id="gameRoom" class="container" style="display: none;">
+        <h2 id="roomIdDisplay">Room ID: </h2>
+        <p id="playersDisplay">You vs Opponent</p>
+        <p id="gameStatus">Your turn!</p>
+        <div id="gameBoard" class="game-board">
             <div class="cell" data-index="0"></div>
             <div class="cell" data-index="1"></div>
             <div class="cell" data-index="2"></div>
@@ -119,14 +90,6 @@
         </div>
         <button id="leaveRoom">Leave Room</button>
     </div>
-
-    <!-- Waiting Area -->
-    <div class="container waiting-area" id="waitingArea">
-        <h2>Matchmaking</h2>
-        <p>Searching for opponent...</p>
-    </div>
-
-    <!-- CSS and JavaScript below -->
-    <script type="module" src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
