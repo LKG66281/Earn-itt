@@ -51,11 +51,6 @@ body::before {
     text-align: center;
     position: relative;
     z-index: 1;
-    display: none;
-}
-
-.container.active {
-    display: block;
 }
 
 h2 {
@@ -285,7 +280,7 @@ button:hover {
     text-shadow: 0 0 20px #00ddeb;
 }
 
-.room-id, .status, #playersDisplay {
+.room-id, .status {
     color: #9333ea;
     text-shadow: 0 0 10px #9333ea;
     margin-bottom: 5%;
@@ -513,11 +508,11 @@ button:hover {
     color: #1a1a2e; /* Dark text for contrast */
 }
 
-.history-box:not(.win):not(.loss):not(.tie) {
-    filter: blur(2px);
+.history-box.abandoned {
+    background: #0000ff;
     border: 3px solid #ff0066;
-    box-shadow: 0 0 20px #ff0066;
-    color: #e0e7ff;
+    box-shadow: 0 0 20px #0000ff;
+    color: #1a1a2e; /* Dark text for contrast */
 }
 
 .history-box:hover {
@@ -525,6 +520,7 @@ button:hover {
 }
 
 .history-box p {
+    color: inherit;
     font-size: clamp(0.9rem, 2.5vw, 1rem);
     text-shadow: 0 0 10px #9333ea;
     margin-bottom: 2%;
@@ -654,19 +650,13 @@ button:hover {
     }
     .circle-btn, #playButton, #winButton, #friendsBtn {
         width: clamp(40px, 8vw, 50px);
-        height: clamp(40px, 8vw, 50px);
+        height: clamp(40px, 10vw, 50px);
         font-size: clamp(0.8rem, 2.5vw, 1rem);
     }
     .balance-box {
         width: clamp(80px, 20vw, 120px);
         padding: 3%;
         font-size: clamp(0.8rem, 3vw, 1rem);
-    }
-    .message {
-        top: 3%;
-        right: 3%;
-        padding: 4%;
-        font-size: clamp(0.7rem, 2vw, 0.8rem);
     }
     #profileBtn {
         top: 3%;
