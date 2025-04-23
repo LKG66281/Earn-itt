@@ -4,69 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Tic-Tac-Toe</title>
-    <!-- CSS will be added below -->
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Auth Container -->
-    <div class="container" id="authContainer">
+    <div class="container auth-container" id="authContainer">
         <h2 id="formTitle">Sign Up</h2>
-        <div class="input-box">
-            <input type="email" id="email" placeholder="Email" required>
+        <div class="input-group">
+            <input type="email" id="email" placeholder="Email" autocomplete="email">
         </div>
-        <div class="input-box">
-            <input type="password" id="password" placeholder="Password" required>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Password" autocomplete="new-password">
         </div>
-        <div class="input-box">
-            <input type="text" id="username" placeholder="Username" required>
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Username">
         </div>
         <button id="authButton">Sign Up</button>
-        <span class="toggle-text" id="toggleAuth">Already have an account? Login</span>
+        <p id="toggleAuth">Already have an account? Login</p>
     </div>
 
     <!-- Dashboard -->
     <div class="container dashboard" id="dashboard">
-        <div class="balance-box">₹0</div>
-        <button class="circle-btn" id="profileBtn">Pro</button>
-        <button class="circle-btn" id="walletBtn">W</button>
-        <button class="circle-btn friends-btn" id="friendsBtn">Fr</button>
-        <button class="circle-btn" id="tournamentsBtn">To</button>
-        <button class="circle-btn" id="tasksBtn">T</button>
-        <button class="circle-btn play-btn" id="playButton">Play</button>
-        <button class="circle-btn win-btn" id="winButton">Win</button>
-        <div class="dashboard-center">
-            <h2>Welcome, <span id="userDisplay"></span></h2>
-            <div id="verifyEmailPrompt" style="display: none;">
-                <p style="color: #ff5733; text-shadow: 0 0 5px #ff5733; margin-bottom: 5%;">
-                    Please verify your email to play. Check your inbox!
-                </p>
-                <button id="resendVerification">Resend Verification Email</button>
-            </div>
+        <div class="dashboard-header">
+            <button id="profileBtn" class="profile-btn"></button>
+            <p id="userDisplay">Player</p>
             <button id="logoutButton">Logout</button>
+        </div>
+        <div class="balance-box">₹100</div>
+        <p id="verifyEmailPrompt">Please verify your email. <span id="resendVerification">Resend</span></p>
+        <div class="dashboard-grid">
+            <button id="gameHistoryBtn">Game History</button>
+            <button id="friendsBtn">Friends</button>
+            <button id="playButton">Play</button>
+            <button id="walletBtn">Wallet</button>
+            <button id="tournamentsBtn">Tournaments</button>
+            <button id="tasksBtn">Tasks</button>
+            <button id="winBtn">Win</button>
         </div>
     </div>
 
     <!-- Profile Page -->
     <div class="container profile-page" id="profilePage">
         <h2>Profile</h2>
-        <div class="profile-content">
-            <div id="profilePicCircle" class="profile-pic-circle"></div>
-            <input type="file" id="profilePicInput" accept="image/png,image/jpeg">
-            <div class="username-container">
-                <span id="usernameDisplay" class="username-display" contenteditable="false">Set Username</span>
-                <span class="edit-icon">✏</span>
-            </div>
-        </div>
-        <button class="game-history-btn" id="gameHistoryBtn">Game History</button>
-        <button id="backToDashboardFromProfile">Go to Dashboard</button>
+        <div class="profile-pic-circle" id="profilePicCircle"></div>
+        <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
+        <p id="usernameDisplay" class="editable">Player</p>
+        <button id="backToDashboardFromProfile">Back to Dashboard</button>
     </div>
 
     <!-- Game History Page -->
     <div class="container game-history-page" id="gameHistoryPage">
         <h2>Game History</h2>
-        <div class="history-container" id="historyContainer"></div>
-        <div class="stats-summary" id="statsSummary"></div>
-        <button id="backToProfile">Go to Profile</button>
+        <p id="statsSummary">Total Matches: Wins 0, Losses 0, Ties 0</p>
+        <div id="historyContainer"></div>
+        <button id="backToProfile">Back to Profile</button>
     </div>
 
     <!-- Friends Page -->
@@ -75,22 +67,29 @@
         <div class="tabs">
             <button class="tab-btn active" data-tab="friends">Friends</button>
             <button class="tab-btn" data-tab="add-friend">Add Friend</button>
-            <button class="tab-btn" data-tab="requests">Friend Requests</button>
+            <button class="tab-btn" data-tab="requests">Requests</button>
         </div>
-        <div class="tab-content active" id="friendsTab">
-            <div class="friends-list" id="friendsList"></div>
+        <div id="friendsTab" class="tab-content active">
+            <div id="friendsList"></div>
         </div>
-        <div class="tab-content" id="addFriendTab">
-            <div class="input-box">
-                <input type="text" id="friendSearch" placeholder="Enter username">
-            </div>
-            <button id="searchFriend">Search</button>
-            <div id="searchResults"></div>
+        <div id="addFriendTab" class="tab-content">
+            <!-- Redirects to new add friend page -->
         </div>
-        <div class="tab-content" id="requestsTab">
+        <div id="requestsTab" class="tab-content">
             <div id="friendRequests"></div>
         </div>
-        <button id="backToDashboardFromFriends">Go to Dashboard</button>
+        <button id="backToDashboardFromFriends">Back to Dashboard</button>
+    </div>
+
+    <!-- New Add Friend Page -->
+    <div class="container add-friend-page" id="addFriendPage">
+        <h2>Add Friend</h2>
+        <div class="search-bar">
+            <input type="text" id="friendSearch" placeholder="Search players...">
+            <button id="searchFriend">Search</button>
+        </div>
+        <div id="allPlayersList"></div>
+        <button id="backToFriendsPage">Back to Friends</button>
     </div>
 
     <!-- Game Page -->
@@ -122,11 +121,10 @@
 
     <!-- Waiting Area -->
     <div class="container waiting-area" id="waitingArea">
-        <h2>Matchmaking</h2>
-        <p>Searching for opponent...</p>
+        <h2>Searching for opponent...</h2>
+        <p class="pulse">Please wait</p>
     </div>
 
-    <!-- CSS and JavaScript below -->
     <script type="module" src="script.js"></script>
 </body>
-    </html>
+</html>
