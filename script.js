@@ -46,6 +46,7 @@ try {
     auth = getAuth(app);
     db = getFirestore(app);
     storage = getStorage(app);
+    showMessage('Firebase initialized successfully', 'success');
 } catch (error) {
     showMessage('Failed to initialize Firebase: ' + error.message, 'error');
 }
@@ -96,13 +97,13 @@ const searchFriend = document.getElementById('searchFriend');
 const searchResults = document.getElementById('searchResults');
 const friendRequests = document.getElementById('friendRequests');
 const backToDashboardFromFriends = document.getElementById('backToDashboardFromFriends');
-const themeToggle = document.getElementById('themeToggle');
 
 // Initialize Containers
 function initializeContainers() {
     const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, gamePage, gameRoom, waitingArea];
     containers.forEach(c => c && (c.style.display = 'none'));
     authContainer.style.display = 'block';
+    showMessage('Application loaded', 'success');
 }
 initializeContainers();
 
@@ -113,7 +114,7 @@ let opponentUsername = null;
 let unsubscribeRoom = null;
 let lastSaveTime = 0;
 
-// Show Message (Only for essential messages)
+// Show Message
 function showMessage(message, type) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${type}`;
@@ -154,10 +155,10 @@ function updateProfileUI(username, avatarUrl) {
         const ctx = canvas.getContext('2d');
         ctx.beginPath();
         ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-        ctx.fillStyle = '#ff007a';
+        ctx.fillStyle = '#ff0066';
         ctx.fill();
         ctx.font = 'bold 60px Orbitron';
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#e0e7ff';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(firstLetter, size / 2, size / 2);
@@ -168,11 +169,12 @@ function updateProfileUI(username, avatarUrl) {
     profileBtn.style.color = 'transparent';
     profilePicCircle.style.color = 'transparent';
     profileBtn.style.backgroundSize = 'cover';
-    profileBtn.style.border = '3px solid #00f7ff';
+    profileBtn.style.border = '3px solid #00ddeb';
     profilePicCircle.style.backgroundSize = 'cover';
-    profilePicCircle.style.border = '3px solid #00f7ff';
+    profilePicCircle.style.border = '3px solid #00ddeb';
     userDisplay.textContent = username;
     usernameDisplay.textContent = username;
+    showMessage('Profile UI updated', 'success');
 }
 
 // Update Balance UI
@@ -183,6 +185,7 @@ async function updateBalanceUI() {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             const coins = userDoc.exists() ? userDoc.data().coins || 0 : 0;
             document.querySelector('.balance-box').textContent = `₹${coins}`;
+            showMessage('Balance updated', 'success');
         } catch (error) {
             showMessage(`Error updating balance: ${error.message}`, 'error');
         }
@@ -221,6 +224,7 @@ async function saveUsername(userId, username) {
             userId,
             createdAt: serverTimestamp()
         });
+        showMessage('Username saved', 'success');
     } catch (error) {
         throw new Error(`Error saving username: ${error.message}`);
     }
@@ -233,6 +237,7 @@ async function deleteUsername(userId, username) {
     const usernameDoc = await getDoc(usernameRef);
     if (usernameDoc.exists() && usernameDoc.data().userId === userId) {
         await deleteDoc(usernameRef);
+        showMessage('Username deleted', 'success');
     }
 }
 
@@ -270,6 +275,7 @@ async function saveProfile(username, oldUsername = null, isSignUp = false) {
         }, { merge: true });
         updateProfileUI(username, null);
         await updateBalanceUI();
+        showMessage('Profile updated!', 'success');
     } catch (error) {
         showMessage(`Error saving profile: ${error.message}`, 'error');
         throw error;
@@ -279,6 +285,7 @@ async function saveProfile(username, oldUsername = null, isSignUp = false) {
 // Profile Picture Click
 profilePicCircle?.addEventListener('click', () => {
     profilePicInput?.click();
+    showMessage('Opening gallery for profile picture', 'success');
 });
 
 // Profile Picture Change
@@ -297,6 +304,7 @@ profilePicInput?.addEventListener('change', async (e) => {
         await setDoc(doc(db, 'users', user.uid), { avatarUrl }, { merge: true });
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         updateProfileUI(userDoc.data().username || 'Player', avatarUrl);
+        showMessage('Profile picture updated!', 'success');
     } catch (error) {
         showMessage(`Error uploading profile picture: ${error.message}`, 'error');
     }
@@ -307,6 +315,7 @@ profilePicInput?.addEventListener('change', async (e) => {
 usernameDisplay?.addEventListener('click', () => {
     usernameDisplay.contentEditable = 'true';
     usernameDisplay.focus();
+    showMessage('Editing username', 'success');
 });
 
 usernameDisplay?.addEventListener('blur', async () => {
@@ -444,7 +453,7 @@ async function loadFriendsTab() {
         unsubscribe = onSnapshot(friendsQuery, (snapshot) => {
             friendsList.innerHTML = '';
             if (snapshot.empty) {
-                friendsList.innerHTML = '<p style="color: #ff007a; text-shadow: 0 0 10px #00f7ff;">No friends yet.</p>';
+                friendsList.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">No friends yet.</p>';
                 return;
             }
             snapshot.forEach(doc => {
@@ -468,6 +477,7 @@ async function loadFriendsTab() {
                             const friendUserId = friendDoc.data().userId;
                             await deleteDoc(doc(db, `users/${user.uid}/friends`, friendId));
                             await deleteDoc(doc(db, `users/${friendUserId}/friends`, user.uid));
+                            showMessage(`Removed ${friendUsername} from friends`, 'success');
                         }
                     } catch (error) {
                         showMessage(`Error removing friend: ${error.message}`, 'error');
@@ -485,6 +495,7 @@ async function loadFriendsTab() {
 async function loadAddFriendTab() {
     searchResults.innerHTML = '';
     friendSearch.value = '';
+    showMessage('Add friend tab loaded', 'success');
 }
 
 // Search Friend
@@ -497,18 +508,18 @@ searchFriend?.addEventListener('click', async () => {
     try {
         const usernameDoc = await getDoc(doc(db, 'usernames', searchTerm.toLowerCase()));
         if (!usernameDoc.exists()) {
-            searchResults.innerHTML = '<p style="color: #ff007a; text-shadow: 0 0 10px #00f7ff;">User not found.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">User not found.</p>';
             return;
         }
         const user = auth.currentUser;
         const foundUserId = usernameDoc.data().userId;
         if (foundUserId === user.uid) {
-            searchResults.innerHTML = '<p style="color: #ff007a; text-shadow: 0 0 10px #00f7ff;">You cannot add yourself.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">You cannot add yourself.</p>';
             return;
         }
         const friendDoc = await getDoc(doc(db, `users/${user.uid}/friends`, foundUserId));
         if (friendDoc.exists()) {
-            searchResults.innerHTML = '<p style="color: #ff007a; text-shadow: 0 0 10px #00f7ff;">Already friends.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">Already friends.</p>';
             return;
         }
         const outgoingRequestQuery = query(
@@ -526,11 +537,11 @@ searchFriend?.addEventListener('click', async () => {
             getDocs(incomingRequestQuery)
         ]);
         if (!outgoingDocs.empty) {
-            searchResults.innerHTML = '<p style="color: #ff007a; text-shadow: 0 0 10px #00f7ff;">Request already sent.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">Request already sent.</p>';
             return;
         }
         if (!incomingDocs.empty) {
-            searchResults.innerHTML = '<p style="color: #ff007a; text-shadow: 0 0 10px #00f7ff;">Check pending requests.</p>';
+            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">Check pending requests.</p>';
             return;
         }
         searchResults.innerHTML = '';
@@ -556,6 +567,7 @@ searchFriend?.addEventListener('click', async () => {
                 };
                 const requestRef = await addDoc(collection(db, `users/${foundUserId}/friendRequests`), requestData);
                 await setDoc(doc(db, `users/${user.uid}/friendRequests`, requestRef.id), requestData);
+                showMessage(`Friend request sent to ${searchTerm}!`, 'success');
                 searchResults.innerHTML = '';
                 friendSearch.value = '';
             } catch (error) {
@@ -583,7 +595,7 @@ async function loadRequestsTab() {
         );
         const requestsDocs = await getDocs(requestsQuery);
         if (requestsDocs.empty) {
-            friendRequests.innerHTML = '<p style="color: #ff007a; text-shadow: 0 0 10px #00f7ff;">No pending requests.</p>';
+            friendRequests.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">No pending requests.</p>';
             return;
         }
         requestsDocs.forEach(doc => {
@@ -616,6 +628,7 @@ async function loadRequestsTab() {
                     });
                     await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'accepted' });
                     await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'accepted' });
+                    showMessage(`You are now friends with ${fromUsername}!`, 'success');
                     loadRequestsTab();
                 } catch (error) {
                     showMessage(`Error accepting request: ${error.message}`, 'error');
@@ -631,6 +644,7 @@ async function loadRequestsTab() {
                     const fromUsername = btn.dataset.fromUsername;
                     await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'rejected' });
                     await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'rejected' });
+                    showMessage(`Rejected request from ${fromUsername}`, 'success');
                     loadRequestsTab();
                 } catch (error) {
                     showMessage(`Error rejecting request: ${error.message}`, 'error');
@@ -655,6 +669,7 @@ toggleAuth.addEventListener('click', () => {
     toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
     usernameInput.style.display = isSignUp ? 'block' : 'none';
     usernameInput.parentElement.style.display = isSignUp ? 'block' : 'none';
+    showMessage(`Switched to ${isSignUp ? 'sign-up' : 'login'} mode`, 'success');
 });
 
 // Authentication Handler
@@ -681,12 +696,14 @@ authButton.addEventListener('click', async () => {
             try {
                 await saveProfile(username, null, true);
                 await sendEmailVerification(userCredential.user);
+                showMessage('Sign Up Successful! Please verify your email.', 'success');
             } catch (error) {
                 await userCredential.user.delete();
                 showMessage(`Sign-up failed: ${error.message}`, 'error');
             }
         } else {
             await signInWithEmailAndPassword(auth, email, password);
+            showMessage('Login Successful!', 'success');
         }
         emailInput.value = '';
         passwordInput.value = '';
@@ -702,6 +719,7 @@ resendVerification?.addEventListener('click', async () => {
     if (user && !user.emailVerified) {
         try {
             await sendEmailVerification(user);
+            showMessage('Verification email resent! Check your inbox.', 'success');
         } catch (error) {
             showMessage(`Error: ${error.message}`, 'error');
         }
@@ -786,53 +804,44 @@ playRandom.addEventListener('click', async () => {
             status: 'waiting',
             timestamp: serverTimestamp()
         });
+        showMessage('Looking for an opponent...', 'success');
 
-        // Listen for matchmaking updates with retry
-        let snapshotRetries = 0;
-        const maxSnapshotRetries = 3;
+        // Listen for matchmaking updates
         unsubscribeMatch = onSnapshot(matchmakingRef, async (snapshot) => {
-            try {
-                if (!snapshot.exists()) {
-                    showMessage('Matchmaking canceled.', 'error');
-                    showContainer(gamePage);
-                    playRandom.disabled = false;
-                    clearTimeout(timeout);
-                    if (unsubscribeMatch) unsubscribeMatch();
-                    return;
-                }
-                const data = snapshot.data();
-                if (data.status === 'paired' && data.roomId) {
-                    currentRoomId = data.roomId;
-                    currentPlayer = data.playerSymbol;
-                    opponentUsername = data.opponentUsername;
-                    await deleteDoc(matchmakingRef).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
-                    if (unsubscribeMatch) unsubscribeMatch();
-                    clearTimeout(timeout);
-                    showContainer(gameRoom);
-                    roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
-                    listenToRoom(currentRoomId, username);
-                    showMessage('Room joined!', 'success');
-                }
-            } catch (error) {
-                snapshotRetries++;
-                if (snapshotRetries >= maxSnapshotRetries) {
-                    showMessage(`Matchmaking listener error: ${error.message}`, 'error');
-                    cleanupMatchmaking();
-                }
+            if (!snapshot.exists()) {
+                showMessage('Matchmaking canceled.', 'error');
+                showContainer(gamePage);
+                playRandom.disabled = false;
+                clearTimeout(timeout);
+                if (unsubscribeMatch) unsubscribeMatch();
+                return;
+            }
+            const data = snapshot.data();
+            if (data.status === 'paired' && data.roomId) {
+                currentRoomId = data.roomId;
+                currentPlayer = data.playerSymbol;
+                opponentUsername = data.opponentUsername;
+                await deleteDoc(matchmakingRef).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
+                if (unsubscribeMatch) unsubscribeMatch();
+                clearTimeout(timeout);
+                showContainer(gameRoom);
+                roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
+                listenToRoom(currentRoomId, username);
+                showMessage('Opponent found! Game started.', 'success');
             }
         }, (error) => {
             showMessage(`Matchmaking listener error: ${error.message}`, 'error');
             cleanupMatchmaking();
         });
 
-        // Check for available opponents with retry
+        // Check for available opponents
         const findOpponent = async (retryCount = 0) => {
             try {
                 const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
                 const snapshot = await getDocs(q);
                 const validOpponents = snapshot.docs.filter(doc => doc.data().userId !== user.uid);
                 if (validOpponents.length > 0) {
-                    const opponentDoc = validOpponents[0]; // First available opponent
+                    const opponentDoc = validOpponents[0]; // Pick first available opponent
                     const opponentData = opponentDoc.data();
 
                     // Create game room
@@ -849,7 +858,7 @@ playRandom.addEventListener('click', async () => {
                     };
                     await setDoc(roomRef, roomData);
 
-                    // Update matchmaking entries
+                    // Update both players' matchmaking entries
                     await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
                         status: 'paired',
                         roomId: roomRef.id,
@@ -862,8 +871,8 @@ playRandom.addEventListener('click', async () => {
                         playerSymbol: 'O',
                         opponentUsername: opponentData.username
                     });
-                } else if (retryCount < 10) {
-                    setTimeout(() => findOpponent(retryCount + 1), 1500);
+                } else if (retryCount < 5) {
+                    setTimeout(() => findOpponent(retryCount + 1), 2000);
                 } else {
                     // Timeout will handle cleanup
                 }
@@ -892,32 +901,21 @@ playRandom.addEventListener('click', async () => {
 // Listen to Game Room
 function listenToRoom(roomId, username) {
     const roomRef = doc(db, 'rooms', roomId);
-    let snapshotRetries = 0;
-    const maxSnapshotRetries = 3;
     unsubscribeRoom = onSnapshot(roomRef, async snapshot => {
-        try {
-            if (!snapshot.exists()) {
-                showMessage('Game room closed.', 'error');
-                cleanupRoom();
-                showContainer(gamePage);
-                return;
-            }
-            const data = snapshot.data();
-            updateGameBoard(data.board);
-            playersDisplay.textContent = `You (${username}) vs ${opponentUsername}`;
-            gameStatus.textContent = data.status === 'active' ? 
-                (data.currentTurn === currentPlayer ? 'Your turn!' : `Waiting for ${opponentUsername}'s turn...`) : 
-                data.status;
-            if (data.status !== 'active') {
-                await handleGameEnd(data.status, username);
-            }
-        } catch (error) {
-            snapshotRetries++;
-            if (snapshotRetries >= maxSnapshotRetries) {
-                showMessage(`Game room error: ${error.message}`, 'error');
-                cleanupRoom();
-                showContainer(gamePage);
-            }
+        if (!snapshot.exists()) {
+            showMessage('Game room closed.', 'error');
+            cleanupRoom();
+            showContainer(gamePage);
+            return;
+        }
+        const data = snapshot.data();
+        updateGameBoard(data.board);
+        playersDisplay.textContent = `You (${username}) vs ${opponentUsername}`;
+        gameStatus.textContent = data.status === 'active' ? 
+            (data.currentTurn === currentPlayer ? 'Your turn!' : `Waiting for ${opponentUsername}'s move...`) : 
+            data.status;
+        if (data.status !== 'active') {
+            await handleGameEnd(data.status, username);
         }
     }, error => {
         showMessage(`Game room error: ${error.message}`, 'error');
@@ -938,6 +936,7 @@ function updateGameBoard(board) {
             cell.classList.add('o');
         }
     });
+    showMessage('Game board updated', 'success');
 }
 
 // Handle Game Move
@@ -987,6 +986,7 @@ gameBoard.addEventListener('click', async (e) => {
             currentTurn: newTurn,
             status
         });
+        showMessage('Move submitted', 'success');
     } catch (error) {
         showMessage(`Error making move: ${error.message}`, 'error');
     }
@@ -1004,17 +1004,13 @@ async function handleGameEnd(status, username) {
         if (status === `${currentPlayer} wins`) {
             result = 'win';
             stats.wins += 1;
-            showMessage(`${currentPlayer} won!`, 'success');
         } else if (status.includes('wins') && status !== `${currentPlayer} wins`) {
             result = 'loss';
             stats.losses += 1;
-            showMessage(`${opponentUsername} won!`, 'success');
         } else if (status === 'tie') {
             stats.ties += 1;
-            showMessage('Game ended in a tie!', 'success');
         } else if (status === 'abandoned') {
             result = 'abandoned';
-            showMessage('Game abandoned.', 'success');
         }
         await setDoc(userDocRef, { stats }, { merge: true });
         await addDoc(collection(db, `users/${user.uid}/gameHistory`), {
@@ -1022,6 +1018,7 @@ async function handleGameEnd(status, username) {
             result,
             timestamp: serverTimestamp()
         });
+        showMessage(`Game ended: ${status}`, 'success');
         cleanupRoom();
         showContainer(gamePage);
     } catch (error) {
@@ -1037,26 +1034,26 @@ function cleanupRoom() {
     }
     if (currentRoomId) {
         const roomRef = doc(db, 'rooms', currentRoomId);
-        updateDoc(roomRef, {
-            status: 'abandoned',
-            board: ['', '', '', '', '', '', '', '', '']
-        }).catch(err => showMessage(`Error abandoning room: ${err.message}`, 'error'));
+        updateDoc(roomRef, { status: 'abandoned' }).catch(err => showMessage(`Error abandoning room: ${err.message}`, 'error'));
     }
     currentRoomId = null;
     currentPlayer = null;
     opponentUsername = null;
+    showMessage('Game room cleaned up', 'success');
 }
 
 // Leave Room
 leaveRoom.addEventListener('click', () => {
     cleanupRoom();
     showContainer(gamePage);
+    showMessage('Left game room', 'success');
 });
 
 // Logout
 logoutButton.addEventListener('click', async () => {
     try {
         await signOut(auth);
+        showMessage('Logged out successfully', 'success');
         showContainer(authContainer);
     } catch (error) {
         showMessage(`Error logging out: ${error.message}`, 'error');
@@ -1081,12 +1078,4 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         showContainer(authContainer);
     }
-});
-
-// Theme Toggle
-themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    themeToggle.textContent = newTheme === 'dark' ? 'Light Theme' : 'Dark Theme';
 });
