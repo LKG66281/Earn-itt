@@ -20,7 +20,8 @@ import {
     query, 
     where, 
     getDocs, 
-    serverTimestamp
+    serverTimestamp,
+    Timestamp
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { 
     getStorage, 
@@ -46,9 +47,8 @@ try {
     auth = getAuth(app);
     db = getFirestore(app);
     storage = getStorage(app);
-    showMessage('Firebase initialized successfully', 'success');
 } catch (error) {
-    showMessage('Failed to initialize Firebase: ' + error.message, 'error');
+    showMessage(`Failed to initialize Firebase: ${error.message}`, 'error');
 }
 
 // DOM Elements
@@ -103,7 +103,6 @@ function initializeContainers() {
     const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, gamePage, gameRoom, waitingArea];
     containers.forEach(c => c && (c.style.display = 'none'));
     authContainer.style.display = 'block';
-    showMessage('Application loaded', 'success');
 }
 initializeContainers();
 
@@ -114,8 +113,12 @@ let opponentUsername = null;
 let unsubscribeRoom = null;
 let lastSaveTime = 0;
 
-// Show Message
+// Show Message (Limited to critical cases)
 function showMessage(message, type) {
+    const allowedMessages = [
+        'Room joined!', 'Opponent’s turn', 'X wins', 'O wins', 'tie', 'Opponent left. Game ended.', 'Unable to join room'
+    ];
+    if (!allowedMessages.some(msg => message.includes(msg))) return;
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${type}`;
     msgDiv.textContent = message;
@@ -139,10 +142,7 @@ function showContainer(container) {
 
 // Update Profile UI
 function updateProfileUI(username, avatarUrl) {
-    if (!profileBtn || !profilePicCircle) {
-        showMessage('Profile elements not found', 'error');
-        return;
-    }
+    if (!profileBtn || !profilePicCircle) return;
     if (avatarUrl) {
         profileBtn.style.backgroundImage = `url(${avatarUrl})`;
         profilePicCircle.style.backgroundImage = `url(${avatarUrl})`;
@@ -167,14 +167,13 @@ function updateProfileUI(username, avatarUrl) {
         profilePicCircle.style.backgroundImage = `url(${canvasUrl})`;
     }
     profileBtn.style.color = 'transparent';
-    profilePicCircle.style.color = 'transparent';
     profileBtn.style.backgroundSize = 'cover';
     profileBtn.style.border = '3px solid #00ddeb';
+    profilePicCircle.style.color = 'transparent';
     profilePicCircle.style.backgroundSize = 'cover';
     profilePicCircle.style.border = '3px solid #00ddeb';
     userDisplay.textContent = username;
     usernameDisplay.textContent = username;
-    showMessage('Profile UI updated', 'success');
 }
 
 // Update Balance UI
@@ -185,7 +184,6 @@ async function updateBalanceUI() {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             const coins = userDoc.exists() ? userDoc.data().coins || 0 : 0;
             document.querySelector('.balance-box').textContent = `₹${coins}`;
-            showMessage('Balance updated', 'success');
         } catch (error) {
             showMessage(`Error updating balance: ${error.message}`, 'error');
         }
@@ -224,7 +222,6 @@ async function saveUsername(userId, username) {
             userId,
             createdAt: serverTimestamp()
         });
-        showMessage('Username saved', 'success');
     } catch (error) {
         throw new Error(`Error saving username: ${error.message}`);
     }
@@ -237,27 +234,17 @@ async function deleteUsername(userId, username) {
     const usernameDoc = await getDoc(usernameRef);
     if (usernameDoc.exists() && usernameDoc.data().userId === userId) {
         await deleteDoc(usernameRef);
-        showMessage('Username deleted', 'success');
     }
 }
 
 // Save Profile
 async function saveProfile(username, oldUsername = null, isSignUp = false) {
     const now = Date.now();
-    if (now - lastSaveTime < 500) {
-        showMessage('Please wait before saving again', 'error');
-        return;
-    }
+    if (now - lastSaveTime < 500) return;
     lastSaveTime = now;
     const user = auth.currentUser;
-    if (!user) {
-        showMessage('Please log in first', 'error');
-        return;
-    }
-    if (!isSignUp && !user.emailVerified) {
-        showMessage('Please verify your email first', 'error');
-        return;
-    }
+    if (!user) return;
+    if (!isSignUp && !user.emailVerified) return;
     try {
         const userDocRef = doc(db, 'users', user.uid);
         const userData = {
@@ -275,7 +262,6 @@ async function saveProfile(username, oldUsername = null, isSignUp = false) {
         }, { merge: true });
         updateProfileUI(username, null);
         await updateBalanceUI();
-        showMessage('Profile updated!', 'success');
     } catch (error) {
         showMessage(`Error saving profile: ${error.message}`, 'error');
         throw error;
@@ -285,7 +271,6 @@ async function saveProfile(username, oldUsername = null, isSignUp = false) {
 // Profile Picture Click
 profilePicCircle?.addEventListener('click', () => {
     profilePicInput?.click();
-    showMessage('Opening gallery for profile picture', 'success');
 });
 
 // Profile Picture Change
@@ -293,10 +278,7 @@ profilePicInput?.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const user = auth.currentUser;
-    if (!user) {
-        showMessage('Please log in first', 'error');
-        return;
-    }
+    if (!user) return;
     try {
         const storageRef = ref(storage, `profile_pics/${user.uid}`);
         await uploadBytes(storageRef, file);
@@ -304,7 +286,6 @@ profilePicInput?.addEventListener('change', async (e) => {
         await setDoc(doc(db, 'users', user.uid), { avatarUrl }, { merge: true });
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         updateProfileUI(userDoc.data().username || 'Player', avatarUrl);
-        showMessage('Profile picture updated!', 'success');
     } catch (error) {
         showMessage(`Error uploading profile picture: ${error.message}`, 'error');
     }
@@ -315,14 +296,12 @@ profilePicInput?.addEventListener('change', async (e) => {
 usernameDisplay?.addEventListener('click', () => {
     usernameDisplay.contentEditable = 'true';
     usernameDisplay.focus();
-    showMessage('Editing username', 'success');
 });
 
 usernameDisplay?.addEventListener('blur', async () => {
     usernameDisplay.contentEditable = 'false';
     const newUsername = usernameDisplay.textContent.trim();
     if (!newUsername) {
-        showMessage('Please enter a username', 'error');
         const userDoc = await getDoc(doc(db, 'users', auth.currentUser?.uid));
         usernameDisplay.textContent = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
         return;
@@ -343,7 +322,6 @@ usernameDisplay?.addEventListener('keydown', async (e) => {
 profileBtn?.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) {
-        showMessage('Please log in first', 'error');
         showContainer(authContainer);
         return;
     }
@@ -368,7 +346,6 @@ backToDashboardFromProfile?.addEventListener('click', () => {
 gameHistoryBtn?.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) {
-        showMessage('Please log in first', 'error');
         showContainer(authContainer);
         return;
     }
@@ -414,7 +391,6 @@ backToProfile?.addEventListener('click', () => {
 friendsBtn?.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) {
-        showMessage('Please log in first', 'error');
         showContainer(authContainer);
         return;
     }
@@ -442,10 +418,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // Load Friends Tab
 async function loadFriendsTab() {
     const user = auth.currentUser;
-    if (!user) {
-        showMessage('Please log in first', 'error');
-        return;
-    }
+    if (!user) return;
     let unsubscribe = null;
     try {
         friendsList.innerHTML = '';
@@ -477,7 +450,6 @@ async function loadFriendsTab() {
                             const friendUserId = friendDoc.data().userId;
                             await deleteDoc(doc(db, `users/${user.uid}/friends`, friendId));
                             await deleteDoc(doc(db, `users/${friendUserId}/friends`, user.uid));
-                            showMessage(`Removed ${friendUsername} from friends`, 'success');
                         }
                     } catch (error) {
                         showMessage(`Error removing friend: ${error.message}`, 'error');
@@ -495,16 +467,12 @@ async function loadFriendsTab() {
 async function loadAddFriendTab() {
     searchResults.innerHTML = '';
     friendSearch.value = '';
-    showMessage('Add friend tab loaded', 'success');
 }
 
 // Search Friend
 searchFriend?.addEventListener('click', async () => {
     const searchTerm = friendSearch.value.trim();
-    if (!searchTerm) {
-        showMessage('Please enter a username', 'error');
-        return;
-    }
+    if (!searchTerm) return;
     try {
         const usernameDoc = await getDoc(doc(db, 'usernames', searchTerm.toLowerCase()));
         if (!usernameDoc.exists()) {
@@ -567,7 +535,6 @@ searchFriend?.addEventListener('click', async () => {
                 };
                 const requestRef = await addDoc(collection(db, `users/${foundUserId}/friendRequests`), requestData);
                 await setDoc(doc(db, `users/${user.uid}/friendRequests`, requestRef.id), requestData);
-                showMessage(`Friend request sent to ${searchTerm}!`, 'success');
                 searchResults.innerHTML = '';
                 friendSearch.value = '';
             } catch (error) {
@@ -582,10 +549,7 @@ searchFriend?.addEventListener('click', async () => {
 // Load Friend Requests Tab
 async function loadRequestsTab() {
     const user = auth.currentUser;
-    if (!user) {
-        showMessage('Please log in first', 'error');
-        return;
-    }
+    if (!user) return;
     try {
         friendRequests.innerHTML = '';
         const requestsQuery = query(
@@ -628,7 +592,6 @@ async function loadRequestsTab() {
                     });
                     await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'accepted' });
                     await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'accepted' });
-                    showMessage(`You are now friends with ${fromUsername}!`, 'success');
                     loadRequestsTab();
                 } catch (error) {
                     showMessage(`Error accepting request: ${error.message}`, 'error');
@@ -644,7 +607,6 @@ async function loadRequestsTab() {
                     const fromUsername = btn.dataset.fromUsername;
                     await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'rejected' });
                     await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'rejected' });
-                    showMessage(`Rejected request from ${fromUsername}`, 'success');
                     loadRequestsTab();
                 } catch (error) {
                     showMessage(`Error rejecting request: ${error.message}`, 'error');
@@ -669,7 +631,6 @@ toggleAuth.addEventListener('click', () => {
     toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
     usernameInput.style.display = isSignUp ? 'block' : 'none';
     usernameInput.parentElement.style.display = isSignUp ? 'block' : 'none';
-    showMessage(`Switched to ${isSignUp ? 'sign-up' : 'login'} mode`, 'success');
 });
 
 // Authentication Handler
@@ -677,14 +638,8 @@ authButton.addEventListener('click', async () => {
     const email = emailInput?.value;
     const password = passwordInput?.value;
     const username = isSignUp ? usernameInput?.value : null;
-    if (!email || !password) {
-        showMessage('Please enter email and password', 'error');
-        return;
-    }
-    if (isSignUp && !username) {
-        showMessage('Please enter a username', 'error');
-        return;
-    }
+    if (!email || !password) return;
+    if (isSignUp && !username) return;
     try {
         if (isSignUp) {
             const check = await checkUsernameAvailability(username);
@@ -696,14 +651,12 @@ authButton.addEventListener('click', async () => {
             try {
                 await saveProfile(username, null, true);
                 await sendEmailVerification(userCredential.user);
-                showMessage('Sign Up Successful! Please verify your email.', 'success');
             } catch (error) {
                 await userCredential.user.delete();
                 showMessage(`Sign-up failed: ${error.message}`, 'error');
             }
         } else {
             await signInWithEmailAndPassword(auth, email, password);
-            showMessage('Login Successful!', 'success');
         }
         emailInput.value = '';
         passwordInput.value = '';
@@ -719,7 +672,6 @@ resendVerification?.addEventListener('click', async () => {
     if (user && !user.emailVerified) {
         try {
             await sendEmailVerification(user);
-            showMessage('Verification email resent! Check your inbox.', 'success');
         } catch (error) {
             showMessage(`Error: ${error.message}`, 'error');
         }
@@ -730,20 +682,15 @@ resendVerification?.addEventListener('click', async () => {
 playButton.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) {
-        showMessage('Please log in first', 'error');
         showContainer(authContainer);
         return;
     }
-    if (!user.emailVerified) {
-        showMessage('Please verify your email first', 'error');
-        return;
-    }
+    if (!user.emailVerified) return;
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists() && userDoc.data().username) {
             showContainer(gamePage);
         } else {
-            showMessage('Please set a username first', 'error');
             showContainer(profilePage);
         }
     } catch (error) {
@@ -754,7 +701,6 @@ playButton.addEventListener('click', async () => {
 // Back to Dashboard
 backToDashboard.addEventListener('click', () => {
     if (!auth.currentUser) {
-        showMessage('Please log in first', 'error');
         showContainer(authContainer);
         return;
     }
@@ -766,7 +712,6 @@ playRandom.addEventListener('click', async () => {
     playRandom.disabled = true;
     const user = auth.currentUser;
     if (!user || !user.emailVerified) {
-        showMessage('Please verify your email first', 'error');
         showContainer(authContainer);
         playRandom.disabled = false;
         return;
@@ -777,23 +722,20 @@ playRandom.addEventListener('click', async () => {
 
     const timeout = setTimeout(async () => {
         if (matchmakingId) {
-            await deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
+            await deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(() => {});
         }
-        showMessage('No opponent found. Try again.', 'error');
+        showMessage('Unable to join room', 'error');
         showContainer(gamePage);
         playRandom.disabled = false;
         if (unsubscribeMatch) unsubscribeMatch();
-    }, 30000);
+    }, 15000); // Reduced timeout for faster retry
 
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         const username = userDoc.data()?.username || 'Player';
 
-        // Clean up existing matchmaking entries
-        const userEntries = await getDocs(query(collection(db, 'matchmaking'), where('userId', '==', user.uid)));
-        for (const entry of userEntries.docs) {
-            await deleteDoc(doc(db, 'matchmaking', entry.id)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
-        }
+        // Clean up stale matchmaking entries
+        await cleanupStaleMatchmaking(user.uid);
 
         // Create matchmaking entry
         const matchmakingRef = doc(collection(db, 'matchmaking'));
@@ -804,16 +746,12 @@ playRandom.addEventListener('click', async () => {
             status: 'waiting',
             timestamp: serverTimestamp()
         });
-        showMessage('Looking for an opponent...', 'success');
 
         // Listen for matchmaking updates
         unsubscribeMatch = onSnapshot(matchmakingRef, async (snapshot) => {
             if (!snapshot.exists()) {
-                showMessage('Matchmaking canceled.', 'error');
-                showContainer(gamePage);
-                playRandom.disabled = false;
-                clearTimeout(timeout);
-                if (unsubscribeMatch) unsubscribeMatch();
+                showMessage('Unable to join room', 'error');
+                cleanupMatchmaking();
                 return;
             }
             const data = snapshot.data();
@@ -821,16 +759,12 @@ playRandom.addEventListener('click', async () => {
                 currentRoomId = data.roomId;
                 currentPlayer = data.playerSymbol;
                 opponentUsername = data.opponentUsername;
-                await deleteDoc(matchmakingRef).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
+                await deleteDoc(matchmakingRef).catch(() => {});
                 if (unsubscribeMatch) unsubscribeMatch();
                 clearTimeout(timeout);
-                showContainer(gameRoom);
-                roomIdDisplay.textContent = `Room ID: ${currentRoomId}`;
-                listenToRoom(currentRoomId, username);
-                showMessage('Opponent found! Game started.', 'success');
+                await joinRoomWithRetry(currentRoomId, username);
             }
-        }, (error) => {
-            showMessage(`Matchmaking listener error: ${error.message}`, 'error');
+        }, () => {
             cleanupMatchmaking();
         });
 
@@ -841,7 +775,7 @@ playRandom.addEventListener('click', async () => {
                 const snapshot = await getDocs(q);
                 const validOpponents = snapshot.docs.filter(doc => doc.data().userId !== user.uid);
                 if (validOpponents.length > 0) {
-                    const opponentDoc = validOpponents[0]; // Pick first available opponent
+                    const opponentDoc = validOpponents[0];
                     const opponentData = opponentDoc.data();
 
                     // Create game room
@@ -871,25 +805,21 @@ playRandom.addEventListener('click', async () => {
                         playerSymbol: 'O',
                         opponentUsername: opponentData.username
                     });
-                } else if (retryCount < 5) {
-                    setTimeout(() => findOpponent(retryCount + 1), 2000);
-                } else {
-                    // Timeout will handle cleanup
+                } else if (retryCount < 3) {
+                    setTimeout(() => findOpponent(retryCount + 1), 1000);
                 }
             } catch (error) {
-                showMessage(`Matchmaking error: ${error.message}`, 'error');
                 cleanupMatchmaking();
             }
         };
         await findOpponent();
     } catch (error) {
-        showMessage(`Matchmaking error: ${error.message}`, 'error');
         cleanupMatchmaking();
     }
 
     function cleanupMatchmaking() {
         if (matchmakingId) {
-            deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(err => showMessage(`Cleanup error: ${err.message}`, 'error'));
+            deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(() => {});
         }
         clearTimeout(timeout);
         showContainer(gamePage);
@@ -898,12 +828,61 @@ playRandom.addEventListener('click', async () => {
     }
 });
 
+// Cleanup Stale Matchmaking Entries
+async function cleanupStaleMatchmaking(userId) {
+    try {
+        const q = query(
+            collection(db, 'matchmaking'),
+            where('userId', '==', userId),
+            where('timestamp', '<', Timestamp.fromMillis(Date.now() - 30000))
+        );
+        const snapshot = await getDocs(q);
+        for (const doc of snapshot.docs) {
+            await deleteDoc(doc.ref);
+        }
+    } catch (error) {
+        console.error('Cleanup error:', error);
+    }
+}
+
+// Join Room with Retry
+async function joinRoomWithRetry(roomId, username, maxRetries = 3) {
+    let retries = 0;
+    while (retries < maxRetries) {
+        try {
+            const roomRef = doc(db, 'rooms', roomId);
+            const roomDoc = await getDoc(roomRef);
+            if (roomDoc.exists() && roomDoc.data().status === 'active') {
+                showContainer(gameRoom);
+                roomIdDisplay.textContent = `Room ID: ${roomId}`;
+                listenToRoom(roomId, username);
+                showMessage('Room joined!', 'success');
+                return true;
+            }
+            retries++;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (error) {
+            retries++;
+            if (retries >= maxRetries) {
+                showMessage('Unable to join room', 'error');
+                cleanupRoom();
+                showContainer(gamePage);
+                return false;
+            }
+        }
+    }
+    showMessage('Unable to join room', 'error');
+    cleanupRoom();
+    showContainer(gamePage);
+    return false;
+}
+
 // Listen to Game Room
 function listenToRoom(roomId, username) {
     const roomRef = doc(db, 'rooms', roomId);
     unsubscribeRoom = onSnapshot(roomRef, async snapshot => {
         if (!snapshot.exists()) {
-            showMessage('Game room closed.', 'error');
+            showMessage('Opponent left. Game ended.', 'success');
             cleanupRoom();
             showContainer(gamePage);
             return;
@@ -912,13 +891,13 @@ function listenToRoom(roomId, username) {
         updateGameBoard(data.board);
         playersDisplay.textContent = `You (${username}) vs ${opponentUsername}`;
         gameStatus.textContent = data.status === 'active' ? 
-            (data.currentTurn === currentPlayer ? 'Your turn!' : `Waiting for ${opponentUsername}'s move...`) : 
+            (data.currentTurn === currentPlayer ? 'Your turn!' : 'Opponent’s turn') : 
             data.status;
         if (data.status !== 'active') {
             await handleGameEnd(data.status, username);
         }
-    }, error => {
-        showMessage(`Game room error: ${error.message}`, 'error');
+    }, () => {
+        showMessage('Opponent left. Game ended.', 'success');
         cleanupRoom();
         showContainer(gamePage);
     });
@@ -936,7 +915,6 @@ function updateGameBoard(board) {
             cell.classList.add('o');
         }
     });
-    showMessage('Game board updated', 'success');
 }
 
 // Handle Game Move
@@ -945,22 +923,19 @@ gameBoard.addEventListener('click', async (e) => {
     if (!cell) return;
     const index = cell.dataset.index;
     const user = auth.currentUser;
-    if (!user || !currentRoomId || !currentPlayer) {
-        showMessage('Game state error.', 'error');
-        return;
-    }
+    if (!user || !currentRoomId || !currentPlayer) return;
     try {
         const roomRef = doc(db, 'rooms', currentRoomId);
         const roomDoc = await getDoc(roomRef);
         if (!roomDoc.exists()) {
-            showMessage('Game room closed.', 'error');
+            showMessage('Opponent left. Game ended.', 'success');
             cleanupRoom();
             showContainer(gamePage);
             return;
         }
         const data = roomDoc.data();
         if (data.status !== 'active' || data.currentTurn !== currentPlayer || data.board[index] !== '') {
-            showMessage('Invalid move', 'error');
+            showMessage('Opponent’s turn', 'error');
             return;
         }
         const newBoard = [...data.board];
@@ -986,7 +961,6 @@ gameBoard.addEventListener('click', async (e) => {
             currentTurn: newTurn,
             status
         });
-        showMessage('Move submitted', 'success');
     } catch (error) {
         showMessage(`Error making move: ${error.message}`, 'error');
     }
@@ -1018,7 +992,7 @@ async function handleGameEnd(status, username) {
             result,
             timestamp: serverTimestamp()
         });
-        showMessage(`Game ended: ${status}`, 'success');
+        showMessage(status, 'success');
         cleanupRoom();
         showContainer(gamePage);
     } catch (error) {
@@ -1026,34 +1000,35 @@ async function handleGameEnd(status, username) {
     }
 }
 
-// Cleanup Room
-function cleanupRoom() {
+// Cleanup Room (Clear Board on Leave)
+async function cleanupRoom() {
     if (unsubscribeRoom) {
         unsubscribeRoom();
         unsubscribeRoom = null;
     }
     if (currentRoomId) {
         const roomRef = doc(db, 'rooms', currentRoomId);
-        updateDoc(roomRef, { status: 'abandoned' }).catch(err => showMessage(`Error abandoning room: ${err.message}`, 'error'));
+        await updateDoc(roomRef, {
+            status: 'abandoned',
+            board: ['', '', '', '', '', '', '', '', '']
+        }).catch(() => {});
     }
     currentRoomId = null;
     currentPlayer = null;
     opponentUsername = null;
-    showMessage('Game room cleaned up', 'success');
 }
 
 // Leave Room
 leaveRoom.addEventListener('click', () => {
+    showMessage('Opponent left. Game ended.', 'success');
     cleanupRoom();
     showContainer(gamePage);
-    showMessage('Left game room', 'success');
 });
 
 // Logout
 logoutButton.addEventListener('click', async () => {
     try {
         await signOut(auth);
-        showMessage('Logged out successfully', 'success');
         showContainer(authContainer);
     } catch (error) {
         showMessage(`Error logging out: ${error.message}`, 'error');
