@@ -112,6 +112,7 @@ let currentPlayer = null;
 let opponentUsername = null;
 let unsubscribeRoom = null;
 let lastSaveTime = 0;
+let isJoiningRoom = false; // New flag to prevent duplicate joins
 
 // Show Message (Limited to critical cases)
 function showMessage(message, type) {
@@ -604,7 +605,6 @@ async function loadRequestsTab() {
                 try {
                     const requestId = btn.dataset.requestId;
                     const fromId = btn.dataset.fromId;
-                    const fromUsername = btn.dataset.fromUsername;
                     await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'rejected' });
                     await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'rejected' });
                     loadRequestsTab();
@@ -724,11 +724,13 @@ playRandom.addEventListener('click', async () => {
         if (matchmakingId) {
             await deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(() => {});
         }
-        showMessage('Unable to join room', 'error');
-        showContainer(gamePage);
-        playRandom.disabled = false;
+        if (!isJoiningRoom) {
+            showMessage('Unable to join room', 'error');
+            showContainer(gamePage);
+            playRandom.disabled = false;
+        }
         if (unsubscribeMatch) unsubscribeMatch();
-    }, 15000); // Reduced timeout for faster retry
+    }, 15000);
 
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -750,12 +752,15 @@ playRandom.addEventListener('click', async () => {
         // Listen for matchmaking updates
         unsubscribeMatch = onSnapshot(matchmakingRef, async (snapshot) => {
             if (!snapshot.exists()) {
-                showMessage('Unable to join room', 'error');
-                cleanupMatchmaking();
+                if (!isJoiningRoom) {
+                    showMessage('Unable to join room', 'error');
+                    cleanupMatchmaking();
+                }
                 return;
             }
             const data = snapshot.data();
-            if (data.status === 'paired' && data.roomId) {
+            if (data.status === 'paired' && data.roomId && !isJoiningRoom) {
+                isJoiningRoom = true;
                 currentRoomId = data.roomId;
                 currentPlayer = data.playerSymbol;
                 opponentUsername = data.opponentUsername;
@@ -765,7 +770,7 @@ playRandom.addEventListener('click', async () => {
                 await joinRoomWithRetry(currentRoomId, username);
             }
         }, () => {
-            cleanupMatchmaking();
+            if (!isJoiningRoom) cleanupMatchmaking();
         });
 
         // Check for available opponents
@@ -822,8 +827,10 @@ playRandom.addEventListener('click', async () => {
             deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(() => {});
         }
         clearTimeout(timeout);
-        showContainer(gamePage);
-        playRandom.disabled = false;
+        if (!isJoiningRoom) {
+            showContainer(gamePage);
+            playRandom.disabled = false;
+        }
         if (unsubscribeMatch) unsubscribeMatch();
     }
 });
@@ -857,13 +864,15 @@ async function joinRoomWithRetry(roomId, username, maxRetries = 3) {
                 roomIdDisplay.textContent = `Room ID: ${roomId}`;
                 listenToRoom(roomId, username);
                 showMessage('Room joined!', 'success');
+                isJoiningRoom = false;
                 return true;
             }
             retries++;
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Increased delay
         } catch (error) {
             retries++;
             if (retries >= maxRetries) {
+                isJoiningRoom = false;
                 showMessage('Unable to join room', 'error');
                 cleanupRoom();
                 showContainer(gamePage);
@@ -871,6 +880,7 @@ async function joinRoomWithRetry(roomId, username, maxRetries = 3) {
             }
         }
     }
+    isJoiningRoom = false;
     showMessage('Unable to join room', 'error');
     cleanupRoom();
     showContainer(gamePage);
@@ -1016,6 +1026,7 @@ async function cleanupRoom() {
     currentRoomId = null;
     currentPlayer = null;
     opponentUsername = null;
+    isJoiningRoom = false;
 }
 
 // Leave Room
