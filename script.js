@@ -112,7 +112,7 @@ let currentPlayer = null;
 let opponentUsername = null;
 let unsubscribeRoom = null;
 let lastSaveTime = 0;
-let isJoiningRoom = false; // New flag to prevent duplicate joins
+let isJoiningRoom = false;
 
 // Show Message (Limited to critical cases)
 function showMessage(message, type) {
@@ -368,7 +368,7 @@ gameHistoryBtn?.addEventListener('click', async () => {
                 hour12: false
             });
             const box = document.createElement('div');
-            box.className = `history-box ${game.result === 'win' ? 'win' : 'loss-tie'}`;
+            box.className = `history-box ${game.result}`;
             box.innerHTML = `
                 <p>Opponent: ${game.opponentUsername || 'Unknown'}</p>
                 <p>Result: ${game.result.charAt(0).toUpperCase() + game.result.slice(1)}</p>
@@ -868,7 +868,7 @@ async function joinRoomWithRetry(roomId, username, maxRetries = 3) {
                 return true;
             }
             retries++;
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Increased delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
         } catch (error) {
             retries++;
             if (retries >= maxRetries) {
