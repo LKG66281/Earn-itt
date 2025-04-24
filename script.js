@@ -388,7 +388,7 @@ backToProfile?.addEventListener('click', () => {
     showContainer(profilePage);
 });
 
-// Friends Button
+// Friends Button (Updated to show Add Friend tab)
 friendsBtn?.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) {
@@ -397,7 +397,13 @@ friendsBtn?.addEventListener('click', async () => {
     }
     try {
         showContainer(friendsPage);
-        loadFriendsTab();
+        // Activate Add Friend tab
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        addFriendTab.classList.add('active');
+        document.getElementById('addFriendTab').classList.add('active');
+        loadAddFriendTab();
+        friendSearch.focus(); // Focus search input for convenience
     } catch (error) {
         showMessage(`Error loading friends: ${error.message}`, 'error');
     }
@@ -985,18 +991,24 @@ async function handleGameEnd(status, username) {
         const userDoc = await getDoc(userDocRef);
         const stats = userDoc.exists() && userDoc.data().stats ? userDoc.data().stats : { wins: 0, losses: 0, ties: 0 };
         let result = 'tie';
+        let coinsEarned = 0;
         if (status === `${currentPlayer} wins`) {
             result = 'win';
             stats.wins += 1;
+            coinsEarned = 10;
         } else if (status.includes('wins') && status !== `${currentPlayer} wins`) {
             result = 'loss';
             stats.losses += 1;
         } else if (status === 'tie') {
             stats.ties += 1;
+            coinsEarned = 5;
         } else if (status === 'abandoned') {
             result = 'abandoned';
         }
-        await setDoc(userDocRef, { stats }, { merge: true });
+        await setDoc(userDocRef, {
+            stats,
+            coins: (userDoc.data().coins || 0) + coinsEarned
+        }, { merge: true });
         await addDoc(collection(db, `users/${user.uid}/gameHistory`), {
             opponentUsername,
             result,
@@ -1010,39 +1022,41 @@ async function handleGameEnd(status, username) {
     }
 }
 
-// Cleanup Room (Clear Board on Leave)
-async function cleanupRoom() {
+// Cleanup Room
+function cleanupRoom() {
     if (unsubscribeRoom) {
         unsubscribeRoom();
         unsubscribeRoom = null;
     }
     if (currentRoomId) {
-        const roomRef = doc(db, 'rooms', currentRoomId);
-        await updateDoc(roomRef, {
-            status: 'abandoned',
-            board: ['', '', '', '', '', '', '', '', '']
-        }).catch(() => {});
+        updateDoc(doc(db, 'rooms', currentRoomId), { status: 'abandoned' }).catch(() => {});
+        currentRoomId = null;
     }
-    currentRoomId = null;
     currentPlayer = null;
     opponentUsername = null;
     isJoiningRoom = false;
 }
 
 // Leave Room
-leaveRoom.addEventListener('click', () => {
-    showMessage('Opponent left. Game ended.', 'success');
+leaveRoom?.addEventListener('click', async () => {
+    if (currentRoomId) {
+        try {
+            await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'abandoned' });
+        } catch (error) {
+            showMessage(`Error leaving room: ${error.message}`, 'error');
+        }
+    }
     cleanupRoom();
     showContainer(gamePage);
 });
 
 // Logout
-logoutButton.addEventListener('click', async () => {
+logoutButton?.addEventListener('click', async () => {
     try {
         await signOut(auth);
         showContainer(authContainer);
     } catch (error) {
-        showMessage(`Error logging out: ${error.message}`, 'error');
+        showMessage(`Error signing out: ${error.message}`, 'error');
     }
 });
 
@@ -1055,13 +1069,19 @@ onAuthStateChanged(auth, async (user) => {
             const avatarUrl = userDoc.exists() ? userDoc.data().avatarUrl : null;
             updateProfileUI(username, avatarUrl);
             await updateBalanceUI();
-            showContainer(dashboard);
-            verifyEmailPrompt.style.display = user.emailVerified ? 'none' : 'block';
+            if (!user.emailVerified) {
+                verifyEmailPrompt.style.display = 'block';
+                showContainer(authContainer);
+            } else {
+                verifyEmailPrompt.style.display = 'none';
+                showContainer(dashboard);
+            }
         } catch (error) {
             showMessage(`Error loading user data: ${error.message}`, 'error');
             showContainer(authContainer);
         }
     } else {
+        verifyEmailPrompt.style.display = 'none';
         showContainer(authContainer);
     }
 });
