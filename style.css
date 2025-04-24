@@ -488,31 +488,27 @@ button:hover {
 }
 
 .history-box.win {
-    background: #00ff00;
-    border: 3px solid #00ddeb;
+    border: 3px solid #00ff00;
     box-shadow: 0 0 20px #00ff00;
-    color: #1a1a2e; /* Dark text for contrast */
+    color: #e0e7ff;
 }
 
 .history-box.loss {
-    background: #ff0000;
-    border: 3px solid #9333ea;
+    border: 3px solid #ff0000;
     box-shadow: 0 0 20px #ff0000;
     color: #e0e7ff;
 }
 
 .history-box.tie {
-    background: #ffff00;
-    border: 3px solid #00ddeb;
+    border: 3px solid #ffff00;
     box-shadow: 0 0 20px #ffff00;
-    color: #1a1a2e; /* Dark text for contrast */
+    color: #e0e7ff;
 }
 
 .history-box.abandoned {
-    background: #0000ff;
-    border: 3px solid #ff0066;
+    border: 3px solid #0000ff;
     box-shadow: 0 0 20px #0000ff;
-    color: #1a1a2e; /* Dark text for contrast */
+    color: #e0e7ff;
 }
 
 .history-box:hover {
