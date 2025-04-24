@@ -8,6 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <p id="messageText"></p>
+        <button id="messageClose">OK</button>
+    </div>
+
     <!-- Auth Container -->
     <div class="container auth-container" id="authContainer">
         <h2 id="formTitle">Sign Up</h2>
@@ -28,14 +34,13 @@
     <div class="container dashboard" id="dashboard">
         <div class="dashboard-header">
             <button id="profileBtn" class="circle-btn">P</button>
-            <p id="userDisplay">Player</p>
-            <button id="logoutButton">Logout</button>
         </div>
         <div class="balance-box">₹100</div>
+        <p id="userDisplay">Player</p>
+        <button id="playButton">Play</button>
         <p id="verifyEmailPrompt">Please verify your email. <span id="resendVerification">Resend</span></p>
         <div class="dashboard-grid">
             <button id="friendsBtn" class="circle-btn">F</button>
-            <button id="playButton" class="circle-btn play-btn">Pl</button>
             <button id="walletBtn" class="circle-btn">W</button>
             <button id="tournamentsBtn" class="circle-btn">To</button>
             <button id="tasksBtn" class="circle-btn">Ta</button>
@@ -50,6 +55,7 @@
         <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
         <p id="usernameDisplay" class="editable">Player</p>
         <button id="gameHistoryBtn">Game History</button>
+        <button id="logoutButton">Logout</button>
         <button id="backToDashboardFromProfile">Back to Dashboard</button>
     </div>
 
