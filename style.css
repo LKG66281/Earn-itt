@@ -124,14 +124,14 @@ button:hover {
 }
 
 .circle-btn {
-    width: clamp(50px, 10vw, 60px);
-    height: clamp(50px, 10vw, 60px);
+    width: clamp(60px, 12vw, 80px);
+    height: clamp(60px, 12vw, 80px);
     border-radius: 50%;
     background: linear-gradient(45deg, #ff00ff, #00f0ff, #00ff00);
     background-size: 400%;
     border: 2px solid #fff;
     color: #fff;
-    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-size: clamp(1.2rem, 3.5vw, 1.4rem);
     font-weight: bold;
     display: flex;
     justify-content: center;
@@ -154,14 +154,6 @@ button:hover {
     0% { box-shadow: 0 0 25px #ff00ff; }
     50% { box-shadow: 0 0 40px #00f0ff; }
     100% { box-shadow: 0 0 25px #ff00ff; }
-}
-
-.play-btn {
-    background: linear-gradient(45deg, #00f0ff, #ff00ff);
-}
-
-.play-btn:hover {
-    box-shadow: 0 0 50px #ff00ff;
 }
 
 .win-btn {
@@ -204,6 +196,34 @@ p, span {
     display: none;
 }
 
+/* Message Box */
+.message-box {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(10, 10, 20, 0.95);
+    border: 2px solid #ff00ff;
+    border-radius: 15px;
+    padding: 5%;
+    box-shadow: 0 0 40px #ff00ff, 0 0 60px #00f0ff;
+    z-index: 1000;
+    text-align: center;
+    width: min(80%, 400px);
+}
+
+.message-box p {
+    color: #00f0ff;
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+    margin-bottom: 5%;
+}
+
+#messageClose {
+    width: 50%;
+    margin: 0 auto;
+}
+
 /* Dashboard */
 .dashboard {
     position: relative;
@@ -212,7 +232,7 @@ p, span {
 
 .dashboard-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: 5%;
 }
@@ -225,18 +245,6 @@ p, span {
     z-index: 11;
 }
 
-#userDisplay {
-    font-size: clamp(1rem, 3.5vw, 1.2rem);
-    color: #00f0ff;
-    text-shadow: 0 0 15px #00f0ff;
-}
-
-#logoutButton {
-    width: auto;
-    padding: 2% 4%;
-    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
-}
-
 .balance-box {
     position: absolute;
     top: 5%;
@@ -247,7 +255,7 @@ p, span {
     border-radius: 10px;
     padding: 2%;
     width: clamp(100px, 25vw, 150px);
-    height: clamp(50px, 10vw, 60px);
+    height: clamp(60px, 12vw, 80px);
     color: #00f0ff;
     font-size: clamp(1rem, 3.5vw, 1.2rem);
     font-weight: bold;
@@ -259,9 +267,41 @@ p, span {
     z-index: 10;
 }
 
+#userDisplay {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+    color: #00f0ff;
+    text-shadow: 0 0 15px #00f0ff;
+    z-index: 10;
+}
+
+#playButton {
+    position: absolute;
+    top: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    background: linear-gradient(45deg, #00f0ff, #ff00ff);
+    border-radius: 10px;
+    box-shadow: 0 0 20px #ff00ff;
+    z-index: 10;
+}
+
+#playButton:hover {
+    box-shadow: 0 0 40px #00ff00;
+}
+
 #verifyEmailPrompt {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
     margin: 5% 0;
     display: none;
+    z-index: 10;
 }
 
 .dashboard-grid {
@@ -276,41 +316,31 @@ p, span {
     z-index: 11;
 }
 
+#winBtn.circle-btn {
+    position: absolute;
+    bottom: 6%;
+    left: 10%;
+    z-index: 11;
+}
+
 #friendsBtn.circle-btn {
     position: absolute;
     bottom: 6%;
-    left: 25%;
-    transform: translateX(-50%);
+    left: 30%;
     z-index: 11;
 }
 
 #tournamentsBtn.circle-btn {
     position: absolute;
     bottom: 6%;
-    right: 25%;
-    transform: translateX(50%);
+    right: 30%;
     z-index: 11;
 }
 
 #tasksBtn.circle-btn {
     position: absolute;
     bottom: 6%;
-    right: 5%;
-    z-index: 11;
-}
-
-#playButton.circle-btn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 11;
-}
-
-#winBtn.circle-btn {
-    position: absolute;
-    bottom: 6%;
-    left: 5%;
+    right: 10%;
     z-index: 11;
 }
 
@@ -345,7 +375,7 @@ p, span {
     background: rgba(255, 0, 255, 0.2);
 }
 
-#gameHistoryBtn {
+#gameHistoryBtn, #logoutButton {
     background: linear-gradient(45deg, #ff00ff, #00f0ff);
     width: 80%;
     margin: 3% auto;
@@ -353,7 +383,7 @@ p, span {
     box-shadow: 0 0 20px #ff00ff;
 }
 
-#gameHistoryBtn:hover {
+#gameHistoryBtn:hover, #logoutButton:hover {
     box-shadow: 0 0 40px #00ff00;
 }
 
@@ -580,13 +610,13 @@ p, span {
         font-size: clamp(0.8rem, 2.5vw, 0.9rem);
     }
     .circle-btn {
-        width: clamp(40px, 8vw, 50px);
-        height: clamp(40px, 8vw, 50px);
-        font-size: clamp(0.8rem, 2.5vw, 1rem);
+        width: clamp(50px, 10vw, 70px);
+        height: clamp(50px, 10vw, 70px);
+        font-size: clamp(1rem, 3vw, 1.2rem);
     }
     .balance-box {
         width: clamp(80px, 20vw, 120px);
-        height: clamp(40px, 8vw, 50px);
+        height: clamp(50px, 10vw, 70px);
         font-size: clamp(0.8rem, 3vw, 1rem);
     }
     #profileBtn.circle-btn {
@@ -597,38 +627,33 @@ p, span {
         top: 3%;
         right: 3%;
     }
+    #winBtn.circle-btn {
+        bottom: 4%;
+        left: 10%;
+    }
     #friendsBtn.circle-btn {
         bottom: 4%;
-        left: 22%;
-        transform: translateX(-50%);
+        left: 30%;
     }
     #tournamentsBtn.circle-btn {
         bottom: 4%;
-        right: 22%;
-        transform: translateX(50%);
+        right: 30%;
     }
     #tasksBtn.circle-btn {
         bottom: 4%;
-        right: 3%;
+        right: 10%;
     }
-    #playButton.circle-btn {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+    #userDisplay {
+        top: 18%;
     }
-    #winBtn.circle-btn {
-        bottom: 4%;
-        left: 3%;
+    #playButton {
+        top: 28%;
     }
-    .balance-box {
-        top: 12%;
+    #verifyEmailPrompt {
+        top: 38%;
     }
-    .dashboard-header {
-        flex-direction: column;
-        gap: 10px;
-    }
-    #logoutButton {
-        width: 100%;
+    .message-box {
+        width: min(90%, 300px);
     }
     .profile-pic-circle {
         width: clamp(60px, 15vw, 80px);
