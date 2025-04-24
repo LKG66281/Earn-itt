@@ -221,9 +221,6 @@ p, span {
     position: absolute;
     top: 5%;
     left: 5%;
-    background: none;
-    background-size: cover;
-    color: transparent;
     border: 3px solid #ff00ff;
     z-index: 11;
 }
@@ -317,10 +314,6 @@ p, span {
     z-index: 11;
 }
 
-#gameHistoryBtn {
-    display: none; /* Keep hidden on dashboard */
-}
-
 /* Profile Page */
 .profile-page {
     padding: 5%;
@@ -350,6 +343,18 @@ p, span {
 
 .editable:hover {
     background: rgba(255, 0, 255, 0.2);
+}
+
+#gameHistoryBtn {
+    background: linear-gradient(45deg, #ff00ff, #00f0ff);
+    width: 80%;
+    margin: 3% auto;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #ff00ff;
+}
+
+#gameHistoryBtn:hover {
+    box-shadow: 0 0 40px #00ff00;
 }
 
 /* Game History Page */
