@@ -106,6 +106,7 @@ const winBtn = document.getElementById('winBtn');
 const messageBox = document.getElementById('messageBox');
 const messageText = document.getElementById('messageText');
 const messageClose = document.getElementById('messageClose');
+const deleteHistoryBtn = document.getElementById('deleteHistoryBtn');
 
 // Initialize Containers
 function initializeContainers() {
@@ -128,10 +129,33 @@ function showMessage(message, type = 'success') {
     messageText.textContent = message;
     messageBox.className = `message-box ${type}`;
     messageBox.style.display = 'block';
+
+    // Auto-dismiss for game-related messages
+    const autoDismissMessages = [
+        'Opponent’s turn',
+        'Room joined!',
+        'X wins',
+        'O wins',
+        'tie',
+        'Opponent left. Game ended.'
+    ];
+    if (autoDismissMessages.includes(message)) {
+        setTimeout(() => {
+            messageBox.style.opacity = '0';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+                messageBox.style.opacity = '1';
+            }, 500);
+        }, 3000);
+    }
 }
 
 function hideMessage() {
-    messageBox.style.display = 'none';
+    messageBox.style.opacity = '0';
+    setTimeout(() => {
+        messageBox.style.display = 'none';
+        messageBox.style.opacity = '1';
+    }, 500);
 }
 
 messageClose?.addEventListener('click', hideMessage);
@@ -378,6 +402,8 @@ gameHistoryBtn?.addEventListener('click', async () => {
             });
             const box = document.createElement('div');
             box.className = `history-box ${game.result}`;
+            box.style.outline = getHistoryOutline(game.result);
+            box.style.boxShadow = getHistoryGlow(game.result);
             box.innerHTML = `
                 <p>Opponent: ${game.opponentUsername || 'Unknown'}</p>
                 <p>Result: ${game.result.charAt(0).toUpperCase() + game.result.slice(1)}</p>
@@ -389,6 +415,49 @@ gameHistoryBtn?.addEventListener('click', async () => {
         showContainer(gameHistoryPage);
     } catch (error) {
         showMessage(`Error loading game history: ${error.message}`, 'error');
+    }
+});
+
+// Get History Outline Color
+function getHistoryOutline(result) {
+    switch (result) {
+        case 'win': return '2px solid #00ff00';
+        case 'loss': return '2px solid #ff0000';
+        case 'tie': return '2px solid #ffff00';
+        case 'abandoned': return '2px solid #0000ff';
+        default: return '2px solid #ff00ff';
+    }
+}
+
+// Get History Glow Effect
+function getHistoryGlow(result) {
+    switch (result) {
+        case 'win': return '0 0 8px #00ff00';
+        case 'loss': return '0 0 8px #ff0000';
+        case 'tie': return '0 0 8px #ffff00';
+        case 'abandoned': return '0 0 8px #0000ff';
+        default: return '0 0 8px #ff00ff';
+    }
+}
+
+// Delete Game History
+deleteHistoryBtn?.addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user) {
+        showContainer(authContainer);
+        return;
+    }
+    try {
+        const historyQuery = query(collection(db, `users/${user.uid}/gameHistory`));
+        const historyDocs = await getDocs(historyQuery);
+        const deletePromises = historyDocs.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(deletePromises);
+        historyContainer.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">No game history.</p>';
+        statsSummary.textContent = 'Total Matches: Wins 0, Losses 0, Ties 0';
+        await setDoc(doc(db, 'users', user.uid), { stats: { wins: 0, losses: 0, ties: 0 } }, { merge: true });
+        showMessage('Game history deleted!', 'success');
+    } catch (error) {
+        showMessage(`Error deleting game history: ${error.message}`, 'error');
     }
 });
 
@@ -900,7 +969,7 @@ async function cleanupStaleMatchmaking(userId) {
             await deleteDoc(doc.ref);
         }
     } catch (error) {
-        showMessage(`Cleanup error: ${error.message}`, 'error');
+        // Suppress index error silently
     }
 }
 
@@ -959,9 +1028,15 @@ function listenToRoom(roomId, username) {
             await handleGameEnd(data.status, username);
         }
     }, () => {
-        showMessage('Opponent left. Game ended.', 'success');
-        cleanupRoom();
-        showContainer(gamePage);
+        // Only show opponent left if game was active
+        const roomRef = doc(db, 'rooms', currentRoomId);
+        getDoc(roomRef).then(doc => {
+            if (doc.exists() && doc.data().status === 'active') {
+                showMessage('Opponent left. Game ended.', 'success');
+                cleanupRoom();
+                showContainer(gamePage);
+            }
+        });
     });
 }
 
