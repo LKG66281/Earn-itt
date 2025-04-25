@@ -167,7 +167,8 @@ button:hover {
     box-shadow: 0 0 50px #00f0ff;
 }
 
-p, span {
+p,
+span {
     color: #00f0ff;
     text-shadow: 0 0 10px #00f0ff;
     font-size: clamp(0.8rem, 2.5vw, 0.9rem);
@@ -195,7 +196,15 @@ p, span {
     text-shadow: 0 0 15px #ff00ff;
 }
 
-.auth-container, .dashboard, .profile-page, .game-history-page, .friends-page, .add-friend-page, .game-page, .game-room, .waiting-area {
+.auth-container,
+.dashboard,
+.profile-page,
+.game-history-page,
+.friends-page,
+.add-friend-page,
+.game-page,
+.game-room,
+.waiting-area {
     display: none;
 }
 
@@ -207,6 +216,7 @@ p, span {
     left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(10, 10, 20, 0.95);
+    border: 2px solid #ff00ff;
     border-radius: 15px;
     padding: 5%;
     box-shadow: 0 0 40px #ff00ff, 0 0 60px #00f0ff;
@@ -239,6 +249,7 @@ p, span {
 }
 
 .message-box p {
+    color: #00f0ff;
     font-size: clamp(1rem, 3.5vw, 1.2rem);
     margin-bottom: 5%;
 }
@@ -251,7 +262,7 @@ p, span {
 /* Dashboard */
 .dashboard {
     position: relative;
-    min-height: 100vh;
+    min-height: 80vh;
 }
 
 .dashboard-header {
@@ -646,9 +657,8 @@ p, span {
     text-shadow: 0 0 20px #00ff00;
 }
 
-#roomIdDisplay,
-#playersDisplay,
-#gameStatus {
+.room-id,
+.status {
     font-size: clamp(1rem, 3.5vw, 1.2rem);
     margin-bottom: 5%;
 }
