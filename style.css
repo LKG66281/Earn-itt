@@ -78,10 +78,7 @@ h2 {
     margin-right: auto;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="file"] {
+input[type="text"], input[type="email"], input[type="password"], input[type="file"] {
     width: 100%;
     padding: 3%;
     background: rgba(255, 255, 255, 0.05);
@@ -167,8 +164,7 @@ button:hover {
     box-shadow: 0 0 50px #00f0ff;
 }
 
-p,
-span {
+p, span {
     color: #00f0ff;
     text-shadow: 0 0 10px #00f0ff;
     font-size: clamp(0.8rem, 2.5vw, 0.9rem);
@@ -196,15 +192,7 @@ span {
     text-shadow: 0 0 15px #ff00ff;
 }
 
-.auth-container,
-.dashboard,
-.profile-page,
-.game-history-page,
-.friends-page,
-.add-friend-page,
-.game-page,
-.game-room,
-.waiting-area {
+.auth-container, .dashboard, .profile-page, .game-history-page, .friends-page, .add-friend-page, .game-page, .game-room, .waiting-area {
     display: none;
 }
 
@@ -223,29 +211,6 @@ span {
     z-index: 1000;
     text-align: center;
     width: min(80%, 400px);
-    transition: opacity 0.5s ease;
-}
-
-.message-box.success {
-    background: rgba(0, 255, 0, 0.2);
-    border: 2px solid #00ff00;
-    box-shadow: 0 0 40px #00ff00;
-}
-
-.message-box.success p {
-    color: #00ff00;
-    text-shadow: 0 0 15px #00ff00;
-}
-
-.message-box.error {
-    background: rgba(255, 0, 0, 0.2);
-    border: 2px solid #ff0000;
-    box-shadow: 0 0 40px #ff0000;
-}
-
-.message-box.error p {
-    color: #ff0000;
-    text-shadow: 0 0 15px #ff0000;
 }
 
 .message-box p {
@@ -410,11 +375,7 @@ span {
     background: rgba(255, 0, 255, 0.2);
 }
 
-#gameHistoryBtn,
-#logoutButton,
-#deleteHistoryBtn,
-#backToDashboardFromProfile,
-#backToProfile {
+#gameHistoryBtn, #logoutButton {
     background: linear-gradient(45deg, #ff00ff, #00f0ff);
     width: 80%;
     margin: 3% auto;
@@ -422,11 +383,7 @@ span {
     box-shadow: 0 0 20px #ff00ff;
 }
 
-#gameHistoryBtn:hover,
-#logoutButton:hover,
-#deleteHistoryBtn:hover,
-#backToDashboardFromProfile:hover,
-#backToProfile:hover {
+#gameHistoryBtn:hover, #logoutButton:hover {
     box-shadow: 0 0 40px #00ff00;
 }
 
@@ -458,26 +415,6 @@ span {
 
 .history-box:hover {
     transform: scale(1.05);
-}
-
-.history-box.win {
-    outline: 2px solid #00ff00;
-    box-shadow: 0 0 8px #00ff00;
-}
-
-.history-box.loss {
-    outline: 2px solid #ff0000;
-    box-shadow: 0 0 8px #ff0000;
-}
-
-.history-box.tie {
-    outline: 2px solid #ffff00;
-    box-shadow: 0 0 8px #ffff00;
-}
-
-.history-box.abandoned {
-    outline: 2px solid #0000ff;
-    box-shadow: 0 0 8px #0000ff;
 }
 
 .history-box p {
@@ -525,15 +462,13 @@ span {
     display: block;
 }
 
-#friendsList,
-#friendRequests {
+#friendsList, #friendRequests {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-.friend-box,
-.request-box {
+.friend-box, .request-box {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 15px;
     padding: 4%;
@@ -542,28 +477,12 @@ span {
     transition: transform 0.3s ease;
 }
 
-.friend-box:hover,
-.request-box:hover {
+.friend-box:hover, .request-box:hover {
     transform: scale(1.05);
 }
 
-.friend-box p,
-.request-box p {
+.friend-box p, .request-box p {
     font-size: clamp(0.9rem, 2.5vw, 1rem);
-}
-
-.action-btn {
-    width: auto;
-    padding: 3% 5%;
-    margin: 2% 0;
-}
-
-.accept-btn {
-    background: linear-gradient(45deg, #00ff00, #00f0ff);
-}
-
-.reject-btn {
-    background: linear-gradient(45deg, #ff0000, #ff00ff);
 }
 
 /* Add Friend Page */
@@ -657,8 +576,7 @@ span {
     text-shadow: 0 0 20px #00ff00;
 }
 
-.room-id,
-.status {
+.room-id, .status {
     font-size: clamp(1rem, 3.5vw, 1.2rem);
     margin-bottom: 5%;
 }
@@ -687,8 +605,7 @@ span {
     h2 {
         font-size: clamp(1.5rem, 5vw, 1.8rem);
     }
-    button,
-    input {
+    button, input {
         padding: 4%;
         font-size: clamp(0.8rem, 2.5vw, 0.9rem);
     }
@@ -742,10 +659,7 @@ span {
         width: clamp(60px, 15vw, 80px);
         height: clamp(60px, 15vw, 80px);
     }
-    .history-box p,
-    .friend-box p,
-    .result-box p,
-    .request-box p {
+    .history-box p, .friend-box p, .result-box p, .request-box p {
         font-size: clamp(0.8rem, 2vw, 0.9rem);
     }
     .tabs {
