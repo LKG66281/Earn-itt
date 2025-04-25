@@ -57,6 +57,7 @@ const dashboard = document.getElementById('dashboard');
 const profilePage = document.getElementById('profilePage');
 const gameHistoryPage = document.getElementById('gameHistoryPage');
 const friendsPage = document.getElementById('friendsPage');
+const addFriendPage = document.getElementById('addFriendPage');
 const gamePage = document.getElementById('gamePage');
 const gameRoom = document.getElementById('gameRoom');
 const waitingArea = document.getElementById('waitingArea');
@@ -97,10 +98,18 @@ const searchFriend = document.getElementById('searchFriend');
 const searchResults = document.getElementById('searchResults');
 const friendRequests = document.getElementById('friendRequests');
 const backToDashboardFromFriends = document.getElementById('backToDashboardFromFriends');
+const backToFriendsPage = document.getElementById('backToFriendsPage');
+const walletBtn = document.getElementById('walletBtn');
+const tournamentsBtn = document.getElementById('tournamentsBtn');
+const tasksBtn = document.getElementById('tasksBtn');
+const winBtn = document.getElementById('winBtn');
+const messageBox = document.getElementById('messageBox');
+const messageText = document.getElementById('messageText');
+const messageClose = document.getElementById('messageClose');
 
 // Initialize Containers
 function initializeContainers() {
-    const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, gamePage, gameRoom, waitingArea];
+    const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, addFriendPage, gamePage, gameRoom, waitingArea];
     containers.forEach(c => c && (c.style.display = 'none'));
     authContainer.style.display = 'block';
 }
@@ -114,26 +123,26 @@ let unsubscribeRoom = null;
 let lastSaveTime = 0;
 let isJoiningRoom = false;
 
-// Show Message (Limited to critical cases)
-function showMessage(message, type) {
-    const allowedMessages = [
-        'Room joined!', 'Opponent’s turn', 'X wins', 'O wins', 'tie', 'Opponent left. Game ended.', 'Unable to join room'
-    ];
-    if (!allowedMessages.some(msg => message.includes(msg))) return;
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `message ${type}`;
-    msgDiv.textContent = message;
-    document.body.appendChild(msgDiv);
-    msgDiv.style.opacity = '1';
-    setTimeout(() => {
-        msgDiv.style.opacity = '0';
-        setTimeout(() => msgDiv.remove(), 500);
-    }, 3000);
+// Custom Message Box
+function showMessage(message, type = 'success') {
+    messageText.textContent = message;
+    messageBox.className = `message-box ${type}`;
+    messageBox.style.display = 'block';
 }
+
+function hideMessage() {
+    messageBox.style.display = 'none';
+}
+
+messageClose?.addEventListener('click', hideMessage);
+messageClose?.addEventListener('touchstart', e => {
+    e.preventDefault();
+    hideMessage();
+});
 
 // Show/Hide Containers
 function showContainer(container) {
-    const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, gamePage, gameRoom, waitingArea];
+    const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, addFriendPage, gamePage, gameRoom, waitingArea];
     containers.forEach(c => c && (c.style.display = 'none'));
     container.style.display = 'block';
     if (container === gamePage) {
@@ -388,7 +397,7 @@ backToProfile?.addEventListener('click', () => {
     showContainer(profilePage);
 });
 
-// Friends Button (Updated to show Add Friend tab)
+// Friends Button
 friendsBtn?.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) {
@@ -397,13 +406,12 @@ friendsBtn?.addEventListener('click', async () => {
     }
     try {
         showContainer(friendsPage);
-        // Activate Add Friend tab
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         addFriendTab.classList.add('active');
         document.getElementById('addFriendTab').classList.add('active');
         loadAddFriendTab();
-        friendSearch.focus(); // Focus search input for convenience
+        friendSearch.focus();
     } catch (error) {
         showMessage(`Error loading friends: ${error.message}`, 'error');
     }
@@ -544,6 +552,7 @@ searchFriend?.addEventListener('click', async () => {
                 await setDoc(doc(db, `users/${user.uid}/friendRequests`, requestRef.id), requestData);
                 searchResults.innerHTML = '';
                 friendSearch.value = '';
+                showMessage('Friend request sent!', 'success');
             } catch (error) {
                 showMessage(`Error sending request: ${error.message}`, 'error');
             }
@@ -600,6 +609,7 @@ async function loadRequestsTab() {
                     await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'accepted' });
                     await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'accepted' });
                     loadRequestsTab();
+                    showMessage('Friend request accepted!', 'success');
                 } catch (error) {
                     showMessage(`Error accepting request: ${error.message}`, 'error');
                 }
@@ -614,6 +624,7 @@ async function loadRequestsTab() {
                     await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'rejected' });
                     await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'rejected' });
                     loadRequestsTab();
+                    showMessage('Friend request rejected.', 'success');
                 } catch (error) {
                     showMessage(`Error rejecting request: ${error.message}`, 'error');
                 }
@@ -627,6 +638,28 @@ async function loadRequestsTab() {
 // Back to Dashboard from Friends
 backToDashboardFromFriends?.addEventListener('click', () => {
     showContainer(dashboard);
+});
+
+// Back to Friends from Add Friend
+backToFriendsPage?.addEventListener('click', () => {
+    showContainer(friendsPage);
+});
+
+// Additional Dashboard Buttons
+walletBtn?.addEventListener('click', () => {
+    showMessage('Wallet feature coming soon!', 'success');
+});
+
+tournamentsBtn?.addEventListener('click', () => {
+    showMessage('Tournaments feature coming soon!', 'success');
+});
+
+tasksBtn?.addEventListener('click', () => {
+    showMessage('Tasks feature coming soon!', 'success');
+});
+
+winBtn?.addEventListener('click', () => {
+    showMessage('Win feature coming soon!', 'success');
 });
 
 // Toggle Auth Mode
@@ -644,8 +677,14 @@ authButton.addEventListener('click', async () => {
     const email = emailInput?.value;
     const password = passwordInput?.value;
     const username = isSignUp ? usernameInput?.value : null;
-    if (!email || !password) return;
-    if (isSignUp && !username) return;
+    if (!email || !password) {
+        showMessage('Please enter email and password.', 'error');
+        return;
+    }
+    if (isSignUp && !username) {
+        showMessage('Please enter a username.', 'error');
+        return;
+    }
     try {
         if (isSignUp) {
             const check = await checkUsernameAvailability(username);
@@ -657,12 +696,14 @@ authButton.addEventListener('click', async () => {
             try {
                 await saveProfile(username, null, true);
                 await sendEmailVerification(userCredential.user);
+                showMessage('Sign-up successful! Please verify your email.', 'success');
             } catch (error) {
                 await userCredential.user.delete();
                 showMessage(`Sign-up failed: ${error.message}`, 'error');
             }
         } else {
             await signInWithEmailAndPassword(auth, email, password);
+            showMessage('Login successful!', 'success');
         }
         emailInput.value = '';
         passwordInput.value = '';
@@ -678,6 +719,7 @@ resendVerification?.addEventListener('click', async () => {
     if (user && !user.emailVerified) {
         try {
             await sendEmailVerification(user);
+            showMessage('Verification email sent!', 'success');
         } catch (error) {
             showMessage(`Error: ${error.message}`, 'error');
         }
@@ -691,13 +733,17 @@ playButton.addEventListener('click', async () => {
         showContainer(authContainer);
         return;
     }
-    if (!user.emailVerified) return;
+    if (!user.emailVerified) {
+        showMessage('Please verify your email to play.', 'error');
+        return;
+    }
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists() && userDoc.data().username) {
             showContainer(gamePage);
         } else {
             showContainer(profilePage);
+            showMessage('Please set a username to play.', 'error');
         }
     } catch (error) {
         showMessage(`Error: ${error.message}`, 'error');
@@ -854,7 +900,7 @@ async function cleanupStaleMatchmaking(userId) {
             await deleteDoc(doc.ref);
         }
     } catch (error) {
-        console.error('Cleanup error:', error);
+        showMessage(`Cleanup error: ${error.message}`, 'error');
     }
 }
 
@@ -1055,6 +1101,7 @@ logoutButton?.addEventListener('click', async () => {
     try {
         await signOut(auth);
         showContainer(authContainer);
+        showMessage('Logged out successfully!', 'success');
     } catch (error) {
         showMessage(`Error signing out: ${error.message}`, 'error');
     }
@@ -1084,4 +1131,12 @@ onAuthStateChanged(auth, async (user) => {
         verifyEmailPrompt.style.display = 'none';
         showContainer(authContainer);
     }
+});
+
+// Touch Support for Buttons
+document.querySelectorAll('button').forEach(button => {
+    button.addEventListener('touchstart', e => {
+        e.preventDefault();
+        button.dispatchEvent(new Event('click'));
+    });
 });
