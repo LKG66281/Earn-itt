@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <p id="messageText"></p>
+        <button id="messageClose">OK</button>
+    </div>
+
+    <!-- Friends Page -->
+    <div id="friendsPage" class="container">
+        <h2>Friends</h2>
+        <div class="tabs">
+            <button class="tab-btn active" id="addFriendTab" data-tab="add-friend">Add Friend</button>
+            <button class="tab-btn" id="friendsTab" data-tab="friends">Friends</button>
+            <button class="tab-btn" id="requestsTab" data-tab="requests">Requests</button>
+        </div>
+        <div id="addFriendTab" class="tab-content active">
+            <div class="search-bar">
+                <input type="text" id="friendSearch" placeholder="Search username">
+                <button id="searchFriend">Search</button>
+            </div>
+            <div id="searchResults"></div>
+            <button id="backToDashboardFromFriends">Back</button>
+        </div>
+        <div id="friendsTab" class="tab-content">
+            <div id="friendsList"></div>
+            <button id="backToDashboardFromFriends">Back</button>
+        </div>
+        <div id="requestsTab" class="tab-content">
+            <div id="friendRequests"></div>
+            <button id="backToDashboardFromFriends">Back</button>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
