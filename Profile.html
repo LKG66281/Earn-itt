@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <p id="messageText"></p>
+        <button id="messageClose">OK</button>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profilePage" class="container">
+        <h2>Profile</h2>
+        <div id="profilePicCircle" class="profile-pic-circle"></div>
+        <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
+        <p id="usernameDisplay">Player</p>
+        <button id="gameHistoryBtn">Game History</button>
+        <button id="logoutButton">Logout</button>
+        <button id="backToDashboardFromProfile">Back</button>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
