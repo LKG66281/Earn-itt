@@ -1,145 +1,68 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { 
-    getAuth, 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
-    onAuthStateChanged, 
-    signOut, 
-    sendEmailVerification 
-} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
-    getDoc, 
-    onSnapshot, 
-    updateDoc, 
-    deleteDoc, 
-    collection, 
-    addDoc, 
-    query, 
-    where, 
-    getDocs, 
-    serverTimestamp,
-    Timestamp
-} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-import { 
-    getStorage, 
-    ref, 
-    uploadBytes, 
-    getDownloadURL 
-} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, orderBy, limit, deleteDoc, getDocs, serverTimestamp, where } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 
-// Firebase Config
+// Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAol2UzQWdFPyTeWhlfK7HTXxMpsuXnSFk",
+    apiKey: "AIzaSyB-WvLzhg5sE5dH-KS8S-ykLpk5WnC3Yh8",
     authDomain: "final-78170.firebaseapp.com",
     projectId: "final-78170",
-    storageBucket: "final-78170.firebasestorage.app",
-    messagingSenderId: "374288155367",
-    appId: "1:374288155367:web:94a49f3b204dfa2efc5842",
-    measurementId: "G-9GM80JWP3C"
+    storageBucket: "final-78170.appspot.com",
+    messagingSenderId: "761058135374",
+    appId: "1:761058135374:web:cdab1a1b1f6c06c7a3f0f5"
 };
 
-let auth, db, storage;
-try {
-    const app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    storage = getStorage(app);
-} catch (error) {
-    showMessage(`Failed to initialize Firebase: ${error.message}`, 'error');
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// Global variables
+let currentUser = null;
+let unsubscribe = null;
+
+// Messages to auto-dismiss after 3 seconds
+const autoDismissMessages = [
+    "Opponent’s turn",
+    "Your turn!",
+    "Room joined!",
+    "X wins",
+    "O wins",
+    "tie",
+    "Opponent left. Game ended."
+];
+
+// Navigation function
+function navigateTo(page) {
+    const pages = {
+        'authContainer': 'signup.html',
+        'dashboard': 'dashboard.html',
+        'profilePage': 'profile.html',
+        'gameHistoryPage': 'gamehistory.html',
+        'friendsPage': 'friends.html',
+        'gamePage': 'game.html',
+        'waitingArea': 'waiting.html',
+        'gameRoom': 'gameroom.html'
+    };
+    if (pages[page]) {
+        window.location.href = pages[page];
+    }
 }
 
-// DOM Elements
-const authContainer = document.getElementById('authContainer');
-const dashboard = document.getElementById('dashboard');
-const profilePage = document.getElementById('profilePage');
-const gameHistoryPage = document.getElementById('gameHistoryPage');
-const friendsPage = document.getElementById('friendsPage');
-const addFriendPage = document.getElementById('addFriendPage');
-const gamePage = document.getElementById('gamePage');
-const gameRoom = document.getElementById('gameRoom');
-const waitingArea = document.getElementById('waitingArea');
-const formTitle = document.getElementById('formTitle');
-const authButton = document.getElementById('authButton');
-const toggleAuth = document.getElementById('toggleAuth');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const usernameInput = document.getElementById('username');
-const userDisplay = document.getElementById('userDisplay');
-const usernameDisplay = document.getElementById('usernameDisplay');
-const profilePicCircle = document.getElementById('profilePicCircle');
-const profilePicInput = document.getElementById('profilePicInput');
-const gameHistoryBtn = document.getElementById('gameHistoryBtn');
-const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
-const historyContainer = document.getElementById('historyContainer');
-const statsSummary = document.getElementById('statsSummary');
-const backToProfile = document.getElementById('backToProfile');
-const playButton = document.getElementById('playButton');
-const friendsBtn = document.getElementById('friendsBtn');
-const logoutButton = document.getElementById('logoutButton');
-const playRandom = document.getElementById('playRandom');
-const backToDashboard = document.getElementById('backToDashboard');
-const roomIdDisplay = document.getElementById('roomIdDisplay');
-const gameStatus = document.getElementById('gameStatus');
-const gameBoard = document.getElementById('gameBoard');
-const leaveRoom = document.getElementById('leaveRoom');
-const playersDisplay = document.getElementById('playersDisplay');
-const verifyEmailPrompt = document.getElementById('verifyEmailPrompt');
-const resendVerification = document.getElementById('resendVerification');
-const profileBtn = document.getElementById('profileBtn');
-const friendsTab = document.getElementById('friendsTab');
-const addFriendTab = document.getElementById('addFriendTab');
-const requestsTab = document.getElementById('requestsTab');
-const friendsList = document.getElementById('friendsList');
-const friendSearch = document.getElementById('friendSearch');
-const searchFriend = document.getElementById('searchFriend');
-const searchResults = document.getElementById('searchResults');
-const friendRequests = document.getElementById('friendRequests');
-const backToDashboardFromFriends = document.getElementById('backToDashboardFromFriends');
-const backToFriendsPage = document.getElementById('backToFriendsPage');
-const walletBtn = document.getElementById('walletBtn');
-const tournamentsBtn = document.getElementById('tournamentsBtn');
-const tasksBtn = document.getElementById('tasksBtn');
-const winBtn = document.getElementById('winBtn');
-const messageBox = document.getElementById('messageBox');
-const messageText = document.getElementById('messageText');
-const messageClose = document.getElementById('messageClose');
-const deleteHistoryBtn = document.getElementById('deleteHistoryBtn');
+// Show message with success/error styling
+function showMessage(message, isSuccess, autoDismiss = false) {
+    const messageBox = document.getElementById('messageBox');
+    const messageText = document.getElementById('messageText');
+    if (!messageBox || !messageText) return;
 
-// Initialize Containers
-function initializeContainers() {
-    const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, addFriendPage, gamePage, gameRoom, waitingArea];
-    containers.forEach(c => c && (c.style.display = 'none'));
-    authContainer.style.display = 'block';
-}
-initializeContainers();
-
-let isSignUp = true;
-let currentRoomId = null;
-let currentPlayer = null;
-let opponentUsername = null;
-let unsubscribeRoom = null;
-let lastSaveTime = 0;
-let isJoiningRoom = false;
-
-// Custom Message Box
-function showMessage(message, type = 'success') {
     messageText.textContent = message;
-    messageBox.className = `message-box ${type}`;
+    messageBox.classList.remove('success', 'error');
+    messageBox.classList.add(isSuccess ? 'success' : 'error');
     messageBox.style.display = 'block';
 
-    // Auto-dismiss for game-related messages
-    const autoDismissMessages = [
-        'Opponent’s turn',
-        'Room joined!',
-        'X wins',
-        'O wins',
-        'tie',
-        'Opponent left. Game ended.'
-    ];
-    if (autoDismissMessages.includes(message)) {
+    if (autoDismiss && autoDismissMessages.includes(message)) {
         setTimeout(() => {
             messageBox.style.opacity = '0';
             setTimeout(() => {
@@ -147,1071 +70,660 @@ function showMessage(message, type = 'success') {
                 messageBox.style.opacity = '1';
             }, 500);
         }, 3000);
-    }
-}
-
-function hideMessage() {
-    messageBox.style.opacity = '0';
-    setTimeout(() => {
-        messageBox.style.display = 'none';
-        messageBox.style.opacity = '1';
-    }, 500);
-}
-
-messageClose?.addEventListener('click', hideMessage);
-messageClose?.addEventListener('touchstart', e => {
-    e.preventDefault();
-    hideMessage();
-});
-
-// Show/Hide Containers
-function showContainer(container) {
-    const containers = [authContainer, dashboard, profilePage, gameHistoryPage, friendsPage, addFriendPage, gamePage, gameRoom, waitingArea];
-    containers.forEach(c => c && (c.style.display = 'none'));
-    container.style.display = 'block';
-    if (container === gamePage) {
-        playRandom.disabled = false;
-    }
-}
-
-// Update Profile UI
-function updateProfileUI(username, avatarUrl) {
-    if (!profileBtn || !profilePicCircle) return;
-    if (avatarUrl) {
-        profileBtn.style.backgroundImage = `url(${avatarUrl})`;
-        profilePicCircle.style.backgroundImage = `url(${avatarUrl})`;
     } else {
-        const firstLetter = username.charAt(0).toUpperCase() || 'P';
-        const canvas = document.createElement('canvas');
-        const size = 100;
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-        ctx.fillStyle = '#ff0066';
-        ctx.fill();
-        ctx.font = 'bold 60px Orbitron';
-        ctx.fillStyle = '#e0e7ff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(firstLetter, size / 2, size / 2);
-        const canvasUrl = canvas.toDataURL();
-        profileBtn.style.backgroundImage = `url(${canvasUrl})`;
-        profilePicCircle.style.backgroundImage = `url(${canvasUrl})`;
-    }
-    profileBtn.style.color = 'transparent';
-    profileBtn.style.backgroundSize = 'cover';
-    profileBtn.style.border = '3px solid #00ddeb';
-    profilePicCircle.style.color = 'transparent';
-    profilePicCircle.style.backgroundSize = 'cover';
-    profilePicCircle.style.border = '3px solid #00ddeb';
-    userDisplay.textContent = username;
-    usernameDisplay.textContent = username;
-}
-
-// Update Balance UI
-async function updateBalanceUI() {
-    const user = auth.currentUser;
-    if (user) {
-        try {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const coins = userDoc.exists() ? userDoc.data().coins || 0 : 0;
-            document.querySelector('.balance-box').textContent = `₹${coins}`;
-        } catch (error) {
-            showMessage(`Error updating balance: ${error.message}`, 'error');
+        const messageClose = document.getElementById('messageClose');
+        if (messageClose) {
+            messageClose.onclick = () => {
+                messageBox.style.display = 'none';
+            };
         }
     }
 }
 
-// Check Username Availability
-async function checkUsernameAvailability(username) {
-    if (!username || typeof username !== 'string' || username.trim() === '') {
-        return { available: false, message: 'Username cannot be empty' };
-    }
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username.trim())) {
-        return { available: false, message: 'Username must be 3-20 characters, letters, numbers, or underscores only' };
-    }
-    try {
-        const usernameDoc = await getDoc(doc(db, 'usernames', username.toLowerCase().trim()));
-        if (usernameDoc.exists()) {
-            return { available: false, message: 'Username is already taken' };
-        }
-        return { available: true };
-    } catch (error) {
-        return { available: false, message: `Error checking username: ${error.message}` };
-    }
-}
+// Auth setup for signup.html
+function setupAuth() {
+    const authForm = document.getElementById('authForm');
+    const authButton = document.getElementById('authButton');
+    const formTitle = document.getElementById('formTitle');
+    const toggleAuth = document.getElementById('toggleAuth');
+    const usernameInput = document.getElementById('username');
+    const verifyEmailPrompt = document.getElementById('verifyEmailPrompt');
+    const resendVerification = document.getElementById('resendVerification');
+    if (!authForm || !authButton || !formTitle || !toggleAuth) return;
 
-// Save Username
-async function saveUsername(userId, username) {
-    const normalizedUsername = username.toLowerCase().trim();
-    const check = await checkUsernameAvailability(username);
-    if (!check.available) {
-        throw new Error(check.message);
-    }
-    try {
-        const usernameRef = doc(db, 'usernames', normalizedUsername);
-        await setDoc(usernameRef, {
-            userId,
-            createdAt: serverTimestamp()
-        });
-    } catch (error) {
-        throw new Error(`Error saving username: ${error.message}`);
-    }
-}
+    let isSignUp = true;
 
-// Delete Username
-async function deleteUsername(userId, username) {
-    const normalizedUsername = username.toLowerCase().trim();
-    const usernameRef = doc(db, 'usernames', normalizedUsername);
-    const usernameDoc = await getDoc(usernameRef);
-    if (usernameDoc.exists() && usernameDoc.data().userId === userId) {
-        await deleteDoc(usernameRef);
-    }
-}
-
-// Save Profile
-async function saveProfile(username, oldUsername = null, isSignUp = false) {
-    const now = Date.now();
-    if (now - lastSaveTime < 500) return;
-    lastSaveTime = now;
-    const user = auth.currentUser;
-    if (!user) return;
-    if (!isSignUp && !user.emailVerified) return;
-    try {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userData = {
-            username,
-            avatarUrl: null
-        };
-        await saveUsername(user.uid, username);
-        if (oldUsername && oldUsername !== username) {
-            await deleteUsername(user.uid, oldUsername);
-        }
-        await setDoc(userDocRef, {
-            ...userData,
-            stats: { wins: 0, losses: 0, ties: 0 },
-            coins: 100
-        }, { merge: true });
-        updateProfileUI(username, null);
-        await updateBalanceUI();
-    } catch (error) {
-        showMessage(`Error saving profile: ${error.message}`, 'error');
-        throw error;
-    }
-}
-
-// Profile Picture Click
-profilePicCircle?.addEventListener('click', () => {
-    profilePicInput?.click();
-});
-
-// Profile Picture Change
-profilePicInput?.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const user = auth.currentUser;
-    if (!user) return;
-    try {
-        const storageRef = ref(storage, `profile_pics/${user.uid}`);
-        await uploadBytes(storageRef, file);
-        const avatarUrl = await getDownloadURL(storageRef);
-        await setDoc(doc(db, 'users', user.uid), { avatarUrl }, { merge: true });
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        updateProfileUI(userDoc.data().username || 'Player', avatarUrl);
-    } catch (error) {
-        showMessage(`Error uploading profile picture: ${error.message}`, 'error');
-    }
-    profilePicInput.value = '';
-});
-
-// Username Editing
-usernameDisplay?.addEventListener('click', () => {
-    usernameDisplay.contentEditable = 'true';
-    usernameDisplay.focus();
-});
-
-usernameDisplay?.addEventListener('blur', async () => {
-    usernameDisplay.contentEditable = 'false';
-    const newUsername = usernameDisplay.textContent.trim();
-    if (!newUsername) {
-        const userDoc = await getDoc(doc(db, 'users', auth.currentUser?.uid));
-        usernameDisplay.textContent = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
-        return;
-    }
-    const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-    const oldUsername = userDoc.exists() ? userDoc.data().username : null;
-    await saveProfile(newUsername, oldUsername);
-});
-
-usernameDisplay?.addEventListener('keydown', async (e) => {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        usernameDisplay.blur();
-    }
-});
-
-// Profile Button
-profileBtn?.addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (!user) {
-        showContainer(authContainer);
-        return;
-    }
-    try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
-        const avatarUrl = userDoc.exists() ? userDoc.data().avatarUrl : null;
-        usernameDisplay.textContent = username;
-        updateProfileUI(username, avatarUrl);
-        showContainer(profilePage);
-    } catch (error) {
-        showMessage(`Error loading profile: ${error.message}`, 'error');
-    }
-});
-
-// Back to Dashboard from Profile
-backToDashboardFromProfile?.addEventListener('click', () => {
-    showContainer(dashboard);
-});
-
-// Game History Button
-gameHistoryBtn?.addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (!user) {
-        showContainer(authContainer);
-        return;
-    }
-    try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        const stats = userDoc.exists() && userDoc.data().stats ? userDoc.data().stats : { wins: 0, losses: 0, ties: 0 };
-        const historyQuery = query(collection(db, `users/${user.uid}/gameHistory`));
-        const historyDocs = await getDocs(historyQuery);
-        historyContainer.innerHTML = '';
-        historyDocs.forEach(doc => {
-            const game = doc.data();
-            const date = game.timestamp?.toDate ? game.timestamp.toDate() : new Date();
-            const formattedDate = date.toLocaleString('en-US', {
-                month: 'long',
-                day: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-            const box = document.createElement('div');
-            box.className = `history-box ${game.result}`;
-            box.style.outline = getHistoryOutline(game.result);
-            box.style.boxShadow = getHistoryGlow(game.result);
-            box.innerHTML = `
-                <p>Opponent: ${game.opponentUsername || 'Unknown'}</p>
-                <p>Result: ${game.result.charAt(0).toUpperCase() + game.result.slice(1)}</p>
-                <p>Time: ${formattedDate}</p>
-            `;
-            historyContainer.appendChild(box);
-        });
-        statsSummary.textContent = `Total Matches: Wins ${stats.wins}, Losses ${stats.losses}, Ties ${stats.ties}`;
-        showContainer(gameHistoryPage);
-    } catch (error) {
-        showMessage(`Error loading game history: ${error.message}`, 'error');
-    }
-});
-
-// Get History Outline Color
-function getHistoryOutline(result) {
-    switch (result) {
-        case 'win': return '2px solid #00ff00';
-        case 'loss': return '2px solid #ff0000';
-        case 'tie': return '2px solid #ffff00';
-        case 'abandoned': return '2px solid #0000ff';
-        default: return '2px solid #ff00ff';
-    }
-}
-
-// Get History Glow Effect
-function getHistoryGlow(result) {
-    switch (result) {
-        case 'win': return '0 0 8px #00ff00';
-        case 'loss': return '0 0 8px #ff0000';
-        case 'tie': return '0 0 8px #ffff00';
-        case 'abandoned': return '0 0 8px #0000ff';
-        default: return '0 0 8px #ff00ff';
-    }
-}
-
-// Delete Game History
-deleteHistoryBtn?.addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (!user) {
-        showContainer(authContainer);
-        return;
-    }
-    try {
-        const historyQuery = query(collection(db, `users/${user.uid}/gameHistory`));
-        const historyDocs = await getDocs(historyQuery);
-        const deletePromises = historyDocs.docs.map(doc => deleteDoc(doc.ref));
-        await Promise.all(deletePromises);
-        historyContainer.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">No game history.</p>';
-        statsSummary.textContent = 'Total Matches: Wins 0, Losses 0, Ties 0';
-        await setDoc(doc(db, 'users', user.uid), { stats: { wins: 0, losses: 0, ties: 0 } }, { merge: true });
-        showMessage('Game history deleted!', 'success');
-    } catch (error) {
-        showMessage(`Error deleting game history: ${error.message}`, 'error');
-    }
-});
-
-// Back to Profile
-backToProfile?.addEventListener('click', () => {
-    showContainer(profilePage);
-});
-
-// Friends Button
-friendsBtn?.addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (!user) {
-        showContainer(authContainer);
-        return;
-    }
-    try {
-        showContainer(friendsPage);
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        addFriendTab.classList.add('active');
-        document.getElementById('addFriendTab').classList.add('active');
-        loadAddFriendTab();
-        friendSearch.focus();
-    } catch (error) {
-        showMessage(`Error loading friends: ${error.message}`, 'error');
-    }
-});
-
-// Tab Switching
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(`${btn.dataset.tab}Tab`).classList.add('active');
-        if (btn.dataset.tab === 'friends') loadFriendsTab();
-        else if (btn.dataset.tab === 'add-friend') loadAddFriendTab();
-        else if (btn.dataset.tab === 'requests') loadRequestsTab();
+    toggleAuth.addEventListener('click', () => {
+        isSignUp = !isSignUp;
+        formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
+        authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
+        toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : "Don't have an account? Sign Up";
+        usernameInput.style.display = isSignUp ? 'block' : 'none';
     });
-});
 
-// Load Friends Tab
-async function loadFriendsTab() {
-    const user = auth.currentUser;
-    if (!user) return;
-    let unsubscribe = null;
-    try {
-        friendsList.innerHTML = '';
-        const friendsQuery = query(collection(db, `users/${user.uid}/friends`));
-        unsubscribe = onSnapshot(friendsQuery, (snapshot) => {
-            friendsList.innerHTML = '';
-            if (snapshot.empty) {
-                friendsList.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">No friends yet.</p>';
-                return;
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const username = usernameInput.value;
+
+        try {
+            let userCredential;
+            if (isSignUp) {
+                userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: username });
+                await setDoc(doc(db, 'users', userCredential.user.uid), {
+                    username,
+                    email,
+                    balance: 0,
+                    profilePic: ''
+                });
+                await sendEmailVerification(userCredential.user);
+                showMessage('Please verify your email to continue.', false);
+                verifyEmailPrompt.style.display = 'block';
+            } else {
+                userCredential = await signInWithEmailAndPassword(auth, email, password);
+                if (userCredential.user.emailVerified) {
+                    showMessage('Login successful!', true);
+                    navigateTo('dashboard');
+                } else {
+                    showMessage('Please verify your email to continue.', false);
+                    verifyEmailPrompt.style.display = 'block';
+                }
             }
-            snapshot.forEach(doc => {
-                const friend = doc.data();
-                const friendBox = document.createElement('div');
-                friendBox.className = 'friend-box';
-                friendBox.innerHTML = `
-                    <p>Username: ${friend.username}</p>
-                    <button class="action-btn" data-friend-id="${doc.id}" data-username="${friend.username}">Remove Friend</button>
+        } catch (error) {
+            showMessage(error.message, false);
+        }
+    });
+
+    if (resendVerification) {
+        resendVerification.addEventListener('click', async () => {
+            try {
+                await sendEmailVerification(auth.currentUser);
+                showMessage('Verification email resent!', true);
+            } catch (error) {
+                showMessage(error.message, false);
+            }
+        });
+    }
+}
+
+// Dashboard setup for dashboard.html
+function setupDashboard() {
+    const profileBtn = document.getElementById('profileBtn');
+    const walletBtn = document.getElementById('walletBtn');
+    const playButton = document.getElementById('playButton');
+    const friendsBtn = document.getElementById('friendsBtn');
+    const userDisplay = document.getElementById('userDisplay');
+    const balanceBox = document.querySelector('.balance-box');
+    if (!profileBtn || !walletBtn || !playButton || !friendsBtn || !userDisplay || !balanceBox) return;
+
+    profileBtn.addEventListener('click', () => navigateTo('profilePage'));
+    friendsBtn.addEventListener('click', () => navigateTo('friendsPage'));
+    playButton.addEventListener('click', () => navigateTo('gamePage'));
+
+    walletBtn.addEventListener('click', async () => {
+        try {
+            const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+            const balance = userDoc.data().balance || 0;
+            showMessage(`Your balance: ₹${balance}`, true);
+        } catch (error) {
+            showMessage(error.message, false);
+        }
+    });
+
+    // Update user display
+    if (currentUser) {
+        getDoc(doc(db, 'users', currentUser.uid)).then((doc) => {
+            if (doc.exists()) {
+                userDisplay.textContent = doc.data().username || 'Player';
+                balanceBox.textContent = `₹${doc.data().balance || 0}`;
+            }
+        });
+    }
+}
+
+// Profile setup for profile.html
+function setupProfile() {
+    const profilePicCircle = document.getElementById('profilePicCircle');
+    const profilePicInput = document.getElementById('profilePicInput');
+    const usernameDisplay = document.getElementById('usernameDisplay');
+    const gameHistoryBtn = document.getElementById('gameHistoryBtn');
+    const logoutButton = document.getElementById('logoutButton');
+    const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
+    if (!profilePicCircle || !profilePicInput || !usernameDisplay || !gameHistoryBtn || !logoutButton || !backToDashboardFromProfile) return;
+
+    // Load profile data
+    if (currentUser) {
+        getDoc(doc(db, 'users', currentUser.uid)).then((doc) => {
+            if (doc.exists()) {
+                usernameDisplay.textContent = doc.data().username || 'Player';
+                if (doc.data().profilePic) {
+                    profilePicCircle.style.backgroundImage = `url(${doc.data().profilePic})`;
+                }
+            }
+        });
+    }
+
+    profilePicCircle.addEventListener('click', () => profilePicInput.click());
+    profilePicInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            try {
+                const storageRef = ref(storage, `profilePics/${currentUser.uid}`);
+                await uploadBytes(storageRef, file);
+                const url = await getDownloadURL(storageRef);
+                await setDoc(doc(db, 'users', currentUser.uid), { profilePic: url }, { merge: true });
+                profilePicCircle.style.backgroundImage = `url(${url})`;
+                showMessage('Profile picture updated!', true);
+            } catch (error) {
+                showMessage(error.message, false);
+            }
+        }
+    });
+
+    gameHistoryBtn.addEventListener('click', () => navigateTo('gameHistoryPage'));
+    logoutButton.addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+            showMessage('Logged out successfully!', true);
+            navigateTo('authContainer');
+        } catch (error) {
+            showMessage(error.message, false);
+        }
+    });
+    backToDashboardFromProfile.addEventListener('click', () => navigateTo('dashboard'));
+}
+
+// Game History setup for gamehistory.html
+function setupGameHistory() {
+    const historyContainer = document.getElementById('historyContainer');
+    const statsSummary = document.getElementById('statsSummary');
+    const deleteHistoryBtn = document.getElementById('deleteHistoryBtn');
+    const backToProfile = document.getElementById('backToProfile');
+    if (!historyContainer || !statsSummary || !deleteHistoryBtn || !backToProfile) return;
+
+    function getHistoryOutline(result) {
+        switch (result) {
+            case 'win': return '#00ff00';
+            case 'loss': return '#ff0000';
+            case 'tie': return '#ffff00';
+            case 'abandoned': return '#0000ff';
+            default: return '#00f0ff';
+        }
+    }
+
+    function getHistoryGlow(result) {
+        switch (result) {
+            case 'win': return '0 0 8px #00ff00';
+            case 'loss': return '0 0 8px #ff0000';
+            case 'tie': return '0 0 8px #ffff00';
+            case 'abandoned': return '0 0 8px #0000ff';
+            default: return '0 0 8px #00f0ff';
+        }
+    }
+
+    async function loadGameHistory() {
+        if (!currentUser) return;
+        historyContainer.innerHTML = '';
+        try {
+            const q = query(collection(db, `users/${currentUser.uid}/gameHistory`), orderBy('timestamp', 'desc'), limit(10));
+            const querySnapshot = await getDocs(q);
+            let wins = 0, losses = 0, ties = 0, abandoned = 0;
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const historyBox = document.createElement('div');
+                historyBox.classList.add('history-box', data.result);
+                historyBox.style.outline = `2px solid ${getHistoryOutline(data.result)}`;
+                historyBox.style.boxShadow = getHistoryGlow(data.result);
+                historyBox.innerHTML = `
+                    <p>Opponent: ${data.opponent || 'Unknown'}</p>
+                    <p>Result: ${data.result.charAt(0).toUpperCase() + data.result.slice(1)}</p>
+                    <p>Date: ${new Date(data.timestamp.toDate()).toLocaleString()}</p>
                 `;
+                historyContainer.appendChild(historyBox);
+
+                if (data.result === 'win') wins++;
+                else if (data.result === 'loss') losses++;
+                else if (data.result === 'tie') ties++;
+                else if (data.result === 'abandoned') abandoned++;
+            });
+
+            statsSummary.textContent = `Wins: ${wins}, Losses: ${losses}, Ties: ${ties}, Abandoned: ${abandoned}`;
+            if (querySnapshot.empty) {
+                historyContainer.innerHTML = '<p>No game history.</p>';
+            }
+        } catch (error) {
+            console.error('Error loading game history:', error);
+            showMessage('Failed to load game history.', false);
+        }
+    }
+
+    deleteHistoryBtn.addEventListener('click', async () => {
+        if (!currentUser) return;
+        try {
+            const historyRef = collection(db, `users/${currentUser.uid}/gameHistory`);
+            const querySnapshot = await getDocs(historyRef);
+            const batch = [];
+            querySnapshot.forEach((doc) => {
+                batch.push(deleteDoc(doc.ref));
+            });
+            await Promise.all(batch);
+            historyContainer.innerHTML = '<p>No game history.</p>';
+            statsSummary.textContent = 'Wins: 0, Losses: 0, Ties: 0, Abandoned: 0';
+            showMessage('Game history deleted!', true);
+        } catch (error) {
+            showMessage('Failed to delete game history.', false);
+        }
+    });
+
+    backToProfile.addEventListener('click', () => navigateTo('profilePage'));
+    loadGameHistory();
+}
+
+// Friends setup for friends.html
+function setupFriends() {
+    const addFriendTab = document.getElementById('addFriendTab');
+    const friendsTab = document.getElementById('friendsTab');
+    const requestsTab = document.getElementById('requestsTab');
+    const friendSearch = document.getElementById('friendSearch');
+    const searchFriend = document.getElementById('searchFriend');
+    const searchResults = document.getElementById('searchResults');
+    const friendsList = document.getElementById('friendsList');
+    const friendRequests = document.getElementById('friendRequests');
+    const backToDashboardFromFriends = document.querySelector('#backToDashboardFromFriends');
+    if (!addFriendTab || !friendsTab || !requestsTab || !friendSearch || !searchFriend || !searchResults || !friendsList || !friendRequests || !backToDashboardFromFriends) return;
+
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+    }
+
+    addFriendTab.addEventListener('click', () => showTab('addFriendTab'));
+    friendsTab.addEventListener('click', () => showTab('friendsTab'));
+    requestsTab.addEventListener('click', () => showTab('requestsTab'));
+
+    async function loadFriends() {
+        if (!currentUser) return;
+        friendsList.innerHTML = '';
+        try {
+            const friendsSnapshot = await getDocs(collection(db, `users/${currentUser.uid}/friends`));
+            friendsSnapshot.forEach((doc) => {
+                const friendBox = document.createElement('div');
+                friendBox.classList.add('friend-box');
+                friendBox.innerHTML = `<p>${doc.data().username}</p>`;
                 friendsList.appendChild(friendBox);
             });
+            if (friendsSnapshot.empty) {
+                friendsList.innerHTML = '<p>No friends yet.</p>';
+            }
+        } catch (error) {
+            showMessage('Failed to load friends.', false);
+        }
+    }
 
-            friendsList.querySelectorAll('.action-btn').forEach(btn => {
+    async function loadFriendRequests() {
+        if (!currentUser) return;
+        friendRequests.innerHTML = '';
+        try {
+            const requestsSnapshot = await getDocs(collection(db, `users/${currentUser.uid}/friendRequests`));
+            requestsSnapshot.forEach((doc) => {
+                const request = doc.data();
+                const requestBox = document.createElement('div');
+                requestBox.classList.add('request-box');
+                requestBox.innerHTML = `
+                    <p>${request.username}</p>
+                    <button class="action-btn accept-btn" data-uid="${doc.id}">Accept</button>
+                    <button class="action-btn reject-btn" data-uid="${doc.id}">Reject</button>
+                `;
+                friendRequests.appendChild(requestBox);
+            });
+            if (requestsSnapshot.empty) {
+                friendRequests.innerHTML = '<p>No friend requests.</p>';
+            }
+
+            document.querySelectorAll('.accept-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
+                    const senderUid = btn.dataset.uid;
                     try {
-                        const friendId = btn.dataset.friendId;
-                        const friendUsername = btn.dataset.username;
-                        const friendDoc = await getDoc(doc(db, 'usernames', friendUsername.toLowerCase()));
-                        if (friendDoc.exists()) {
-                            const friendUserId = friendDoc.data().userId;
-                            await deleteDoc(doc(db, `users/${user.uid}/friends`, friendId));
-                            await deleteDoc(doc(db, `users/${friendUserId}/friends`, user.uid));
-                        }
+                        await setDoc(doc(db, `users/${currentUser.uid}/friends`, senderUid), { username: btn.parentElement.querySelector('p').textContent });
+                        await setDoc(doc(db, `users/${senderUid}/friends`, currentUser.uid), { username: currentUser.displayName });
+                        await deleteDoc(doc(db, `users/${currentUser.uid}/friendRequests`, senderUid));
+                        showMessage('Friend request accepted!', true);
+                        loadFriendRequests();
+                        loadFriends();
                     } catch (error) {
-                        showMessage(`Error removing friend: ${error.message}`, 'error');
+                        showMessage(error.message, false);
                     }
                 });
             });
-        });
-    } catch (error) {
-        showMessage(`Error loading friends: ${error.message}`, 'error');
+
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const senderUid = btn.dataset.uid;
+                    try {
+                        await deleteDoc(doc(db, `users/${currentUser.uid}/friendRequests`, senderUid));
+                        showMessage('Friend request rejected.', true);
+                        loadFriendRequests();
+                    } catch (error) {
+                        showMessage(error.message, false);
+                    }
+                });
+            });
+        } catch (error) {
+            showMessage('Failed to load friend requests.', false);
+        }
     }
-    friendsPage.addEventListener('unload', () => unsubscribe && unsubscribe(), { once: true });
-}
 
-// Load Add Friend Tab
-async function loadAddFriendTab() {
-    searchResults.innerHTML = '';
-    friendSearch.value = '';
-}
-
-// Search Friend
-searchFriend?.addEventListener('click', async () => {
-    const searchTerm = friendSearch.value.trim();
-    if (!searchTerm) return;
-    try {
-        const usernameDoc = await getDoc(doc(db, 'usernames', searchTerm.toLowerCase()));
-        if (!usernameDoc.exists()) {
-            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">User not found.</p>';
-            return;
-        }
-        const user = auth.currentUser;
-        const foundUserId = usernameDoc.data().userId;
-        if (foundUserId === user.uid) {
-            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">You cannot add yourself.</p>';
-            return;
-        }
-        const friendDoc = await getDoc(doc(db, `users/${user.uid}/friends`, foundUserId));
-        if (friendDoc.exists()) {
-            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">Already friends.</p>';
-            return;
-        }
-        const outgoingRequestQuery = query(
-            collection(db, `users/${user.uid}/friendRequests`),
-            where('toUserId', '==', foundUserId),
-            where('status', '==', 'pending')
-        );
-        const incomingRequestQuery = query(
-            collection(db, `users/${user.uid}/friendRequests`),
-            where('fromUserId', '==', foundUserId),
-            where('status', '==', 'pending')
-        );
-        const [outgoingDocs, incomingDocs] = await Promise.all([
-            getDocs(outgoingRequestQuery),
-            getDocs(incomingRequestQuery)
-        ]);
-        if (!outgoingDocs.empty) {
-            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">Request already sent.</p>';
-            return;
-        }
-        if (!incomingDocs.empty) {
-            searchResults.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">Check pending requests.</p>';
-            return;
-        }
+    searchFriend.addEventListener('click', async () => {
+        const username = friendSearch.value.trim();
+        if (!username) return;
         searchResults.innerHTML = '';
-        const resultBox = document.createElement('div');
-        resultBox.className = 'result-box';
-        resultBox.innerHTML = `
-            <p>Username: ${searchTerm}</p>
-            <button class="action-btn" data-user-id="${foundUserId}" data-username="${searchTerm}">Send Friend Request</button>
-        `;
-        searchResults.appendChild(resultBox);
-
-        resultBox.querySelector('.action-btn').addEventListener('click', async () => {
-            try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const fromUsername = userDoc.data().username;
-                const requestData = {
-                    fromUserId: user.uid,
-                    fromUsername,
-                    toUserId: foundUserId,
-                    toUsername: searchTerm,
-                    status: 'pending',
-                    createdAt: serverTimestamp()
-                };
-                const requestRef = await addDoc(collection(db, `users/${foundUserId}/friendRequests`), requestData);
-                await setDoc(doc(db, `users/${user.uid}/friendRequests`, requestRef.id), requestData);
-                searchResults.innerHTML = '';
-                friendSearch.value = '';
-                showMessage('Friend request sent!', 'success');
-            } catch (error) {
-                showMessage(`Error sending request: ${error.message}`, 'error');
-            }
-        });
-    } catch (error) {
-        showMessage(`Error searching user: ${error.message}`, 'error');
-    }
-});
-
-// Load Friend Requests Tab
-async function loadRequestsTab() {
-    const user = auth.currentUser;
-    if (!user) return;
-    try {
-        friendRequests.innerHTML = '';
-        const requestsQuery = query(
-            collection(db, `users/${user.uid}/friendRequests`),
-            where('toUserId', '==', user.uid),
-            where('status', '==', 'pending')
-        );
-        const requestsDocs = await getDocs(requestsQuery);
-        if (requestsDocs.empty) {
-            friendRequests.innerHTML = '<p style="color: #ff0066; text-shadow: 0 0 10px #ff0066;">No pending requests.</p>';
-            return;
-        }
-        requestsDocs.forEach(doc => {
-            const request = doc.data();
-            const requestBox = document.createElement('div');
-            requestBox.className = 'request-box';
-            requestBox.innerHTML = `
-                <p>From: ${request.fromUsername}</p>
-                <button class="action-btn accept-btn" data-request-id="${doc.id}" data-from-id="${request.fromUserId}" data-from-username="${request.fromUsername}">Accept</button>
-                <button class="action-btn reject-btn" data-request-id="${doc.id}" data-from-id="${request.fromUserId}" data-from-username="${request.fromUsername}">Reject</button>
-            `;
-            friendRequests.appendChild(requestBox);
-        });
-
-        friendRequests.querySelectorAll('.accept-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                try {
-                    const requestId = btn.dataset.requestId;
-                    const fromId = btn.dataset.fromId;
-                    const fromUsername = btn.dataset.fromUsername;
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    const toUsername = userDoc.data().username;
-                    await setDoc(doc(db, `users/${user.uid}/friends`, fromId), {
-                        username: fromUsername,
-                        addedAt: serverTimestamp()
-                    });
-                    await setDoc(doc(db, `users/${fromId}/friends`, user.uid), {
-                        username: toUsername,
-                        addedAt: serverTimestamp()
-                    });
-                    await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'accepted' });
-                    await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'accepted' });
-                    loadRequestsTab();
-                    showMessage('Friend request accepted!', 'success');
-                } catch (error) {
-                    showMessage(`Error accepting request: ${error.message}`, 'error');
+        try {
+            const q = query(collection(db, 'users'), where('username', '==', username));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                if (doc.id !== currentUser.uid) {
+                    const resultBox = document.createElement('div');
+                    resultBox.classList.add('result-box');
+                    resultBox.innerHTML = `
+                        <p>${doc.data().username}</p>
+                        <button class="action-btn" data-uid="${doc.id}">Send Friend Request</button>
+                    `;
+                    searchResults.appendChild(resultBox);
                 }
             });
-        });
+            if (querySnapshot.empty) {
+                searchResults.innerHTML = '<p>No users found.</p>';
+            }
 
-        friendRequests.querySelectorAll('.reject-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                try {
-                    const requestId = btn.dataset.requestId;
-                    const fromId = btn.dataset.fromId;
-                    await updateDoc(doc(db, `users/${user.uid}/friendRequests`, requestId), { status: 'rejected' });
-                    await updateDoc(doc(db, `users/${fromId}/friendRequests`, requestId), { status: 'rejected' });
-                    loadRequestsTab();
-                    showMessage('Friend request rejected.', 'success');
-                } catch (error) {
-                    showMessage(`Error rejecting request: ${error.message}`, 'error');
-                }
+            document.querySelectorAll('.result-box .action-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const recipientUid = btn.dataset.uid;
+                    try {
+                        await setDoc(doc(db, `users/${recipientUid}/friendRequests`, currentUser.uid), {
+                            username: currentUser.displayName
+                        });
+                        showMessage('Friend request sent!', true);
+                        searchResults.innerHTML = '';
+                        friendSearch.value = '';
+                    } catch (error) {
+                        showMessage(error.message, false);
+                    }
+                });
             });
-        });
-    } catch (error) {
-        showMessage(`Error loading requests: ${error.message}`, 'error');
-    }
-}
-
-// Back to Dashboard from Friends
-backToDashboardFromFriends?.addEventListener('click', () => {
-    showContainer(dashboard);
-});
-
-// Back to Friends from Add Friend
-backToFriendsPage?.addEventListener('click', () => {
-    showContainer(friendsPage);
-});
-
-// Additional Dashboard Buttons
-walletBtn?.addEventListener('click', () => {
-    showMessage('Wallet feature coming soon!', 'success');
-});
-
-tournamentsBtn?.addEventListener('click', () => {
-    showMessage('Tournaments feature coming soon!', 'success');
-});
-
-tasksBtn?.addEventListener('click', () => {
-    showMessage('Tasks feature coming soon!', 'success');
-});
-
-winBtn?.addEventListener('click', () => {
-    showMessage('Win feature coming soon!', 'success');
-});
-
-// Toggle Auth Mode
-toggleAuth.addEventListener('click', () => {
-    isSignUp = !isSignUp;
-    formTitle.textContent = isSignUp ? 'Sign Up' : 'Login';
-    authButton.textContent = isSignUp ? 'Sign Up' : 'Login';
-    toggleAuth.textContent = isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up';
-    usernameInput.style.display = isSignUp ? 'block' : 'none';
-    usernameInput.parentElement.style.display = isSignUp ? 'block' : 'none';
-});
-
-// Authentication Handler
-authButton.addEventListener('click', async () => {
-    const email = emailInput?.value;
-    const password = passwordInput?.value;
-    const username = isSignUp ? usernameInput?.value : null;
-    if (!email || !password) {
-        showMessage('Please enter email and password.', 'error');
-        return;
-    }
-    if (isSignUp && !username) {
-        showMessage('Please enter a username.', 'error');
-        return;
-    }
-    try {
-        if (isSignUp) {
-            const check = await checkUsernameAvailability(username);
-            if (!check.available) {
-                showMessage(check.message, 'error');
-                return;
-            }
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            try {
-                await saveProfile(username, null, true);
-                await sendEmailVerification(userCredential.user);
-                showMessage('Sign-up successful! Please verify your email.', 'success');
-            } catch (error) {
-                await userCredential.user.delete();
-                showMessage(`Sign-up failed: ${error.message}`, 'error');
-            }
-        } else {
-            await signInWithEmailAndPassword(auth, email, password);
-            showMessage('Login successful!', 'success');
-        }
-        emailInput.value = '';
-        passwordInput.value = '';
-        usernameInput.value = '';
-    } catch (error) {
-        showMessage(`Error: ${error.message}`, 'error');
-    }
-});
-
-// Resend Verification Email
-resendVerification?.addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (user && !user.emailVerified) {
-        try {
-            await sendEmailVerification(user);
-            showMessage('Verification email sent!', 'success');
         } catch (error) {
-            showMessage(`Error: ${error.message}`, 'error');
+            showMessage('Failed to search users.', false);
         }
-    }
-});
+    });
 
-// Play Button
-playButton.addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (!user) {
-        showContainer(authContainer);
-        return;
-    }
-    if (!user.emailVerified) {
-        showMessage('Please verify your email to play.', 'error');
-        return;
-    }
-    try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists() && userDoc.data().username) {
-            showContainer(gamePage);
-        } else {
-            showContainer(profilePage);
-            showMessage('Please set a username to play.', 'error');
-        }
-    } catch (error) {
-        showMessage(`Error: ${error.message}`, 'error');
-    }
-});
-
-// Back to Dashboard
-backToDashboard.addEventListener('click', () => {
-    if (!auth.currentUser) {
-        showContainer(authContainer);
-        return;
-    }
-    showContainer(dashboard);
-});
-
-// Play with Random Player
-playRandom.addEventListener('click', async () => {
-    playRandom.disabled = true;
-    const user = auth.currentUser;
-    if (!user || !user.emailVerified) {
-        showContainer(authContainer);
-        playRandom.disabled = false;
-        return;
-    }
-    showContainer(waitingArea);
-    let matchmakingId = null;
-    let unsubscribeMatch = null;
-
-    const timeout = setTimeout(async () => {
-        if (matchmakingId) {
-            await deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(() => {});
-        }
-        if (!isJoiningRoom) {
-            showMessage('Unable to join room', 'error');
-            showContainer(gamePage);
-            playRandom.disabled = false;
-        }
-        if (unsubscribeMatch) unsubscribeMatch();
-    }, 15000);
-
-    try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        const username = userDoc.data()?.username || 'Player';
-
-        // Clean up stale matchmaking entries
-        await cleanupStaleMatchmaking(user.uid);
-
-        // Create matchmaking entry
-        const matchmakingRef = doc(collection(db, 'matchmaking'));
-        matchmakingId = matchmakingRef.id;
-        await setDoc(matchmakingRef, {
-            userId: user.uid,
-            username,
-            status: 'waiting',
-            timestamp: serverTimestamp()
-        });
-
-        // Listen for matchmaking updates
-        unsubscribeMatch = onSnapshot(matchmakingRef, async (snapshot) => {
-            if (!snapshot.exists()) {
-                if (!isJoiningRoom) {
-                    showMessage('Unable to join room', 'error');
-                    cleanupMatchmaking();
-                }
-                return;
-            }
-            const data = snapshot.data();
-            if (data.status === 'paired' && data.roomId && !isJoiningRoom) {
-                isJoiningRoom = true;
-                currentRoomId = data.roomId;
-                currentPlayer = data.playerSymbol;
-                opponentUsername = data.opponentUsername;
-                await deleteDoc(matchmakingRef).catch(() => {});
-                if (unsubscribeMatch) unsubscribeMatch();
-                clearTimeout(timeout);
-                await joinRoomWithRetry(currentRoomId, username);
-            }
-        }, () => {
-            if (!isJoiningRoom) cleanupMatchmaking();
-        });
-
-        // Check for available opponents
-        const findOpponent = async (retryCount = 0) => {
-            try {
-                const q = query(collection(db, 'matchmaking'), where('status', '==', 'waiting'));
-                const snapshot = await getDocs(q);
-                const validOpponents = snapshot.docs.filter(doc => doc.data().userId !== user.uid);
-                if (validOpponents.length > 0) {
-                    const opponentDoc = validOpponents[0];
-                    const opponentData = opponentDoc.data();
-
-                    // Create game room
-                    const roomRef = doc(collection(db, 'rooms'));
-                    const roomData = {
-                        player1: user.uid,
-                        player1Username: username,
-                        player2: opponentData.userId,
-                        player2Username: opponentData.username,
-                        board: ['', '', '', '', '', '', '', '', ''],
-                        currentTurn: 'X',
-                        status: 'active',
-                        createdAt: serverTimestamp()
-                    };
-                    await setDoc(roomRef, roomData);
-
-                    // Update both players' matchmaking entries
-                    await updateDoc(doc(db, 'matchmaking', opponentDoc.id), {
-                        status: 'paired',
-                        roomId: roomRef.id,
-                        playerSymbol: 'X',
-                        opponentUsername: username
-                    });
-                    await updateDoc(matchmakingRef, {
-                        status: 'paired',
-                        roomId: roomRef.id,
-                        playerSymbol: 'O',
-                        opponentUsername: opponentData.username
-                    });
-                } else if (retryCount < 3) {
-                    setTimeout(() => findOpponent(retryCount + 1), 1000);
-                }
-            } catch (error) {
-                cleanupMatchmaking();
-            }
-        };
-        await findOpponent();
-    } catch (error) {
-        cleanupMatchmaking();
-    }
-
-    function cleanupMatchmaking() {
-        if (matchmakingId) {
-            deleteDoc(doc(db, 'matchmaking', matchmakingId)).catch(() => {});
-        }
-        clearTimeout(timeout);
-        if (!isJoiningRoom) {
-            showContainer(gamePage);
-            playRandom.disabled = false;
-        }
-        if (unsubscribeMatch) unsubscribeMatch();
-    }
-});
-
-// Cleanup Stale Matchmaking Entries
-async function cleanupStaleMatchmaking(userId) {
-    try {
-        const q = query(
-            collection(db, 'matchmaking'),
-            where('userId', '==', userId),
-            where('timestamp', '<', Timestamp.fromMillis(Date.now() - 30000))
-        );
-        const snapshot = await getDocs(q);
-        for (const doc of snapshot.docs) {
-            await deleteDoc(doc.ref);
-        }
-    } catch (error) {
-        // Suppress index error silently
-    }
+    backToDashboardFromFriends.addEventListener('click', () => navigateTo('dashboard'));
+    loadFriends();
+    loadFriendRequests();
+    friendSearch.focus();
 }
 
-// Join Room with Retry
-async function joinRoomWithRetry(roomId, username, maxRetries = 3) {
-    let retries = 0;
-    while (retries < maxRetries) {
+// Game setup for game.html
+function setupGame() {
+    const playRandom = document.getElementById('playRandom');
+    const backToDashboard = document.getElementById('backToDashboard');
+    if (!playRandom || !backToDashboard) return;
+
+    playRandom.addEventListener('click', () => joinMatchmaking());
+    backToDashboard.addEventListener('click', () => navigateTo('dashboard'));
+}
+
+// Waiting setup for waiting.html
+function setupWaiting() {
+    const backToDashboard = document.getElementById('backToDashboard');
+    if (!backToDashboard) return;
+
+    backToDashboard.addEventListener('click', async () => {
+        if (unsubscribe) unsubscribe();
         try {
-            const roomRef = doc(db, 'rooms', roomId);
-            const roomDoc = await getDoc(roomRef);
-            if (roomDoc.exists() && roomDoc.data().status === 'active') {
-                showContainer(gameRoom);
-                roomIdDisplay.textContent = `Room ID: ${roomId}`;
-                listenToRoom(roomId, username);
-                showMessage('Room joined!', 'success');
-                isJoiningRoom = false;
-                return true;
-            }
-            retries++;
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await deleteDoc(doc(db, 'matchmaking', currentUser.uid));
         } catch (error) {
-            retries++;
-            if (retries >= maxRetries) {
-                isJoiningRoom = false;
-                showMessage('Unable to join room', 'error');
-                cleanupRoom();
-                showContainer(gamePage);
-                return false;
-            }
+            console.error('Error cancelling matchmaking:', error);
         }
-    }
-    isJoiningRoom = false;
-    showMessage('Unable to join room', 'error');
-    cleanupRoom();
-    showContainer(gamePage);
-    return false;
-}
-
-// Listen to Game Room
-function listenToRoom(roomId, username) {
-    const roomRef = doc(db, 'rooms', roomId);
-    unsubscribeRoom = onSnapshot(roomRef, async snapshot => {
-        if (!snapshot.exists()) {
-            showMessage('Opponent left. Game ended.', 'success');
-            cleanupRoom();
-            showContainer(gamePage);
-            return;
-        }
-        const data = snapshot.data();
-        updateGameBoard(data.board);
-        playersDisplay.textContent = `You (${username}) vs ${opponentUsername}`;
-        gameStatus.textContent = data.status === 'active' ? 
-            (data.currentTurn === currentPlayer ? 'Your turn!' : 'Opponent’s turn') : 
-            data.status;
-        if (data.status !== 'active') {
-            await handleGameEnd(data.status, username);
-        }
-    }, () => {
-        // Only show opponent left if game was active
-        const roomRef = doc(db, 'rooms', currentRoomId);
-        getDoc(roomRef).then(doc => {
-            if (doc.exists() && doc.data().status === 'active') {
-                showMessage('Opponent left. Game ended.', 'success');
-                cleanupRoom();
-                showContainer(gamePage);
-            }
-        });
+        navigateTo('dashboard');
     });
 }
 
-// Update Game Board
-function updateGameBoard(board) {
-    const cells = gameBoard.querySelectorAll('.cell');
-    cells.forEach((cell, index) => {
-        cell.textContent = board[index];
-        cell.className = 'cell';
-        if (board[index] === 'X') {
-            cell.classList.add('x');
-        } else if (board[index] === 'O') {
-            cell.classList.add('o');
-        }
-    });
-}
+// Game Room setup for gameroom.html
+function setupGameRoom() {
+    const gameBoard = document.getElementById('gameBoard');
+    const roomIdDisplay = document.getElementById('roomIdDisplay');
+    const playersDisplay = document.getElementById('playersDisplay');
+    const gameStatus = document.getElementById('gameStatus');
+    const leaveRoom = document.getElementById('leaveRoom');
+    if (!gameBoard || !roomIdDisplay || !playersDisplay || !gameStatus || !leaveRoom) return;
 
-// Handle Game Move
-gameBoard.addEventListener('click', async (e) => {
-    const cell = e.target.closest('.cell');
-    if (!cell) return;
-    const index = cell.dataset.index;
-    const user = auth.currentUser;
-    if (!user || !currentRoomId || !currentPlayer) return;
-    try {
-        const roomRef = doc(db, 'rooms', currentRoomId);
-        const roomDoc = await getDoc(roomRef);
-        if (!roomDoc.exists()) {
-            showMessage('Opponent left. Game ended.', 'success');
-            cleanupRoom();
-            showContainer(gamePage);
-            return;
-        }
-        const data = roomDoc.data();
-        if (data.status !== 'active' || data.currentTurn !== currentPlayer || data.board[index] !== '') {
-            showMessage('Opponent’s turn', 'error');
-            return;
-        }
-        const newBoard = [...data.board];
-        newBoard[index] = currentPlayer;
-        const newTurn = currentPlayer === 'X' ? 'O' : 'X';
-        const winPatterns = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],
-            [0, 4, 8], [2, 4, 6]
-        ];
-        let status = 'active';
-        for (const pattern of winPatterns) {
-            if (pattern.every(i => newBoard[i] === currentPlayer)) {
-                status = `${currentPlayer} wins`;
-                break;
+    let roomId = null;
+
+    function renderBoard(board) {
+        const cells = gameBoard.querySelectorAll('.cell');
+        cells.forEach((cell, index) => {
+            cell.textContent = board[index] || '';
+            cell.classList.remove('x', 'o');
+            if (board[index]) {
+                cell.classList.add(board[index].toLowerCase());
             }
-        }
-        if (status === 'active' && !newBoard.includes('')) {
-            status = 'tie';
-        }
-        await updateDoc(roomRef, {
-            board: newBoard,
-            currentTurn: newTurn,
-            status
         });
-    } catch (error) {
-        showMessage(`Error making move: ${error.message}`, 'error');
     }
-});
 
-// Handle Game End
-async function handleGameEnd(status, username) {
-    const user = auth.currentUser;
-    if (!user) return;
-    try {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        const stats = userDoc.exists() && userDoc.data().stats ? userDoc.data().stats : { wins: 0, losses: 0, ties: 0 };
-        let result = 'tie';
-        let coinsEarned = 0;
-        if (status === `${currentPlayer} wins`) {
-            result = 'win';
-            stats.wins += 1;
-            coinsEarned = 10;
-        } else if (status.includes('wins') && status !== `${currentPlayer} wins`) {
-            result = 'loss';
-            stats.losses += 1;
-        } else if (status === 'tie') {
-            stats.ties += 1;
-            coinsEarned = 5;
-        } else if (status === 'abandoned') {
-            result = 'abandoned';
-        }
-        await setDoc(userDocRef, {
-            stats,
-            coins: (userDoc.data().coins || 0) + coinsEarned
-        }, { merge: true });
-        await addDoc(collection(db, `users/${user.uid}/gameHistory`), {
-            opponentUsername,
-            result,
-            timestamp: serverTimestamp()
-        });
-        showMessage(status, 'success');
-        cleanupRoom();
-        showContainer(gamePage);
-    } catch (error) {
-        showMessage(`Error handling game end: ${error.message}`, 'error');
-    }
-}
+    async function joinRoom(newRoomId) {
+        roomId = newRoomId;
+        roomIdDisplay.textContent = `Room ID: ${roomId}`;
+        showMessage('Room joined!', true, true);
 
-// Cleanup Room
-function cleanupRoom() {
-    if (unsubscribeRoom) {
-        unsubscribeRoom();
-        unsubscribeRoom = null;
-    }
-    if (currentRoomId) {
-        updateDoc(doc(db, 'rooms', currentRoomId), { status: 'abandoned' }).catch(() => {});
-        currentRoomId = null;
-    }
-    currentPlayer = null;
-    opponentUsername = null;
-    isJoiningRoom = false;
-}
+        if (unsubscribe) unsubscribe();
+        unsubscribe = onSnapshot(doc(db, 'rooms', roomId), async (doc) => {
+            if (!doc.exists()) {
+                showMessage('Opponent left. Game ended.', false, true);
+                await addDoc(collection(db, `users/${currentUser.uid}/gameHistory`), {
+                    opponent: 'Unknown',
+                    result: 'abandoned',
+                    timestamp: serverTimestamp()
+                });
+                navigateTo('gamePage');
+                return;
+            }
 
-// Leave Room
-leaveRoom?.addEventListener('click', async () => {
-    if (currentRoomId) {
-        try {
-            await updateDoc(doc(db, 'rooms', currentRoomId), { status: 'abandoned' });
-        } catch (error) {
-            showMessage(`Error leaving room: ${error.message}`, 'error');
-        }
-    }
-    cleanupRoom();
-    showContainer(gamePage);
-});
+            const data = doc.data();
+            playersDisplay.textContent = `Players: ${data.playerX} vs ${data.playerO}`;
+            renderBoard(data.board);
+            gameStatus.textContent = data.status;
 
-// Logout
-logoutButton?.addEventListener('click', async () => {
-    try {
-        await signOut(auth);
-        showContainer(authContainer);
-        showMessage('Logged out successfully!', 'success');
-    } catch (error) {
-        showMessage(`Error signing out: ${error.message}`, 'error');
-    }
-});
-
-// Auth State Listener
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        try {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const username = userDoc.exists() && userDoc.data().username ? userDoc.data().username : 'Player';
-            const avatarUrl = userDoc.exists() ? userDoc.data().avatarUrl : null;
-            updateProfileUI(username, avatarUrl);
-            await updateBalanceUI();
-            if (!user.emailVerified) {
-                verifyEmailPrompt.style.display = 'block';
-                showContainer(authContainer);
+            if (data.currentPlayer === currentUser.uid) {
+                showMessage('Your turn!', true, true);
             } else {
-                verifyEmailPrompt.style.display = 'none';
-                showContainer(dashboard);
+                showMessage('Opponent’s turn', false, true);
             }
-        } catch (error) {
-            showMessage(`Error loading user data: ${error.message}`, 'error');
-            showContainer(authContainer);
-        }
-    } else {
-        verifyEmailPrompt.style.display = 'none';
-        showContainer(authContainer);
-    }
-});
 
-// Touch Support for Buttons
-document.querySelectorAll('button').forEach(button => {
-    button.addEventListener('touchstart', e => {
-        e.preventDefault();
-        button.dispatchEvent(new Event('click'));
+            if (data.winner) {
+                if (data.winner === 'tie') {
+                    showMessage('tie', false, true);
+                    await addDoc(collection(db, `users/${currentUser.uid}/gameHistory`), {
+                        opponent: data.playerX === currentUser.uid ? data.playerO : data.playerX,
+                        result: 'tie',
+                        timestamp: serverTimestamp()
+                    });
+                } else if (data.winner === currentUser.uid) {
+                    showMessage('X wins', true, true);
+                    await addDoc(collection(db, `users/${currentUser.uid}/gameHistory`), {
+                        opponent: data.playerX === currentUser.uid ? data.playerO : data.playerX,
+                        result: 'win',
+                        timestamp: serverTimestamp()
+                    });
+                } else {
+                    showMessage('O wins', false, true);
+                    await addDoc(collection(db, `users/${currentUser.uid}/gameHistory`), {
+                        opponent: data.playerX === currentUser.uid ? data.playerO : data.playerX,
+                        result: 'loss',
+                        timestamp: serverTimestamp()
+                    });
+                }
+                navigateTo('gamePage');
+            }
+        });
+
+        gameBoard.querySelectorAll('.cell').forEach(cell => {
+            cell.addEventListener('click', async () => {
+                const index = cell.dataset.index;
+                try {
+                    const roomRef = doc(db, 'rooms', roomId);
+                    const roomSnap = await getDoc(roomRef);
+                    if (!roomSnap.exists()) return;
+
+                    const data = roomSnap.data();
+                    if (data.currentPlayer !== currentUser.uid || data.board[index] || data.winner) return;
+
+                    data.board[index] = data.playerX === currentUser.uid ? 'X' : 'O';
+                    data.currentPlayer = data.playerX === currentUser.uid ? data.playerO : data.playerX;
+
+                    // Check for winner
+                    const winningCombinations = [
+                        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                        [0, 4, 8], [2, 4, 6]
+                    ];
+                    let winner = null;
+                    for (const combo of winningCombinations) {
+                        if (data.board[combo[0]] && data.board[combo[0]] === data.board[combo[1]] && data.board[combo[1]] === data.board[combo[2]]) {
+                            winner = data.board[combo[0]] === 'X' ? data.playerX : data.playerO;
+                            break;
+                        }
+                    }
+                    if (!winner && data.board.every(cell => cell)) {
+                        winner = 'tie';
+                    }
+
+                    if (winner) {
+                        data.winner = winner;
+                        data.status = winner === 'tie' ? 'Tie!' : `${winner === data.playerX ? data.playerX : data.playerO} wins!`;
+                    } else {
+                        data.status = `${data.currentPlayer === data.playerX ? data.playerX : data.playerO}'s turn`;
+                    }
+
+                    await setDoc(roomRef, data);
+                } catch (error) {
+                    showMessage(error.message, false);
+                }
+            });
+        });
+    }
+
+    leaveRoom.addEventListener('click', async () => {
+        try {
+            if (roomId) {
+                await deleteDoc(doc(db, 'rooms', roomId));
+            }
+            if (unsubscribe) unsubscribe();
+            navigateTo('gamePage');
+        } catch (error) {
+            showMessage(error.message, false);
+        }
     });
+
+    // Auto-join room (assumes roomId passed via sessionStorage or URL)
+    const storedRoomId = sessionStorage.getItem('roomId');
+    if (storedRoomId) {
+        joinRoom(storedRoomId);
+        sessionStorage.removeItem('roomId');
+    }
+}
+
+// Matchmaking logic
+async function joinMatchmaking() {
+    if (!currentUser) return;
+    try {
+        // Clean up stale matchmaking entries
+        const staleEntries = await getDocs(query(collection(db, 'matchmaking'), where('timestamp', '<', new Date(Date.now() - 5 * 60 * 1000))));
+        const batch = [];
+        staleEntries.forEach(doc => batch.push(deleteDoc(doc.ref)));
+        await Promise.all(batch);
+
+        // Check for existing match
+        const matchmakingRef = collection(db, 'matchmaking');
+        const q = query(matchmakingRef, orderBy('timestamp'), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty && querySnapshot.docs[0].id !== currentUser.uid) {
+            const opponent = querySnapshot.docs[0];
+            const roomId = `${opponent.id}_${currentUser.uid}`;
+            const opponentData = opponent.data();
+
+            await setDoc(doc(db, 'rooms', roomId), {
+                playerX: opponent.id,
+                playerO: currentUser.uid,
+                board: Array(9).fill(null),
+                currentPlayer: opponent.id,
+                status: `${opponentData.username}'s turn`,
+                winner: null
+            });
+
+            await deleteDoc(doc(db, 'matchmaking', opponent.id));
+            await deleteDoc(doc(db, 'matchmaking', currentUser.uid));
+            sessionStorage.setItem('roomId', roomId);
+            navigateTo('gameRoom');
+        } else {
+            await setDoc(doc(db, 'matchmaking', currentUser.uid), {
+                userId: currentUser.uid,
+                username: currentUser.displayName,
+                timestamp: serverTimestamp()
+            });
+            navigateTo('waitingArea');
+
+            if (unsubscribe) unsubscribe();
+            unsubscribe = onSnapshot(doc(db, 'matchmaking', currentUser.uid), (doc) => {
+                if (!doc.exists()) {
+                    const storedRoomId = sessionStorage.getItem('roomId');
+                    if (storedRoomId) {
+                        navigateTo('gameRoom');
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error in matchmaking:', error);
+        showMessage('Failed to join matchmaking.', false);
+        navigateTo('gamePage');
+    }
+}
+
+// Initialize based on current page
+document.addEventListener('DOMContentLoaded', () => {
+    const currentPage = window.location.pathname.split('/').pop();
+
+    // Auth state listener
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        if (!user && currentPage !== 'signup.html') {
+            navigateTo('authContainer');
+        } else if (user && currentPage === 'signup.html' && user.emailVerified) {
+            navigateTo('dashboard');
+        }
+    });
+
+    // Page-specific setup
+    if (currentPage === 'signup.html') {
+        setupAuth();
+    } else if (currentPage === 'dashboard.html') {
+        setupDashboard();
+    } else if (currentPage === 'profile.html') {
+        setupProfile();
+    } else if (currentPage === 'gamehistory.html') {
+        setupGameHistory();
+    } else if (currentPage === 'friends.html') {
+        setupFriends();
+    } else if (currentPage === 'game.html') {
+        setupGame();
+    } else if (currentPage === 'waiting.html') {
+        setupWaiting();
+    } else if (currentPage === 'gameroom.html') {
+        setupGameRoom();
+    }
 });
